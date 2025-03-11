@@ -1,6 +1,6 @@
 {
 	"name": "cerebro",
-	"version": "1.0.1",
+	"version": "0.1.0",
 	"description": "Obsidian-first, AI-powered second brain that thinks with you.",
 	"main": "main.js",
 	"scripts": {
