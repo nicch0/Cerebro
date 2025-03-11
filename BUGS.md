@@ -1,0 +1,2 @@
+-   can't save settings properly
+-   changing providers in chat doesn't work

@@ -1,144 +1,59 @@
-# ChatGPT MD
+# Cerebro - Obsidian-first, AI-powered second brain that thinks with you
 
-🚀 A seamless integration of openAIs GPT LLMs and Ollama into Obsidian.
+Cerebro is an Obsidian-first LLM integration that transforms your vault into an intelligent workspace. Chat with AI from any note, process PDFs, analyze images, and fetch web content - all while maintaining Obsidian's philosophy of plain text files and local-first data. Whether you're coding, researching, or writing, Cerebro works naturally with your existing workflow, turning your second brain into an active thinking partner.
 
-![Chatting with links about vacation plans](images/chat-with-link.gif)
+## Key Features
 
-## A simple and quick Start 🏁
-Get started in just a few simple steps:
+-   💭 Chat intuitively: open a conversation in the sidebar or in your main view.
+-   🎯 Powerful features: Attach an image, pdf, even other notes using Obsidian's native linking.
+-   📝 [File-over-app](https://stephango.com/file-over-app): Uses pure Markdown. All responses render natively.
+-   🔧 Powerful templating system for repeatable interactions
+-   ⚡️ Real-time streaming responses for natural conversation flow
+-   🛠️ Highly configurable through familiar frontmatter syntax
 
-1. **Install ChatGPT MD**: Go to `Settings > Community Plugins > Browse`, search for `ChatGPT MD` and click `Install`.
-2. **Add your OpenAI API key**: In the plugin settings, add your OpenAI API key and/or install Ollama and local LLMs of your choice.
-3. **Start chatting**: Use the `ChatGPT MD: Chat` command (`cmd + p` or `ctrl + p`) to start a conversation from any note.
+## Installation
 
-💡 *Pro tip*: Set up a hotkey for the best experience! Go to `Settings > Hotkeys`, search for `ChatGPT MD: Chat` and add your preferred keybinding (e.g., `cmd + j`).
+### Community Plugins
 
-Start chatting, don't worry too much about the more advanced features. They will come naturally :-) 
+[COMING SOON] Go to Community Plugins and search `Cerebro`
 
-## Features
-* **Interactive conversations**: 
-  * Engage directly with ChatGPT and Ollama from any Markdown note, edit questions or responses on-the-fly, and continue the chat seamlessly.
-* **Privacy & Zero API Costs:** 
-  * Use local LLMs via Ollama, keeping your chats on your computer and avoiding API costs.
-* **System Commands:** 
-  * Instruct the LLM via system commands to get the best possible answers.
-* **Link context**: 
-  * Provide links to any other note in your vault for added context during conversations with Markdown or Wiki links.
-* **Per-note Configuration:** 
-  * Overwrite default settings via frontmatter for individual notes using params from [OpenAI API](https://platform.openai.com/docs/api-reference/chat) or [Ollama API](https://github.com/ollama/ollama/blob/main/docs/api.md#generate-a-chat-completion).
-* **Markdown Support:** 
-  * Enjoy full rendering of lists, code blocks, and more from all responses.
-* **Minimal Setup:** 
-  * Utilize your OpenAI API key or install any LLM locally via Ollama.
-* **Comment Blocks:** 
-  * Ignore parts of your notes using comment blocks.
-* **Chat Templates**: 
-  * Use and share frontmatter templates for recurring scenarios. Explore [chatgpt-md-templates](https://github.com/bramses/chatgpt-md-templates).
+### Local
 
-## Privacy and Security
+1. Clone this repo into your `plugins` directory in your vault
+2. Run `npm i` and `npm run build`
 
-ChatGPT MD is 
-- only storing data locally in your vault, with zero tracking and no 3rd party integrations except direct calls to the openAI API. 
-- allowing you to use Ollama, a local LLM installation for offline conversation-based knowledge exploration.
+### Both
 
-### Default Configuration
-The plugin comes with a well-balanced pre-configuration to get you started immediately. 
-You can change the global settings or use the local parameters in any note via frontmatter
-(start typing `---` in the first line of your note to add properties)
-```
----
-system_commands: ['I am a helpful assistant.']
-temperature: 0.3
-top_p: 1
-max_tokens: 300
-presence_penalty: 0.5
-frequency_penalty: 0.5
-stream: true
-stop: null
-n: 1
-model: gpt-4o-mini
----
-```
-💡 Pro tip: Increasing `max_tokens` to a higher value e.g. `4096` for more complex tasks like reasoning, coding or text creation.
-The default model `gpt-4o-mini` is a good compromise between fast and cheap responses. Change this if you have more complex needs.
+1. Insert your API keys from OpenAI or Anthropic into the settings
+2. Set `Chat Folder` and `Chat Template Folder`
+3. Recommended: Add a hotkey for `Chat`
 
-### Multi Model Chats
-You can set and change the model for each request in your note. 
-Specify the `model` property via frontmatter:
+## Commands
 
-for openAI models
-```
----
-model: gpt-4o
-system_commands: [act as a senior javascript developer]
----
-```
-prefix it with `local@` for Ollama for local LLMs.
-```
----
-model: local@gemma2:27b
-temperature: 1
----
-```
+#### Chat (Cmd/Ctrl + I recommended)
 
+Start an AI conversation from any note or selection. Core command for interacting with your chosen LLM.
 
-The AI responses will keep the used model name in the response title for future reference.
-You can find the list of your installed Ollama model names from your terminal via `ollama list` or the available openAI model names online on this [openAI models](https://platform.openai.com/docs/models) page.
+#### Create Chat Tools
 
-The default url for Ollama is
-```
-url: http://localhost:11434
-```
-This can be changed via local frontmatter properties.
+-   **New Chat**: Convert highlighted text into a new chat file
+-   **From Template**: Create chat from your custom templates
+-   **Add Divider**: Quick add `role::user` with HR divider
+-   **Clear Chat**: Reset chat while preserving settings
 
-### Commands 👨‍💻
-Run commands from Obsidian's command pallet via `cmd + p` or `ctrl + p` and start typing `chatgpt` or set hotkeys
-(a chat command hotkey is highly recommended for effortless chats (I use `cmd + j`, which works fantastic, because your index finger is already resting on that key)).
+#### Smart Features
 
-#### Main Command
-- **Chat**: Parse the file and interact with ChatGPT. Assign a hotkey, e.g. `cmd + j`.
-  
-#### Creation Commands
-- **New Chat with Highlighted Text**: Start a chat using highlighted text and default frontmatter in `Chat Folder`.
-- **New Chat From Template**: Create chats from templates in `Chat Template Folder`.
+-   **Infer Title**: Auto-generate chat titles from context
+-   **Comment Blocks**: Add notes/links that won't process through AI
+    ```
+    =begin-chatgpt-md-comment
+    Your notes here...
+    =end-chatgpt-md-comment
+    ```
+-   **Stop Stream**: Cancel ongoing AI response (desktop only)
 
-#### Utility Commands
-- **Infer Title**: Automatically generate a note title based on the notes content. Configurable to auto-run after 4+ messages.
-- **Add Comment Block**: Insert comment blocks for parts of yor note that should be ignored.
+## Roadmap
 
-#### Maintenance Commands
-- **Clear Chat**: Remove all messages while retaining frontmatter.
-- **Stop Streaming (Desktop Only)**: Halt ongoing streams if necessary.
-
-#### Formatting Tools
-- **Add Divider**: Insert horizontal rulers to organize content visually.
-
-## FAQs ❓
-#### How do I start chatting with ChatGPT MD?
-Use the `ChatGPT MD: Chat` command from the Obsidian command Palette (`cmd + p` or `ctrl + p`) to start a conversation from any note.
-
-#### Can I set up a hotkey for the `ChatGPT MD: Chat` command?
-Yes, you should! Go to `Settings > Hotkeys`, search for `ChatGPT MD: Chat` and add your preferred keybinding (e.g., `cmd + j`).
-
-#### How do I use chat and reasoning models?
-You can use openAI's GPT 3 and 4 models and any model you have installed via Ollama.
-Compatibility with openAI's o1 and o3 models is on the roadmap.
-DeepSeek-r1:7b works great for reasoning locally via Ollama.
-
-#### How do I use a custom endpoint?
-Ensure your custom API adheres to OpenAI's specifications, such as Azure's hosted endpoints. Consult your provider for API key management details.
-
-#### Where should I add my OpenAI API key?
-In the plugin settings, add your OpenAI API key and/or install Ollama and local LLMs of your choice.
-
-🤖 Enjoy exploring the power of ChatGPT MD in your Obsidian vault!🚀
-
-## Contributions Welcome 🤝
-Pull requests, bug reports, and all other forms of contribution are welcomed and highly encouraged!* :octocat:
-
-## About the Developers ✍️
-Bram created ChatGPT MD in March 2023 lives in NYC and is building [Your Commonbase](https://bramses.notion.site/Your-Commonbase-ALPHA-10b034182ddd8038b9ffe11cc2833713) (A Self Organizing Scrapbook with Zero Stress Storing, Searching, and Sharing). His personal website and newsletter is located at [bramadams.dev](https://www.bramadams.dev/)
-
-Deniz joined Bram in 2024 to continue development. He is working in a gaming company in Germany and uses AI heavily in his work and private life. Say "hi" on Bluesky: [Deniz](https://bsky.app/profile/denizokcu.bsky.social)
-
-Happy writing with ChatGPT MD! 💻 🎉
+-   Whiteboard mode: Edit a main note with Cerebro.
+-   Better undo/stop flows in conversations
+-   Rolodex view: Show an outline of your conversation with Cerebro

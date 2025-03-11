@@ -1,27 +1,43 @@
 {
-  "name": "chatgpt-md",
-  "version": "2.0.4",
-  "description": "A seamless integration of openAIs GPT LLMs and Ollama into Obsidian.",
-  "main": "main.js",
-  "scripts": {
-    "dev": "node esbuild.config.mjs",
-    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-    "version": "node version-bump.mjs && git add manifest.json versions.json",
-    "update-version": "node update-version.mjs"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/node": "^22.13.4",
-    "@typescript-eslint/eslint-plugin": "8.24.1",
-    "@typescript-eslint/parser": "8.24.1",
-    "builtin-modules": "4.0.0",
-    "esbuild": "0.25.0",
-    "eslint": "^9.20.1",
-    "obsidian": "latest",
-    "prettier": "^3.5.1",
-    "tslib": "2.8.1",
-    "typescript": "5.7.3"
-  }
+	"name": "cerebro",
+	"version": "1.0.1",
+	"description": "Obsidian-first, AI-powered second brain that thinks with you.",
+	"main": "main.js",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"version": "node version-bump.mjs && git add manifest.json versions.json",
+		"format": "prettier --check .",
+		"format:fix": "prettier --write .",
+		"lint": "eslint lib/ --max-warnings=0",
+		"lint:fix": "eslint lib/ --fix",
+		"fix-all": "npm run format:fix && npm run lint:fix"
+	},
+	"keywords": [],
+	"author": "Nick Chong",
+	"peerDependencies": {
+		"obsidian": "^1.1.0"
+	},
+	"engines": {
+		"node": ">=16.0.0"
+	},
+	"dependencies": {
+		"@anthropic-ai/sdk": "^0.33.1",
+		"obsidian": "1.7.2",
+		"openai": "^4.28.0",
+		"pino": "^8.21.0",
+		"sse": "github:mpetazzoni/sse.js"
+	},
+	"devDependencies": {
+		"@types/node": "^16.18.122",
+		"@typescript-eslint/eslint-plugin": "^5.62.0",
+		"@typescript-eslint/parser": "^5.62.0",
+		"builtin-modules": "^3.3.0",
+		"esbuild": "^0.17.19",
+		"eslint": "^8.57.1",
+		"eslint-config-prettier": "^9.1.0",
+		"prettier": "^3.2.5",
+		"tslib": "^2.8.1",
+		"typescript": "^4.9.5"
+	}
 }

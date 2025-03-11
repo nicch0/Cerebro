@@ -1,11 +1,8 @@
 {
-  "id": "chatgpt-md",
-  "name": "ChatGPT MD",
-  "version": "2.0.1",
-  "minAppVersion": "0.15.0",
-  "description": "A seamless integration of openAIs GPT LLMs and Ollama into Obsidian.",
-  "author": "Deniz Okcu (created by Bram Adams)",
-  "authorUrl": "https://www.bramadams.dev",
-  "fundingUrl": "https://www.bramadams.dev/#/portal/",
-  "isDesktopOnly": false
+	"id": "cerebro",
+	"name": "Cerebro",
+	"version": "1.0.1",
+	"minAppVersion": "0.0.1",
+	"description": "Your notes brought to life.",
+	"isDesktopOnly": false
 }
