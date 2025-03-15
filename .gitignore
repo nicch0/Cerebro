@@ -23,3 +23,9 @@ data.json
 
 .env
 .history
+
+# Testing
+coverage/
+.nyc_output/
+.jest-cache/
+tests/tmp/
