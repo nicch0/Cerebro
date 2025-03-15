@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { FrontMatterCache } from 'obsidian';
+import { EditorView } from '@codemirror/view';
+import { Editor, FrontMatterCache } from 'obsidian';
 import OpenAI from 'openai';
 
 export type LLM = 'OpenAI' | 'Anthropic';
@@ -67,3 +68,8 @@ export type MessageContent =
 	| Array<TextMessageContent | ImageMessageContent | DocumentMessageContent>;
 
 export type Message = { role: string; content: MessageContent };
+
+// Interface for CM6 editor view
+export interface EditorWithCM6 extends Editor {
+	cm: EditorView;
+}

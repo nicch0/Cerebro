@@ -8,6 +8,7 @@ import {
 	TextMessageContent,
 	DocumentMessageContent,
 	PDFSource,
+	EditorWithCM6,
 } from 'lib/types';
 import { Editor, EditorPosition, MarkdownView, TFile } from 'obsidian';
 import { App } from 'obsidian';
@@ -94,6 +95,7 @@ export default class ChatInterface {
 	private editor: Editor;
 	private view: MarkdownView;
 	public stopStreaming = false;
+	public userScrolling = false;
 
 	public settings: CerebroSettings;
 	public editorPosition: EditorPosition;
@@ -102,6 +104,18 @@ export default class ChatInterface {
 		this.settings = settings;
 		this.editor = editor;
 		this.view = view;
+		this.initScrollTracking();
+	}
+
+	private initScrollTracking(): void {
+		const cm6editor = this.editor as EditorWithCM6;
+		const handleWheel = (e: WheelEvent) => {
+			if (e.deltaY !== 0 && !this.userScrolling) {
+				this.userScrolling = true;
+				logger.debug('[Cerebro] User started scrolling (wheel event)');
+			}
+		};
+		cm6editor.cm.scrollDOM.addEventListener('wheel', handleWheel);
 	}
 
 	public async getMessages(app: App): Promise<{
@@ -167,8 +181,28 @@ export default class ChatInterface {
 		 */
 		this.moveCursorToEndOfFile(this.editor);
 		const newLine = `\n\n<hr class="${CSSAssets.HR}">\n${assistantHeader(this.settings.assistantName, this.settings.headingLevel)}\n`;
-		this.editor.replaceRange(newLine, this.editor.getCursor());
-		this.editorPosition = this.moveCursorToEndOfLine(this.editor, newLine);
+
+		const cm6editor = this.editor as EditorWithCM6;
+		const cursor = this.editor.getCursor();
+		const line = cm6editor.cm.state.doc.line(cursor.line + 1).from;
+
+		cm6editor.cm.dispatch({
+			changes: {
+				from: line + cursor.ch,
+				insert: newLine,
+			},
+			selection: {
+				anchor: line + cursor.ch + newLine.length,
+				head: line + cursor.ch + newLine.length,
+			},
+			scrollIntoView: !this.userScrolling,
+		});
+
+		this.editorPosition = {
+			line: cursor.line,
+			ch: cursor.ch + newLine.length,
+		};
+		this.userScrolling = false;
 	}
 
 	public completeAssistantResponse(): void {
@@ -178,8 +212,26 @@ export default class ChatInterface {
 		 * 3. Moves cursor to end of line
 		 */
 		const newLine = `\n\n<hr class="${CSSAssets.HR}">\n${userHeader(this.settings.username, this.settings.headingLevel)}\n`;
-		this.editor.replaceRange(newLine, this.editor.getCursor());
-		this.editorPosition = this.moveCursorToEndOfLine(this.editor, newLine);
+		const cm6editor = this.editor as EditorWithCM6;
+		const cursor = this.editor.getCursor();
+		const line = cm6editor.cm.state.doc.line(cursor.line + 1).from;
+		cm6editor.cm.dispatch({
+			changes: {
+				from: line + cursor.ch,
+				insert: newLine,
+			},
+			selection: {
+				anchor: line + cursor.ch + newLine.length,
+				head: line + cursor.ch + newLine.length,
+			},
+			scrollIntoView: !this.userScrolling,
+		});
+
+		this.editorPosition = {
+			line: cursor.line,
+			ch: cursor.ch + newLine.length,
+		};
+		this.userScrolling = false;
 	}
 
 	public appendNonStreamingMessage(message: string): void {
@@ -193,15 +245,23 @@ export default class ChatInterface {
 
 	public moveCursorToEndOfFile(editor: Editor): EditorPosition {
 		try {
-			// Get length of file
 			const length = editor.lastLine();
-
-			// Move cursor to end of file https://davidwalsh.name/codemirror-set-focus-line
 			const newCursor = {
-				line: length + 1,
+				line: length,
 				ch: 0,
 			};
-			editor.setCursor(newCursor);
+
+			// Use CM6 transaction to move cursor without scrolling
+			const cm6editor = editor as EditorWithCM6;
+			const line = cm6editor.cm.state.doc.line(newCursor.line + 1).from;
+
+			cm6editor.cm.dispatch({
+				selection: {
+					anchor: line + newCursor.ch,
+					head: line + newCursor.ch,
+				},
+				scrollIntoView: false,
+			});
 
 			return newCursor;
 		} catch (err) {
@@ -298,16 +358,23 @@ export default class ChatInterface {
 			logger.info('Stopping stream...');
 			return false;
 		}
-		// Add chunk of text
+		const cm6editor = this.editor as EditorWithCM6;
 		const cursor = this.editor.getCursor();
-		this.editor.replaceRange(chunkText, cursor);
+		const line = cm6editor.cm.state.doc.line(cursor.line + 1).from;
 
-		// Set new cursor position based on chunk text
-		const newCursor = {
-			line: cursor.line,
-			ch: cursor.ch + chunkText.length,
-		};
-		this.editor.setCursor(newCursor);
+		// Create a transaction that adds text without scrolling
+		cm6editor.cm.dispatch({
+			changes: {
+				from: line + cursor.ch,
+				insert: chunkText,
+			},
+			selection: {
+				anchor: line + cursor.ch + chunkText.length,
+				head: line + cursor.ch + chunkText.length,
+			},
+			scrollIntoView: !this.userScrolling,
+		});
+
 		return true;
 	}
 
@@ -315,28 +382,30 @@ export default class ChatInterface {
 		fullResponse: string,
 		{ line: initialLine, ch: initialCh }: EditorPosition,
 	): void {
-		// Replace text from initialCursor to fix any formatting issues
+		const cm6editor = this.editor as EditorWithCM6;
 		const endCursor = this.editor.getCursor();
-		this.editor.replaceRange(
-			fullResponse,
-			{
-				line: initialLine,
-				ch: initialCh,
+		const initialPos = cm6editor.cm.state.doc.line(initialLine + 1).from + initialCh;
+		const endPos = cm6editor.cm.state.doc.line(endCursor.line + 1).from + endCursor.ch;
+
+		// First transaction: Replace text from initialCursor to endCursor
+		cm6editor.cm.dispatch({
+			changes: [
+				{
+					from: initialPos,
+					to: endPos,
+					insert: fullResponse,
+				},
+				// Also remove any text after the cursor to the end of document
+				{
+					from: initialPos + fullResponse.length,
+					to: cm6editor.cm.state.doc.length,
+				},
+			],
+			selection: {
+				anchor: initialPos + fullResponse.length,
+				head: initialPos + fullResponse.length,
 			},
-			endCursor,
-		);
-
-		// Set cursor to end of replacement text
-		const newCursor = {
-			line: initialLine,
-			ch: initialCh + fullResponse.length,
-		};
-		this.editor.setCursor(newCursor);
-
-		// Remove the text after the cursor
-		this.editor.replaceRange('', newCursor, {
-			line: Infinity,
-			ch: Infinity,
+			scrollIntoView: !this.userScrolling,
 		});
 
 		this.stopStreaming = false;
