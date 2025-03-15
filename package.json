@@ -23,7 +23,9 @@
 	},
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.33.1",
-		"obsidian": "1.7.2",
+		"@codemirror/state": "^6.5.2",
+		"@codemirror/view": "^6.36.4",
+		"obsidian": "^1.1.0",
 		"openai": "^4.28.0",
 		"pino": "^8.21.0",
 		"sse": "github:mpetazzoni/sse.js"
