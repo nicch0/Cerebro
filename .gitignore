@@ -1,5 +1,5 @@
 # vscode
-.vscode 
+.vscode
 
 # Intellij
 *.iml
@@ -29,3 +29,8 @@ coverage/
 .nyc_output/
 .jest-cache/
 tests/tmp/
+playwright-report/
+test-results/
+/test-results/
+/playwright/.cache/
+/playwright-report/

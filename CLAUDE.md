@@ -12,9 +12,12 @@
 
 ## Test Commands
 
--   `npm test`: Run all tests with Jest
+-   `npm test`: Run unit tests with Jest
 -   `npm run test:watch`: Run tests in watch mode during development
 -   `npm run test:coverage`: Generate coverage report
+-   `npm run test:e2e`: Run end-to-end tests with Playwright
+-   `npm run test:e2e:ui`: Run E2E tests with Playwright UI
+-   `npm run test:all`: Run both unit and E2E tests
 
 ## Code Style Guidelines
 
@@ -34,11 +37,25 @@
 -   Views in `lib/views/`
 -   LLM clients in `lib/models/`
 -   Tests in `tests/` directory
--   Obsidian API mocks in `tests/mocks/`
+    -   Unit tests in `tests/*.test.ts`
+    -   Obsidian API mocks in `tests/mocks/`
+    -   E2E tests in `tests/e2e/`
 
 ## Testing Strategy
 
--   Focus on testing pure functions and utilities first
+### Unit Tests
+-   Focus on pure functions and utilities
 -   Use mocks for Obsidian API and external dependencies
 -   Group related tests with descriptive describe blocks
 -   Test business logic independent of UI
+
+### E2E Tests
+-   Test key user flows (create note, chat, etc.)
+-   Create test vault with known configuration
+-   Mock API responses to ensure predictable behavior
+-   Verify file contents and UI interactions
+
+### CI Integration
+-   GitHub Actions workflow runs all tests on push/PR
+-   Tests must pass before merging
+-   Coverage reports generated for tracking
