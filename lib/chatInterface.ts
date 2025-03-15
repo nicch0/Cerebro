@@ -254,25 +254,24 @@ export default class ChatInterface {
 
 	public moveCursorToEndOfFile(editor: Editor): EditorPosition {
 		try {
-			const length = editor.lastLine();
-			const newCursor = {
-				line: length,
-				ch: 0,
-			};
-
-			// Use CM6 transaction to move cursor without scrolling
 			const cm6editor = editor as EditorWithCM6;
-			const line = cm6editor.cm.state.doc.line(newCursor.line + 1).from;
+			const lastPos = cm6editor.cm.state.doc.length;
 
 			cm6editor.cm.dispatch({
 				selection: {
-					anchor: line + newCursor.ch,
-					head: line + newCursor.ch,
+					anchor: lastPos,
+					head: lastPos,
 				},
 				scrollIntoView: false,
 			});
 
-			return newCursor;
+			// Return cursor position in editor coordinates
+			const lastLine = editor.lastLine();
+			const lastLineContent = editor.getLine(lastLine);
+			return {
+				line: lastLine,
+				ch: lastLineContent.length,
+			};
 		} catch (err) {
 			throw new Error("Error moving cursor to end of file" + err);
 		}
