@@ -1,18 +1,22 @@
-import { Command, Editor, MarkdownView, Notice, Platform } from 'obsidian';
-import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from '../constants';
-import ChatInterface from '../chatInterface';
-import Cerebro from '../main';
-import { logger } from '../logger';
+import { Command, Editor, MarkdownView, Notice, Platform } from "obsidian";
+import ChatInterface from "../chatInterface";
+import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "../constants";
+import { logger } from "../logger";
+import Cerebro from "../main";
 
 export const chatCommand = (plugin: Cerebro): Command => ({
-	id: 'cerebro-chat',
-	name: 'Chat',
-	icon: 'message-circle',
+	id: "cerebro-chat",
+	name: "Chat",
+	icon: "message-circle",
 	editorCallback: async (editor: Editor, view: MarkdownView) => {
 		plugin.statusBar.setText(CerebroMessages.CALLING_API);
-		if (Platform.isMobile) new Notice(CerebroMessages.CALLING_API);
+		if (Platform.isMobile) {
+			new Notice(CerebroMessages.CALLING_API);
+		}
 
-		if (!view.file) throw new Error('No active file');
+		if (!view.file) {
+			throw new Error("No active file");
+		}
 
 		// Get or create ChatInterface for this file
 		let chatInterface = plugin.chatInterfaces.get(view.file);
@@ -35,7 +39,7 @@ export const chatCommand = (plugin: Cerebro): Command => ({
 				await plugin.handleTitleInference(messages.concat(response), view, llm);
 			}
 		} catch (e) {
-			new Notice('[Cerebro] Chat failed: ' + e.message, ERROR_NOTICE_TIMEOUT_MILLISECONDS);
+			new Notice("[Cerebro] Chat failed: " + e.message, ERROR_NOTICE_TIMEOUT_MILLISECONDS);
 		}
 
 		plugin.statusBar.setText(CerebroMessages.EMPTY);

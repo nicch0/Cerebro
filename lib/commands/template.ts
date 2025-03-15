@@ -1,15 +1,15 @@
-import { Command, Editor, MarkdownView, Notice } from 'obsidian';
-import Cerebro from '../main';
-import { createFolderModal, getDate } from '../helpers';
-import { ChatTemplatesHandler } from '../views/chatTemplates';
+import { Command, Editor, MarkdownView, Notice } from "obsidian";
+import { createFolderModal, getDate } from "../helpers";
+import Cerebro from "../main";
+import { ChatTemplatesHandler } from "../views/chatTemplates";
 
 export const chooseChatTemplateCommand = (plugin: Cerebro): Command => ({
-	id: 'cerebro-choose-chat-template',
-	name: 'Create new chat from template',
-	icon: 'layout-template',
-	editorCallback: async (editor: Editor, view: MarkdownView): Promise<void> => {
-		if (!plugin.settings.chatFolder || plugin.settings.chatFolder.trim() === '') {
-			new Notice('[Cerebro] No chat folder value found. Please set one in settings.');
+	id: "cerebro-choose-chat-template",
+	name: "Create new chat from template",
+	icon: "layout-template",
+	editorCallback: async (_editor: Editor, _view: MarkdownView): Promise<void> => {
+		if (!plugin.settings.chatFolder || plugin.settings.chatFolder.trim() === "") {
+			new Notice("[Cerebro] No chat folder value found. Please set one in settings.");
 			return;
 		}
 
@@ -17,12 +17,12 @@ export const chooseChatTemplateCommand = (plugin: Cerebro): Command => ({
 			const result = await createFolderModal(
 				plugin.app,
 				plugin.app.vault,
-				'chatFolder',
+				"chatFolder",
 				plugin.settings.chatFolder,
 			);
 			if (!result) {
 				new Notice(
-					'[Cerebro] No chat folder found. One must be created to use plugin. Set one in settings and make sure it exists.',
+					"[Cerebro] No chat folder found. One must be created to use plugin. Set one in settings and make sure it exists.",
 				);
 				return;
 			}
@@ -30,10 +30,10 @@ export const chooseChatTemplateCommand = (plugin: Cerebro): Command => ({
 
 		if (
 			!plugin.settings.chatTemplateFolder ||
-			plugin.settings.chatTemplateFolder.trim() === ''
+			plugin.settings.chatTemplateFolder.trim() === ""
 		) {
 			new Notice(
-				'[Cerebro] No chat template folder value found. Please set one in settings.',
+				"[Cerebro] No chat template folder value found. Please set one in settings.",
 			);
 			return;
 		}
@@ -42,12 +42,12 @@ export const chooseChatTemplateCommand = (plugin: Cerebro): Command => ({
 			const result = await createFolderModal(
 				plugin.app,
 				plugin.app.vault,
-				'chatTemplateFolder',
+				"chatTemplateFolder",
 				plugin.settings.chatTemplateFolder,
 			);
 			if (!result) {
 				new Notice(
-					'[Cerebro] No chat template folder found. One must be created to use plugin. Set one in settings and make sure it exists.',
+					"[Cerebro] No chat template folder found. One must be created to use plugin. Set one in settings and make sure it exists.",
 				);
 				return;
 			}

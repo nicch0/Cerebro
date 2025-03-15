@@ -1,22 +1,22 @@
-import { Command, Editor, MarkdownView } from 'obsidian';
-import Cerebro from '../main';
-import ChatInterface from '../chatInterface';
+import { Command, Editor, MarkdownView } from "obsidian";
+import ChatInterface from "../chatInterface";
+import Cerebro from "../main";
 
 export const addDividerCommand = (plugin: Cerebro): Command => ({
-	id: 'cerebro-add-hr',
-	name: 'Add divider',
-	icon: 'minus',
+	id: "cerebro-add-hr",
+	name: "Add divider",
+	icon: "minus",
 	editorCallback: (editor: Editor, view: MarkdownView) => {
 		const chatInterface = new ChatInterface(plugin.settings, editor, view);
 		chatInterface.addHR();
 	},
 });
 
-export const addCommentBlockCommand = (plugin: Cerebro): Command => ({
-	id: 'cerebro-add-comment-block',
-	name: 'Add comment block',
-	icon: 'comment',
-	editorCallback: (editor: Editor, view: MarkdownView) => {
+export const addCommentBlockCommand = (_plugin: Cerebro): Command => ({
+	id: "cerebro-add-comment-block",
+	name: "Add comment block",
+	icon: "comment",
+	editorCallback: (editor: Editor, _view: MarkdownView) => {
 		const cursor = editor.getCursor();
 		const { line, ch } = cursor;
 

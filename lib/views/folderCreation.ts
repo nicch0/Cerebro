@@ -1,11 +1,11 @@
-import { Modal, App, Setting } from 'obsidian';
+import { App, Modal, Setting } from "obsidian";
 
 export class FolderCreationModal extends Modal {
-	result: boolean;
-	folderName: string;
-	folderPath: string;
-	modalPromise: Promise<boolean>;
-	resolveModalPromise: (value: boolean) => void;
+	private result: boolean;
+	private folderName: string;
+	private folderPath: string;
+	private modalPromise: Promise<boolean>;
+	private resolveModalPromise: (value: boolean) => void;
 
 	constructor(app: App, folderName: string, folderPath: string) {
 		super(app);
@@ -18,21 +18,21 @@ export class FolderCreationModal extends Modal {
 		});
 	}
 
-	onOpen() {
+	public onOpen(): void {
 		const { contentEl } = this;
 
-		contentEl.createEl('h2', {
+		contentEl.createEl("h2", {
 			text: `[Cerebro] No ${this.folderName} folder found.`,
 		});
 
-		contentEl.createEl('p', {
+		contentEl.createEl("p", {
 			text: `If you choose "Yes, Create", the plugin will automatically create a folder at: ${this.folderPath}. You can change this path in the plugin settings.`,
 		});
 
 		new Setting(contentEl).addButton((btn) =>
 			btn
-				.setButtonText('Yes, Create Folder')
-				.setTooltip('Create folder')
+				.setButtonText("Yes, Create Folder")
+				.setTooltip("Create folder")
 				.setCta()
 				.onClick(() => {
 					this.result = true; // This can be any value the user provides.
@@ -44,7 +44,7 @@ export class FolderCreationModal extends Modal {
 		new Setting(contentEl).addButton((btn) =>
 			btn
 				.setButtonText("No, I'll create it myself")
-				.setTooltip('Cancel')
+				.setTooltip("Cancel")
 				.setCta()
 				.onClick(() => {
 					this.result = false; // This can be any value the user provides.
@@ -54,11 +54,11 @@ export class FolderCreationModal extends Modal {
 		);
 	}
 
-	waitForModalValue() {
+	public waitForModalValue(): Promise<boolean> {
 		return this.modalPromise;
 	}
 
-	onClose() {
+	public onClose(): void {
 		const { contentEl } = this;
 		contentEl.empty();
 	}

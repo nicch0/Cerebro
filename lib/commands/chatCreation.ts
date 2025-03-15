@@ -1,12 +1,12 @@
-import { MarkdownView, Notice, TFile } from 'obsidian';
-import Cerebro from '../main';
-import ChatInterface from '../chatInterface';
-import { createFolderModal, getDate } from '../helpers';
-import { getFrontmatter as getFrontmatterFromSettings } from '../settings';
+import { MarkdownView, Notice, TFile } from "obsidian";
+import ChatInterface from "../chatInterface";
+import { createFolderModal, getDate } from "../helpers";
+import Cerebro from "../main";
+import { getFrontmatter as getFrontmatterFromSettings } from "../settings";
 
 export async function validateAndCreateChatFolder(plugin: Cerebro): Promise<boolean> {
-	if (!plugin.settings.chatFolder || plugin.settings.chatFolder.trim() === '') {
-		new Notice('[Cerebro] No chat folder value found. Please set one in settings.');
+	if (!plugin.settings.chatFolder || plugin.settings.chatFolder.trim() === "") {
+		new Notice("[Cerebro] No chat folder value found. Please set one in settings.");
 		return false;
 	}
 
@@ -14,12 +14,12 @@ export async function validateAndCreateChatFolder(plugin: Cerebro): Promise<bool
 		const result = await createFolderModal(
 			plugin.app,
 			plugin.app.vault,
-			'chatFolder',
+			"chatFolder",
 			plugin.settings.chatFolder,
 		);
 		if (!result) {
 			new Notice(
-				'[Cerebro] No chat folder found. One must be created to use plugin. Set one in settings and make sure it exists.',
+				"[Cerebro] No chat folder found. One must be created to use plugin. Set one in settings and make sure it exists.",
 			);
 			return false;
 		}
@@ -32,7 +32,9 @@ export async function createNewChatFile(
 	selectedText: string,
 ): Promise<TFile | null> {
 	const folderValid = await validateAndCreateChatFolder(plugin);
-	if (!folderValid) return null;
+	if (!folderValid) {
+		return null;
+	}
 
 	const filePath = `${plugin.settings.chatFolder}/${getDate(
 		new Date(),
@@ -49,13 +51,13 @@ export async function openInMainEditor(
 	newFile: TFile,
 	chatInterface: ChatInterface,
 ): Promise<void> {
-	await plugin.app.workspace.openLinkText(newFile.basename, '', true, {
-		state: { mode: 'source' },
+	await plugin.app.workspace.openLinkText(newFile.basename, "", true, {
+		state: { mode: "source" },
 	});
 
 	const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
 	if (!activeView) {
-		new Notice('No active markdown editor found.');
+		new Notice("No active markdown editor found.");
 		return;
 	}
 
@@ -69,13 +71,15 @@ export async function openInSidebar(
 	chatInterface: ChatInterface,
 ): Promise<void> {
 	const leaf = plugin.app.workspace.getRightLeaf(false);
-	if (!leaf) return;
+	if (!leaf) {
+		return;
+	}
 
 	await leaf.setViewState({
-		type: 'markdown',
+		type: "markdown",
 		state: {
 			file: newFile.path,
-			mode: 'source',
+			mode: "source",
 		},
 	});
 

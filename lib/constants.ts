@@ -1,39 +1,18 @@
-export const PLUGIN_NAME = 'Cerebro';
+export const PLUGIN_NAME = "Cerebro";
 
 export const YAML_FRONTMATTER_REGEX = /^---\s*[\s\S]*?\s*---/g;
 
 export const ERROR_NOTICE_TIMEOUT_MILLISECONDS = 10000;
 
-export const CerebroBaseSystemPrompts = [
-	'Your name is Cerebro.',
-	`When processing messages, you'll receive documents in a graph-like structure:
-
-	1. Each document is assigned a unique identifier like [Doc 1], [Image 2], [PDF 3]
-	2. Document contents are presented first, each prefixed with their identifier
-	3. At the end, you'll see "Document relationships" showing all documents involved
-
-	For example:
-	[Doc 1] example.md
-	(content of example.md)
-
-	[Doc 2] nested.md
-	(content of nested.md)
-
-	Document relationships:
-	[Doc 1] example.md
-	[Doc 2] nested.md
-
-	When referencing documents in your responses, please use their identifiers ([Doc 1], etc.) in round brackets for clarity. You can understand this as a graph where documents are nodes and relationships show how they're connected in the user's knowledge base.
-	`,
-];
+export const MAX_DOCUMENT_DEPTH = 2; // Maximum depth of document resolution
 
 // Cerebro plugin messages
 export enum CerebroMessages {
-	CALLING_API = '[Cerebro] Calling API',
-	INFER_TITLE_MESSAGE_TOO_SHORT_FAILURE = 'Not enough messages to infer title. Minimum 2 messages.',
-	INFER_TITLE_UNKNOWN_FAILURE = 'Title unable to be inferred',
-	UPDATING_PROPERTIES = '[Cerebro] Updating files accessed',
-	EMPTY = '',
+	CALLING_API = "[Cerebro] Calling API",
+	INFER_TITLE_MESSAGE_TOO_SHORT_FAILURE = "Not enough messages to infer title. Minimum 2 messages.",
+	INFER_TITLE_UNKNOWN_FAILURE = "Title unable to be inferred",
+	UPDATING_PROPERTIES = "[Cerebro] Updating files accessed",
+	EMPTY = "",
 }
 
 export const userHeader = (username: string, headingLevel: number): string => {
@@ -45,6 +24,6 @@ export const assistantHeader = (assistantName: string, headingLevel: number): st
 };
 
 export enum CSSAssets {
-	HR = '__crb-hr',
-	HEADER = '__crb-header',
+	HR = "__crb-hr",
+	HEADER = "__crb-header",
 }

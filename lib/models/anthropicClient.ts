@@ -1,4 +1,19 @@
-import Anthropic from '@anthropic-ai/sdk';
+import Anthropic from "@anthropic-ai/sdk";
+import {
+	Base64PDFSource,
+	ContentBlockParam,
+	ImageBlockParam,
+	InputJSONDelta,
+	MessageParam,
+	RawMessageStreamEvent,
+	TextBlock,
+	TextDelta,
+} from "@anthropic-ai/sdk/resources";
+import { Stream } from "@anthropic-ai/sdk/streaming";
+import ChatInterface from "lib/chatInterface";
+import { CerebroMessages } from "lib/constants";
+import { getTextOnlyContent, unfinishedCodeBlock } from "lib/helpers";
+import { logger } from "lib/logger";
 import {
 	ChatFrontmatter,
 	DocumentMessageContent,
@@ -6,34 +21,19 @@ import {
 	Message,
 	MessageContent,
 	TextMessageContent,
-} from 'lib/types';
-import { Notice } from 'obsidian';
-import { LLMClient } from './client';
-import ChatInterface from 'lib/chatInterface';
-import { getTextOnlyContent, unfinishedCodeBlock } from 'lib/helpers';
-import {
-	Base64PDFSource,
-	ImageBlockParam,
-	InputJSONDelta,
-	RawMessageStreamEvent,
-	TextBlock,
-	TextDelta,
-	MessageParam,
-	ContentBlockParam,
-} from '@anthropic-ai/sdk/resources';
-import { Stream } from '@anthropic-ai/sdk/streaming';
-import { CerebroMessages } from 'lib/constants';
-import { logger } from 'lib/logger';
+} from "lib/types";
+import { Notice } from "obsidian";
+import { LLMClient } from "./client";
 
 interface DocumentNode {
 	path: string;
-	type: 'text' | 'image' | 'document';
+	type: "text" | "image" | "document";
 	references: Set<string>; // paths of documents this references
 }
 
 const formatMessageContent = (content: MessageContent): ContentBlockParam[] => {
-	if (typeof content === 'string') {
-		return [{ type: 'text', text: content }];
+	if (typeof content === "string") {
+		return [{ type: "text", text: content }];
 	}
 
 	const formattedBlocks: ContentBlockParam[] = [];
@@ -42,7 +42,7 @@ const formatMessageContent = (content: MessageContent): ContentBlockParam[] => {
 	// Create a new document node
 	const createDocumentNode = (
 		path: string,
-		type: 'text' | 'image' | 'document',
+		type: "text" | "image" | "document",
 	): DocumentNode => {
 		return {
 			path,
@@ -52,7 +52,7 @@ const formatMessageContent = (content: MessageContent): ContentBlockParam[] => {
 	};
 
 	// Add or get a node from the document graph
-	const addDocumentNode = (path: string, type: 'text' | 'image' | 'document'): DocumentNode => {
+	const addDocumentNode = (path: string, type: "text" | "image" | "document"): DocumentNode => {
 		if (!documentGraph.has(path)) {
 			const node = createDocumentNode(path, type);
 			documentGraph.set(path, node);
@@ -66,7 +66,7 @@ const formatMessageContent = (content: MessageContent): ContentBlockParam[] => {
 		parentPath?: string,
 	) => {
 		if (!block.originalPath) {
-			formattedBlocks.push({ type: 'text', text: (block as TextMessageContent).text });
+			formattedBlocks.push({ type: "text", text: (block as TextMessageContent).text });
 			return;
 		}
 
@@ -82,13 +82,13 @@ const formatMessageContent = (content: MessageContent): ContentBlockParam[] => {
 
 		// Add document content
 		formattedBlocks.push({
-			type: 'text',
+			type: "text",
 			text: `[${block.originalPath}]\n`,
 		});
 
 		switch (block.type) {
-			case 'text':
-				formattedBlocks.push({ type: 'text', text: block.text });
+			case "text":
+				formattedBlocks.push({ type: "text", text: block.text });
 				// Recursively process nested content
 				if (block.resolvedContent) {
 					block.resolvedContent.forEach((nestedBlock) => {
@@ -96,15 +96,15 @@ const formatMessageContent = (content: MessageContent): ContentBlockParam[] => {
 					});
 				}
 				break;
-			case 'image':
+			case "image":
 				formattedBlocks.push({
-					type: 'image',
+					type: "image",
 					source: block.source as ImageBlockParam.Source,
 				});
 				break;
-			case 'document':
+			case "document":
 				formattedBlocks.push({
-					type: 'document',
+					type: "document",
 					source: block.source as Base64PDFSource,
 				});
 				break;
@@ -113,8 +113,8 @@ const formatMessageContent = (content: MessageContent): ContentBlockParam[] => {
 
 	// Add initial explanation
 	formattedBlocks.push({
-		type: 'text',
-		text: 'This conversation references multiple documents. Each document may contain embedded content from other documents.\n',
+		type: "text",
+		text: "This conversation references multiple documents. Each document may contain embedded content from other documents.\n",
 	});
 
 	// Process all blocks recursively
@@ -123,15 +123,15 @@ const formatMessageContent = (content: MessageContent): ContentBlockParam[] => {
 	// Add document relationships if there are multiple documents
 	if (documentGraph.size > 1) {
 		formattedBlocks.push({
-			type: 'text',
+			type: "text",
 			text:
-				'\nDocument relationships:\n' +
+				"\nDocument relationships:\n" +
 				Array.from(documentGraph.entries())
 					.map(([path, node]) => {
 						const references = Array.from(node.references);
-						return `${path} → ${references.length ? references.join(', ') : '(no embedded documents)'}`;
+						return `${path} → ${references.length ? references.join(", ") : "(no embedded documents)"}`;
 					})
-					.join('\n'),
+					.join("\n"),
 		});
 	}
 
@@ -152,12 +152,12 @@ export class AnthropicClient implements LLMClient {
 		messages: Message[],
 		{ max_tokens, model, stream, system_commands, temperature }: ChatFrontmatter,
 	) {
-		const system = system_commands.join('\n');
+		const system = system_commands.join("\n");
 		const formattedMessages: MessageParam[] = messages.map((msg) => ({
-			role: msg.role === 'user' ? 'user' : 'assistant',
+			role: msg.role === "user" ? "user" : "assistant",
 			content: formatMessageContent(msg.content),
 		}));
-		logger.debug('[Cerebro] Formatted messages for Claude', formattedMessages);
+		logger.debug("[Cerebro] Formatted messages for Claude", formattedMessages);
 
 		return this.client.messages.create({
 			messages: formattedMessages,
@@ -183,11 +183,13 @@ export class AnthropicClient implements LLMClient {
 			const content = (message.content[0] as TextBlock).text;
 			responseStr = content;
 
-			logger.info('[Cerebro] Model finished generating', {
+			logger.info("[Cerebro] Model finished generating", {
 				finish_reason: message.stop_reason,
 			});
 
-			if (unfinishedCodeBlock(content)) responseStr = responseStr + '\n```';
+			if (unfinishedCodeBlock(content)) {
+				responseStr = responseStr + "\n```";
+			}
 			chatInterface.appendNonStreamingMessage(responseStr);
 		} else {
 			const { fullResponse, finishReason } = await this.streamMessage(
@@ -195,11 +197,11 @@ export class AnthropicClient implements LLMClient {
 				chatInterface,
 			);
 			responseStr = fullResponse;
-			logger.info('[Cerebro] Model finished generating', { finish_reason: finishReason });
+			logger.info("[Cerebro] Model finished generating", { finish_reason: finishReason });
 		}
 
 		return {
-			role: 'assistant',
+			role: "assistant",
 			content: responseStr,
 		};
 	}
@@ -211,7 +213,7 @@ export class AnthropicClient implements LLMClient {
 		fullResponse: string;
 		finishReason: string | null | undefined;
 	}> {
-		let fullResponse = '';
+		let fullResponse = "";
 
 		// Save initial cursor
 		const initialCursor = chatInterface.editorPosition;
@@ -226,34 +228,38 @@ export class AnthropicClient implements LLMClient {
 				break;
 			}
 
-			if (streamEvent.type === 'content_block_start') {
+			if (streamEvent.type === "content_block_start") {
 				const chunkText = (streamEvent.content_block as TextBlock).text;
 
 				// If text undefined, then do nothing
-				if (!chunkText) continue;
+				if (!chunkText) {
+					continue;
+				}
 
 				// Add chunk to full response
 				fullResponse += chunkText;
 				chatInterface.addStreamedChunk(chunkText);
-			} else if (streamEvent.type === 'content_block_delta') {
+			} else if (streamEvent.type === "content_block_delta") {
 				const chunkText =
 					(streamEvent.delta as TextDelta).text ||
 					(streamEvent.delta as InputJSONDelta).partial_json;
 
 				// If text undefined, then do nothing
-				if (!chunkText) continue;
+				if (!chunkText) {
+					continue;
+				}
 
 				// Add chunk to full response
 				fullResponse += chunkText;
 				chatInterface.addStreamedChunk(chunkText);
-			} else if (streamEvent.type === 'message_delta') {
+			} else if (streamEvent.type === "message_delta") {
 				finishReason = streamEvent.delta.stop_reason;
 			}
 		}
 
 		// Cleanup any unfinished code blocks
 		if (unfinishedCodeBlock(fullResponse)) {
-			fullResponse += '\n```';
+			fullResponse += "\n```";
 		}
 		chatInterface.finalizeStreamedResponse(fullResponse, initialCursor);
 
@@ -276,14 +282,14 @@ export class AnthropicClient implements LLMClient {
 
 		const titleMessage: MessageParam[] = [
 			{
-				role: 'user',
+				role: "user",
 				content: INFER_TITLE_PROMPT,
 			},
 		];
 
 		const response = await this.client.messages.create({
 			messages: titleMessage,
-			model: 'claude-3-5-haiku-latest',
+			model: "claude-3-5-haiku-latest",
 			max_tokens: 50,
 			temperature: 0.0,
 			stream: false,
@@ -291,7 +297,9 @@ export class AnthropicClient implements LLMClient {
 
 		const message = response as Anthropic.Message;
 		const title = (message.content[0] as TextBlock).text;
-		if (!title) throw new Error(CerebroMessages.INFER_TITLE_UNKNOWN_FAILURE);
+		if (!title) {
+			throw new Error(CerebroMessages.INFER_TITLE_UNKNOWN_FAILURE);
+		}
 		return title;
 	}
 }
