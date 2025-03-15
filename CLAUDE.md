@@ -44,18 +44,21 @@
 ## Testing Strategy
 
 ### Unit Tests
+
 -   Focus on pure functions and utilities
 -   Use mocks for Obsidian API and external dependencies
 -   Group related tests with descriptive describe blocks
 -   Test business logic independent of UI
 
 ### E2E Tests
+
 -   Test key user flows (create note, chat, etc.)
 -   Create test vault with known configuration
 -   Mock API responses to ensure predictable behavior
 -   Verify file contents and UI interactions
 
 ### CI Integration
+
 -   GitHub Actions workflow runs all tests on push/PR
 -   Tests must pass before merging
 -   Coverage reports generated for tracking

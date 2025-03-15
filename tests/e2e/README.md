@@ -4,9 +4,9 @@ This directory contains end-to-end tests for the Cerebro Obsidian plugin using P
 
 ## Structure
 
-- `specs/`: Test specifications
-- `helpers/`: Utility functions for test setup and teardown
-- `fixtures/`: Test data and fixtures
+-   `specs/`: Test specifications
+-   `helpers/`: Utility functions for test setup and teardown
+-   `fixtures/`: Test data and fixtures
 
 ## Running Tests
 
@@ -31,10 +31,10 @@ The current implementation simulates these interactions for demonstration purpos
 
 ## Key Components
 
-- `global-setup.ts`: Prepares the test environment
-- `global-teardown.ts`: Cleans up after tests
-- `prepare-vault.ts`: Creates a test vault with necessary configuration
-- Basic test flow: Create note → Ask question → Verify response
+-   `global-setup.ts`: Prepares the test environment
+-   `global-teardown.ts`: Cleans up after tests
+-   `prepare-vault.ts`: Creates a test vault with necessary configuration
+-   Basic test flow: Create note → Ask question → Verify response
 
 ## Extending the Tests
 
