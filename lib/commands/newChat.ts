@@ -1,25 +1,29 @@
-import { Command, Editor, MarkdownView, Notice } from 'obsidian';
-import Cerebro from '../main';
-import ChatInterface from '../chatInterface';
-import { ERROR_NOTICE_TIMEOUT_MILLISECONDS } from '../constants';
-import { logger } from '../logger';
-import { createNewChatFile, openInMainEditor } from './chatCreation';
+import { Command, MarkdownView, Notice } from "obsidian";
+import ChatInterface from "../chatInterface";
+import { ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "../constants";
+import { logger } from "../logger";
+import Cerebro from "../main";
+import { createNewChatFile, openInMainEditor } from "./chatCreation";
 
 export const createNewChatCommand = (plugin: Cerebro): Command => ({
-	id: 'cerebro-create-new-chat',
-	name: 'Create new chat',
-	icon: 'message-square-plus',
+	id: "cerebro-create-new-chat",
+	name: "Create new chat",
+	icon: "message-square-plus",
 	callback: async () => {
 		try {
 			const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
-			const selectedText = activeView?.editor?.getSelection() || '';
+			const selectedText = activeView?.editor?.getSelection() || "";
 
 			const newFile = await createNewChatFile(plugin, selectedText);
-			if (!newFile) return;
+			if (!newFile) {
+				return;
+			}
 
 			const newView: any = await plugin.app.workspace.getLeaf().openFile(newFile);
 
-			if (!(newView instanceof MarkdownView)) return;
+			if (!(newView instanceof MarkdownView)) {
+				return;
+			}
 
 			const chatInterface = new ChatInterface(plugin.settings, newView.editor, newView);
 			plugin.chatInterfaces.set(newFile, chatInterface);

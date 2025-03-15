@@ -1,12 +1,11 @@
-import OpenAI from 'openai';
-import { ChatFrontmatter, Message } from '../types';
-import { Notice } from 'obsidian';
-import { LLMClient } from './client';
-import ChatInterface from 'lib/chatInterface';
-import pino from 'pino';
-import { unfinishedCodeBlock } from 'lib/helpers';
-import { Stream } from 'openai/streaming';
-import { logger } from 'lib/logger';
+import ChatInterface from "lib/chatInterface";
+import { unfinishedCodeBlock } from "lib/helpers";
+import { logger } from "lib/logger";
+import { Notice } from "obsidian";
+import OpenAI from "openai";
+import { Stream } from "openai/streaming";
+import { ChatFrontmatter, Message } from "../types";
+import { LLMClient } from "./client";
 
 export class OpenAIClient implements LLMClient {
 	private client: OpenAI;
@@ -66,13 +65,15 @@ export class OpenAIClient implements LLMClient {
 		// Handle non-streaming case
 		if (!frontmatter.stream) {
 			const chatCompletion = chatResponse as OpenAI.ChatCompletion;
-			responseStr = chatCompletion.choices[0].message.content || 'No response';
+			responseStr = chatCompletion.choices[0].message.content || "No response";
 
-			logger.info('[Cerebro] Model finished generating', {
+			logger.info("[Cerebro] Model finished generating", {
 				finish_reason: chatCompletion.choices[0].finish_reason,
 			});
 
-			if (unfinishedCodeBlock(responseStr)) responseStr = responseStr + '\n```';
+			if (unfinishedCodeBlock(responseStr)) {
+				responseStr = responseStr + "\n```";
+			}
 			chatInterface.appendNonStreamingMessage(responseStr);
 		} else {
 			const chatCompletionStream = chatResponse as Stream<OpenAI.Chat.ChatCompletionChunk>;
@@ -81,11 +82,11 @@ export class OpenAIClient implements LLMClient {
 				chatInterface,
 			);
 			responseStr = fullResponse;
-			logger.info('[Cerebro] Model finished generating', { finish_reason: finishReason });
+			logger.info("[Cerebro] Model finished generating", { finish_reason: finishReason });
 		}
 
 		return {
-			role: 'assistant',
+			role: "assistant",
 			content: responseStr,
 		};
 	}
@@ -97,7 +98,7 @@ export class OpenAIClient implements LLMClient {
 		fullResponse: string;
 		finishReason: string | null | undefined;
 	}> {
-		let fullResponse = '';
+		let fullResponse = "";
 
 		// Save initial cursor
 		const initialCursor = chatInterface.editorPosition;
@@ -112,7 +113,9 @@ export class OpenAIClient implements LLMClient {
 			finishReason = chunkFinishReason;
 
 			// If text undefined, then do nothing
-			if (!chunkText) continue;
+			if (!chunkText) {
+				continue;
+			}
 
 			const shouldContinue = chatInterface.addStreamedChunk(chunkText);
 			if (!shouldContinue) {
@@ -125,7 +128,7 @@ export class OpenAIClient implements LLMClient {
 
 		// Cleanup any unfinished code blocks
 		if (unfinishedCodeBlock(fullResponse)) {
-			fullResponse += '\n```';
+			fullResponse += "\n```";
 		}
 		chatInterface.finalizeStreamedResponse(fullResponse, initialCursor);
 
@@ -135,12 +138,12 @@ export class OpenAIClient implements LLMClient {
 		};
 	}
 
-	private appendSystemCommands(systemCommands: string[], messages: Message[]) {
+	private appendSystemCommands(systemCommands: string[], messages: Message[]): void {
 		// Prepend system commands to messages
 		messages.unshift(
 			...systemCommands.map((command) => {
 				return {
-					role: 'system',
+					role: "system",
 					content: command,
 				};
 			}),
@@ -149,20 +152,20 @@ export class OpenAIClient implements LLMClient {
 
 	public async inferTitle(messages: Message[], inferTitleLanguage: string): Promise<string> {
 		if (messages.length < 2) {
-			new Notice('Not enough messages to infer title. Minimum 2 messages.');
+			new Notice("Not enough messages to infer title. Minimum 2 messages.");
 		}
 		const prompt = `Infer title from the summary of the content of these messages. The title **cannot** contain any of the following characters: colon, back slash or forward slash. Just return the title. Write the title in ${inferTitleLanguage}. \nMessages:\n\n${JSON.stringify(messages)}`;
 
 		const titleMessage: OpenAI.Chat.ChatCompletionMessageParam[] = [
 			{
-				role: 'user',
+				role: "user",
 				content: prompt,
 			},
 		];
 
 		const response = await this.client.chat.completions.create({
 			messages: titleMessage,
-			model: 'gpt-3.5-turbo',
+			model: "gpt-3.5-turbo",
 			max_tokens: 50,
 			temperature: 0.0,
 			stream: false,
@@ -170,7 +173,7 @@ export class OpenAIClient implements LLMClient {
 
 		const title = response.choices[0].message.content;
 		if (!title) {
-			throw new Error('Title unable to be inferred');
+			throw new Error("Title unable to be inferred");
 		}
 
 		return title;

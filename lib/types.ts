@@ -1,13 +1,13 @@
-import Anthropic from '@anthropic-ai/sdk';
-import { EditorView } from '@codemirror/view';
-import { Editor, FrontMatterCache } from 'obsidian';
-import OpenAI from 'openai';
+import Anthropic from "@anthropic-ai/sdk";
+import { EditorView } from "@codemirror/view";
+import { Editor, FrontMatterCache } from "obsidian";
+import OpenAI from "openai";
 
-export type LLM = 'OpenAI' | 'Anthropic';
+export type LLM = "OpenAI" | "Anthropic";
 
 export type ChatFrontmatter = Omit<
 	OpenAI.ChatCompletionCreateParams & Anthropic.MessageCreateParams,
-	'messages'
+	"messages"
 > & {
 	title: string;
 	tags: FrontMatterCache;
@@ -16,49 +16,49 @@ export type ChatFrontmatter = Omit<
 };
 
 export enum TextFileExtension {
-	MD = 'md',
-	TXT = 'txt',
+	MD = "md",
+	TXT = "txt",
 }
 
 export type TextMessageContent = {
-	type: 'text';
+	type: "text";
 	text: string;
 	originalPath?: string;
 	resolvedContent?: (TextMessageContent | ImageMessageContent | DocumentMessageContent)[];
 };
 
 export enum ImageExtensionToMimeType {
-	PNG = 'image/png',
-	JPG = 'image/jpeg',
-	JPEG = 'image/jpeg',
-	GIF = 'image/gif',
+	PNG = "image/png",
+	JPG = "image/jpeg",
+	JPEG = "image/jpeg",
+	GIF = "image/gif",
 }
 export type ImageExtension = keyof typeof ImageExtensionToMimeType;
 
 export type ImageSource = {
-	type: 'base64';
+	type: "base64";
 	media_type: string;
 	data: string;
 };
 
 export type ImageMessageContent = {
-	type: 'image';
+	type: "image";
 	source: ImageSource;
 	originalPath?: string;
 };
 
 export enum PDFFileExtension {
-	PDF = 'pdf',
+	PDF = "pdf",
 }
 
 export type PDFSource = {
-	type: 'base64';
-	media_type: 'application/pdf';
+	type: "base64";
+	media_type: "application/pdf";
 	data: string;
 };
 
 export type DocumentMessageContent = {
-	type: 'document';
+	type: "document";
 	source: PDFSource;
 	originalPath?: string;
 };

@@ -1,12 +1,12 @@
-import { Command, Editor, MarkdownView } from 'obsidian';
-import Cerebro from '../main';
-import ChatInterface from '../chatInterface';
-import { writeInferredTitleToEditor } from '../helpers';
+import { Command, Editor, MarkdownView } from "obsidian";
+import ChatInterface from "../chatInterface";
+import { writeInferredTitleToEditor } from "../helpers";
+import Cerebro from "../main";
 
 export const inferTitleCommand = (plugin: Cerebro): Command => ({
-	id: 'cerebro-infer-title',
-	name: 'Infer title',
-	icon: 'subtitles',
+	id: "cerebro-infer-title",
+	name: "Infer title",
+	icon: "subtitles",
 	editorCallback: async (editor: Editor, view: MarkdownView) => {
 		const chatInterface = new ChatInterface(plugin.settings, editor, view);
 		const frontmatter = chatInterface.getFrontmatter(plugin.app);

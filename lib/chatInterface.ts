@@ -1,22 +1,31 @@
 import {
 	ChatFrontmatter,
-	ImageSource,
+	DocumentMessageContent,
+	EditorWithCM6,
 	ImageExtension,
 	ImageExtensionToMimeType,
-	Message,
 	ImageMessageContent,
-	TextMessageContent,
-	DocumentMessageContent,
+	Message,
 	PDFSource,
-	EditorWithCM6,
-} from 'lib/types';
-import { Editor, EditorPosition, MarkdownView, TFile } from 'obsidian';
-import { App } from 'obsidian';
-import { assistantHeader, CSSAssets, userHeader, YAML_FRONTMATTER_REGEX } from './constants';
-import { getCerebroBaseSystemPrompts } from './helpers';
-import { CerebroSettings, DEFAULT_SETTINGS } from './settings';
-import { isValidFileExtension, isValidImageExtension, isValidPDFExtension } from './helpers';
-import { logger } from './logger';
+	TextMessageContent,
+} from "lib/types";
+import { App, Editor, EditorPosition, MarkdownView, TFile } from "obsidian";
+import {
+	assistantHeader,
+	CSSAssets,
+	MAX_DOCUMENT_DEPTH,
+	userHeader,
+	YAML_FRONTMATTER_REGEX,
+} from "./constants";
+import {
+	getCerebroBaseSystemPrompts,
+	isValidFileExtension,
+	isValidImageExtension,
+	isValidPDFExtension,
+} from "./helpers";
+import { logger } from "./logger";
+import { CerebroSettings, DEFAULT_SETTINGS } from "./settings";
+
 export type ShouldContinue = boolean;
 
 const removeYMLFromMessage = (message: string): string => {
@@ -24,9 +33,9 @@ const removeYMLFromMessage = (message: string): string => {
 	 * Removes any YAML content from a message
 	 */
 	try {
-		return message.replace(YAML_FRONTMATTER_REGEX, '');
+		return message.replace(YAML_FRONTMATTER_REGEX, "");
 	} catch (err) {
-		throw new Error('Error removing YML from message' + err);
+		throw new Error("Error removing YML from message" + err);
 	}
 };
 
@@ -37,7 +46,7 @@ const splitMessages = (text: string): string[] => {
 	try {
 		return text.split(`<hr class="${CSSAssets.HR}">`);
 	} catch (err) {
-		throw new Error('Error splitting messages' + err);
+		throw new Error("Error splitting messages" + err);
 	}
 };
 
@@ -50,20 +59,20 @@ const removeCommentsFromMessages = (message: string): string => {
 		const commentBlock = /=begin-comment[\s\S]*?=end-comment/g;
 
 		// Remove comment block
-		return message.replace(commentBlock, '');
+		return message.replace(commentBlock, "");
 	} catch (err) {
-		throw new Error('Error removing comments from messages' + err);
+		throw new Error("Error removing comments from messages" + err);
 	}
 };
 
-const escapeRegExp = (text: string): string => {
-	return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-};
+// const escapeRegExp = (text: string): string => {
+// 	return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+// };
 
 const extractRoleAndMessage = (message: string, settings: CerebroSettings): Message => {
 	try {
 		if (!message.includes(CSSAssets.HEADER)) {
-			return { role: 'user', content: message.trim() };
+			return { role: "user", content: message.trim() };
 		}
 
 		// Extract name from header
@@ -71,27 +80,26 @@ const extractRoleAndMessage = (message: string, settings: CerebroSettings): Mess
 		const headerMatch = message.match(headerRegex);
 
 		if (!headerMatch) {
-			throw new Error('Malformed header in message');
+			throw new Error("Malformed header in message");
 		}
 
 		const name = headerMatch[1];
-		const role = name === settings.assistantName ? 'assistant' : 'user';
+		const role = name === settings.assistantName ? "assistant" : "user";
 
 		// Extract content after the header
 		const contentStartIdx = headerMatch.index! + headerMatch[0].length;
 		const content = message.slice(contentStartIdx).trim();
 
 		if (!content) {
-			throw new Error('Empty message content');
+			throw new Error("Empty message content");
 		}
 		return { role, content };
 	} catch (err) {
-		throw new Error('Error extracting role and message' + err);
+		throw new Error("Error extracting role and message" + err);
 	}
 };
 
 export default class ChatInterface {
-	private readonly MAX_DEPTH = 2; // Maximum depth of document resolution
 	private editor: Editor;
 	private view: MarkdownView;
 	public stopStreaming = false;
@@ -109,13 +117,13 @@ export default class ChatInterface {
 
 	private initScrollTracking(): void {
 		const cm6editor = this.editor as EditorWithCM6;
-		const handleWheel = (e: WheelEvent) => {
+		const handleWheel = (e: WheelEvent): void => {
 			if (e.deltaY !== 0 && !this.userScrolling) {
 				this.userScrolling = true;
-				logger.debug('[Cerebro] User started scrolling (wheel event)');
+				logger.debug("[Cerebro] User started scrolling (wheel event)");
 			}
 		};
-		cm6editor.cm.scrollDOM.addEventListener('wheel', handleWheel);
+		cm6editor.cm.scrollDOM.addEventListener("wheel", handleWheel);
 	}
 
 	public async getMessages(app: App): Promise<{
@@ -143,20 +151,20 @@ export default class ChatInterface {
 		try {
 			const activeFile = this.view.file;
 			if (!activeFile) {
-				throw new Error('No active file');
+				throw new Error("No active file");
 			}
 
 			// Convert files to Obsidian wiki link format
 			const linkedFiles = Array.from(processedFiles).map((file) => `[[${file}]]`);
 
-			console.log('linkedFiles', linkedFiles);
+			console.log("linkedFiles", linkedFiles);
 			// Use Obsidian's metadata API
 			await app.fileManager.processFrontMatter(activeFile, (frontmatter) => {
-				frontmatter['files'] = linkedFiles;
+				frontmatter.files = linkedFiles;
 			});
 		} catch (err) {
-			logger.error('Error updating frontmatter with files:', err);
-			throw new Error('Failed to update frontmatter with files');
+			logger.error("Error updating frontmatter with files:", err);
+			throw new Error("Failed to update frontmatter with files");
 		}
 	}
 
@@ -265,7 +273,7 @@ export default class ChatInterface {
 
 			return newCursor;
 		} catch (err) {
-			throw new Error('Error moving cursor to end of file' + err);
+			throw new Error("Error moving cursor to end of file" + err);
 		}
 	}
 
@@ -282,15 +290,15 @@ export default class ChatInterface {
 
 	private getHeadingPrefix(headingLevel: number): string {
 		if (headingLevel === 0) {
-			return '';
+			return "";
 		} else if (headingLevel > 6) {
-			return '#'.repeat(6) + ' ';
+			return "#".repeat(6) + " ";
 		}
-		return '#'.repeat(headingLevel) + ' ';
+		return "#".repeat(headingLevel) + " ";
 	}
 
-	public updateSettings(settings: CerebroSettings) {
-		logger.info('Saving settings in ChatController');
+	public updateSettings(settings: CerebroSettings): void {
+		logger.info("Saving settings in ChatController");
 		this.settings = settings;
 	}
 
@@ -303,7 +311,7 @@ export default class ChatInterface {
 			const noteFile = app.workspace.getActiveFile();
 
 			if (!noteFile) {
-				throw new Error('No active file');
+				throw new Error("No active file");
 			}
 
 			const metaMatter = app.metadataCache.getFileCache(noteFile)?.frontmatter;
@@ -349,13 +357,13 @@ export default class ChatInterface {
 				system_commands,
 			};
 		} catch (err) {
-			throw new Error('Error getting frontmatter');
+			throw new Error("Error getting frontmatter");
 		}
 	}
 
 	public addStreamedChunk(chunkText: string): ShouldContinue {
 		if (this.stopStreaming) {
-			logger.info('Stopping stream...');
+			logger.info("Stopping stream...");
 			return false;
 		}
 		const cm6editor = this.editor as EditorWithCM6;
@@ -418,7 +426,7 @@ export default class ChatInterface {
 		processedFiles: Set<string>,
 	): Promise<Message> {
 		// Stop if we've exceeded the max depth
-		if (depth > this.MAX_DEPTH) {
+		if (depth > MAX_DOCUMENT_DEPTH) {
 			return message;
 		}
 
@@ -438,27 +446,31 @@ export default class ChatInterface {
 		// If message.content is an array, we only process the text contents
 		const contentToProcess = Array.isArray(message.content)
 			? message.content
-					.filter((c) => c.type === 'text')
+					.filter((c) => c.type === "text")
 					.map((c) => (c as TextMessageContent).text)
-					.join('\n')
+					.join("\n")
 			: (message.content as string);
 
 		// Find any file matches
 		const filesMatches = contentToProcess.match(fileRegex);
-		if (!filesMatches) return message;
+		if (!filesMatches) {
+			return message;
+		}
 		for (const match of filesMatches) {
-			const filePath = match.replace(/\[\[|\]\]/g, '').split('|')[0];
-			const file = app.metadataCache.getFirstLinkpathDest(filePath, '');
+			const filePath = match.replace(/\[\[|\]\]/g, "").split("|")[0];
+			const file = app.metadataCache.getFirstLinkpathDest(filePath, "");
 
 			// Skip if we've already processed this file to prevent cycles
-			if (processedFiles.has(filePath)) continue;
+			if (processedFiles.has(filePath)) {
+				continue;
+			}
 			processedFiles.add(filePath);
 
 			if (file && file instanceof TFile) {
 				if (isValidImageExtension(file?.extension)) {
 					try {
 						images.push({
-							type: 'image',
+							type: "image",
 							source: await this.getImageSourceFromFile(app, file),
 							originalPath: filePath,
 						});
@@ -468,7 +480,7 @@ export default class ChatInterface {
 				} else if (isValidPDFExtension(file?.extension)) {
 					try {
 						pdfs.push({
-							type: 'document',
+							type: "document",
 							source: await this.getPDFSourceFromFile(app, file),
 							originalPath: filePath,
 						});
@@ -482,13 +494,13 @@ export default class ChatInterface {
 						const contentWithoutYAML = removeYMLFromMessage(fileContent);
 						const nestedContent = await this.parseFilesFromMessage(
 							app,
-							{ role: 'user', content: contentWithoutYAML },
+							{ role: "user", content: contentWithoutYAML },
 							depth + 1,
 							processedFiles,
 						);
 
 						texts.push({
-							type: 'text',
+							type: "text",
 							text: fileContent,
 							originalPath: filePath,
 							resolvedContent: Array.isArray(nestedContent.content)
@@ -506,7 +518,7 @@ export default class ChatInterface {
 			...message,
 			content: [
 				{
-					type: 'text',
+					type: "text",
 					text: contentToProcess,
 				},
 				...images,
@@ -516,15 +528,17 @@ export default class ChatInterface {
 		};
 	}
 
-	public clearConversationExceptFrontmatter(editor: Editor) {
+	public clearConversationExceptFrontmatter(editor: Editor): EditorPosition {
 		try {
 			// Retrieve frontmatter text (not the object)
 			const frontmatter = editor.getValue().match(YAML_FRONTMATTER_REGEX);
 
-			if (!frontmatter) throw new Error('no frontmatter found');
+			if (!frontmatter) {
+				throw new Error("no frontmatter found");
+			}
 
 			// clear editor
-			editor.setValue('');
+			editor.setValue("");
 
 			// add frontmatter back
 			editor.replaceRange(frontmatter[0], editor.getCursor());
@@ -542,7 +556,7 @@ export default class ChatInterface {
 
 			return newCursor;
 		} catch (err) {
-			throw new Error('Error clearing conversation' + err);
+			throw new Error("Error clearing conversation" + err);
 		}
 	}
 
@@ -551,16 +565,16 @@ export default class ChatInterface {
 		const arrayBuffer = await app.vault.readBinary(image);
 
 		// Convert array buffer to base64
-		const base64 = Buffer.from(arrayBuffer).toString('base64');
+		const base64 = Buffer.from(arrayBuffer).toString("base64");
 
 		// Get the file extension
-		const fileExtension = image.extension.toLowerCase();
+		// const fileExtension = image.extension.toLowerCase();
 
 		// Return with proper mime type prefix
 		const mimeType = ImageExtensionToMimeType[image.extension.toUpperCase() as ImageExtension];
 
 		return {
-			type: 'base64',
+			type: "base64",
 			media_type: mimeType,
 			data: base64,
 		};
@@ -571,11 +585,11 @@ export default class ChatInterface {
 		const arrayBuffer = await app.vault.readBinary(pdfFile);
 
 		// Convert array buffer to base64
-		const base64 = Buffer.from(arrayBuffer).toString('base64');
+		const base64 = Buffer.from(arrayBuffer).toString("base64");
 
 		return {
-			type: 'base64',
-			media_type: 'application/pdf',
+			type: "base64",
+			media_type: "application/pdf",
 			data: base64,
 		};
 	}
@@ -584,7 +598,7 @@ export default class ChatInterface {
 		const text = await app.vault.cachedRead(textFile);
 
 		return {
-			type: 'text',
+			type: "text",
 			text,
 		};
 	}

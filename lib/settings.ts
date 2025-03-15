@@ -1,4 +1,4 @@
-import { ChatFrontmatter, LLM } from './types';
+import { LLM } from "./types";
 
 export interface LLMSettings {
 	apiKey: string;
@@ -23,30 +23,30 @@ export interface CerebroSettings {
 export const DEFAULT_SETTINGS: CerebroSettings = {
 	llmSettings: {
 		OpenAI: {
-			apiKey: 'default',
+			apiKey: "default",
 			defaultChatFrontmatter:
 				"---\nsystem_commands: ['I am a helpful assistant.']\ntemperature: 0\ntop_p: 1\nmax_tokens: 1024\npresence_penalty: 1\nfrequency_penalty: 1\nstream: true\nstop: null\nn: 1\nmodel: gpt-3.5-turbo\nllm: OpenAI\n---",
-			model: 'gpt-3.5-turbo',
+			model: "gpt-3.5-turbo",
 		},
 		Anthropic: {
-			apiKey: 'default',
+			apiKey: "default",
 			defaultChatFrontmatter:
-				'---\nsystem: []\ntemperature: 1.0\nmax_tokens: 1024\nstream: true\nstop: null\nmodel: claude-3-5-haiku-latest\nllm: Anthropic\n---',
-			model: 'claude-3-5-haiku-latest',
+				"---\nsystem: []\ntemperature: 1.0\nmax_tokens: 1024\nstream: true\nstop: null\nmodel: claude-3-5-haiku-latest\nllm: Anthropic\n---",
+			model: "claude-3-5-haiku-latest",
 		},
 	},
-	username: 'User',
-	assistantName: 'Cerebro',
-	defaultLLM: 'Anthropic',
+	username: "User",
+	assistantName: "Cerebro",
+	defaultLLM: "Anthropic",
 	stream: true,
-	chatTemplateFolder: 'Cerebro/Templates',
-	chatFolder: 'Cerebro/Chats',
+	chatTemplateFolder: "Cerebro/Templates",
+	chatFolder: "Cerebro/Chats",
 	autoInferTitle: true,
-	dateFormat: 'YYYY-MM-DD-hhmmss',
+	dateFormat: "YYYY-MM-DD-hhmmss",
 	headingLevel: 3,
-	inferTitleLanguage: 'English',
+	inferTitleLanguage: "English",
 };
 
-export const getFrontmatter = (settings: CerebroSettings) => {
+export const getFrontmatter = (settings: CerebroSettings): string => {
 	return settings.llmSettings[settings.defaultLLM].defaultChatFrontmatter;
 };

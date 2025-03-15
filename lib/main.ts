@@ -1,15 +1,15 @@
-import { isTitleTimestampFormat, sanitizeTitle, writeInferredTitleToEditor } from 'lib/helpers';
-import { MarkdownView, Notice, Platform, Plugin, TFile } from 'obsidian';
-import { getCommands } from './commands';
-import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from './constants';
-import { AnthropicClient } from './models/anthropicClient';
-import { LLMClient } from './models/client';
-import { OpenAIClient } from './models/openAIClient';
-import { CerebroSettings, DEFAULT_SETTINGS } from './settings';
-import { LLM, Message } from './types';
-import { SettingsTab } from './views/settingsTab';
-import { logger } from './logger';
-import ChatInterface from './chatInterface';
+import { isTitleTimestampFormat, sanitizeTitle, writeInferredTitleToEditor } from "lib/helpers";
+import { MarkdownView, Notice, Platform, Plugin, TFile } from "obsidian";
+import ChatInterface from "./chatInterface";
+import { getCommands } from "./commands";
+import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "./constants";
+import { logger } from "./logger";
+import { AnthropicClient } from "./models/anthropicClient";
+import { LLMClient } from "./models/client";
+import { OpenAIClient } from "./models/openAIClient";
+import { CerebroSettings, DEFAULT_SETTINGS } from "./settings";
+import { LLM, Message } from "./types";
+import { SettingsTab } from "./views/settingsTab";
 
 export default class Cerebro extends Plugin {
 	public chatInterfaces: Map<TFile, ChatInterface> = new Map();
@@ -17,11 +17,11 @@ export default class Cerebro extends Plugin {
 	public statusBar: HTMLElement;
 	private llmClients: Record<LLM, LLMClient>;
 
-	async onload(): Promise<void> {
-		logger.debug('[Cerebro] Adding status bar');
+	public async onload(): Promise<void> {
+		logger.debug("[Cerebro] Adding status bar");
 		this.statusBar = this.addStatusBarItem();
 
-		logger.debug('[Cerebro] Loading settings');
+		logger.debug("[Cerebro] Loading settings");
 		await this.loadSettings();
 
 		this.initializeLLMClients();
@@ -34,8 +34,8 @@ export default class Cerebro extends Plugin {
 
 	private initializeLLMClients(): void {
 		this.llmClients = {
-			OpenAI: new OpenAIClient(this.settings.llmSettings['OpenAI'].apiKey),
-			Anthropic: new AnthropicClient(this.settings.llmSettings['Anthropic'].apiKey),
+			OpenAI: new OpenAIClient(this.settings.llmSettings.OpenAI.apiKey),
+			Anthropic: new AnthropicClient(this.settings.llmSettings.Anthropic.apiKey),
 		};
 	}
 
@@ -55,8 +55,8 @@ export default class Cerebro extends Plugin {
 			isTitleTimestampFormat(title, this.settings.dateFormat) &&
 			messages.length >= 4
 		) {
-			logger.info('[Cerebro] Auto inferring title from messages');
-			this.statusBar.setText('[Cerebro] Calling API...');
+			logger.info("[Cerebro] Auto inferring title from messages");
+			this.statusBar.setText("[Cerebro] Calling API...");
 
 			try {
 				const newTitle = await this.inferTitleFromMessages(messages, llm);
@@ -69,7 +69,7 @@ export default class Cerebro extends Plugin {
 						newTitle,
 					);
 				} else {
-					new Notice('[Cerebro] Could not infer title', 5000);
+					new Notice("[Cerebro] Could not infer title", 5000);
 				}
 			} catch (e) {
 				logger.error(e);
@@ -85,32 +85,32 @@ export default class Cerebro extends Plugin {
 	}
 
 	public async inferTitleFromMessages(messages: Message[], client: LLMClient): Promise<string> {
-		logger.info('[Cerebro] Inferring title');
-		new Notice('[Cerebro] Inferring title from messages...');
+		logger.info("[Cerebro] Inferring title");
+		new Notice("[Cerebro] Inferring title from messages...");
 
 		try {
 			const title = await client.inferTitle(messages, this.settings.inferTitleLanguage);
 			return sanitizeTitle(title);
 		} catch (e) {
 			new Notice(
-				'[Cerebro] Error inferring title from messages',
+				"[Cerebro] Error inferring title from messages",
 				ERROR_NOTICE_TIMEOUT_MILLISECONDS,
 			);
-			throw new Error('[Cerebro] Error inferring title from messages' + e);
+			throw new Error("[Cerebro] Error inferring title from messages" + e);
 		}
 	}
 
 	private async loadSettings(): Promise<void> {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-		logger.debug('Loaded settings', this.settings);
+		logger.debug("Loaded settings", this.settings);
 	}
 
-	public async saveSettings() {
-		logger.info('[Cerebro] Saving settings');
+	public async saveSettings(): Promise<void> {
+		logger.info("[Cerebro] Saving settings");
 		await this.saveData(this.settings);
 	}
 
-	public async onunload() {
+	public async onunload(): Promise<void> {
 		this.chatInterfaces.clear();
 	}
 }

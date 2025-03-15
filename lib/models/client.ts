@@ -1,5 +1,5 @@
-import ChatInterface from 'lib/chatInterface';
-import { ChatFrontmatter, Message } from 'lib/types';
+import ChatInterface from "lib/chatInterface";
+import { ChatFrontmatter, Message } from "lib/types";
 
 export interface LLMClient {
 	inferTitle(messages: Message[], inferTitleLanguage: string): Promise<string>;
