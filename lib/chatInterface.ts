@@ -5,6 +5,7 @@ import {
 	ImageExtension,
 	ImageExtensionToMimeType,
 	ImageMessageContent,
+	ImageSource,
 	Message,
 	PDFSource,
 	TextMessageContent,
