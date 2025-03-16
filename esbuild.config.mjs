@@ -18,6 +18,8 @@ const context = await esbuild.context({
 	bundle: true,
 	external: [
 		"obsidian",
+		"@codemirror/state",
+		"@codemirror/view",
 		"electron",
 		"@codemirror/autocomplete",
 		"@codemirror/collab",
@@ -25,8 +27,6 @@ const context = await esbuild.context({
 		"@codemirror/language",
 		"@codemirror/lint",
 		"@codemirror/search",
-		"@codemirror/state",
-		"@codemirror/view",
 		"@lezer/common",
 		"@lezer/highlight",
 		"@lezer/lr",
