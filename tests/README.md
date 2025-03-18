@@ -57,17 +57,17 @@ Example:
 import { App, Editor, MarkdownView } from "../mocks/obsidian";
 
 describe("MyComponent", () => {
-	let app: App;
-	let editor: Editor;
+    let app: App;
+    let editor: Editor;
 
-	beforeEach(() => {
-		app = new App();
-		editor = new Editor();
-		// Configure mocks for specific tests
-	});
+    beforeEach(() => {
+        app = new App();
+        editor = new Editor();
+        // Configure mocks for specific tests
+    });
 
-	it("should perform a specific action", () => {
-		// Test implementation
-	});
+    it("should perform a specific action", () => {
+        // Test implementation
+    });
 });
 ```
