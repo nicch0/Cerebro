@@ -18,6 +18,11 @@ export interface CerebroSettings {
     dateFormat: string;
     headingLevel: number;
     inferTitleLanguage: string;
+    defaultTemperature: number;
+    defaultMaxTokens: number;
+    defaultSystemPrompt: string;
+    modelPropertyName: string;
+    advancedMode: boolean;
 }
 
 export const DEFAULT_SETTINGS: CerebroSettings = {
@@ -45,6 +50,11 @@ export const DEFAULT_SETTINGS: CerebroSettings = {
     dateFormat: "YYYY-MM-DD-hhmmss",
     headingLevel: 3,
     inferTitleLanguage: "English",
+    defaultTemperature: 0.7,
+    defaultMaxTokens: 1024,
+    defaultSystemPrompt: "I am a helpful assistant.",
+    modelPropertyName: "llm_model",
+    advancedMode: false,
 };
 
 export const getFrontmatter = (settings: CerebroSettings): string => {

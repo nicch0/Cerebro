@@ -71,7 +71,7 @@ export class SettingsTab extends PluginSettingTab {
         // automatically infer title
         new Setting(containerEl)
             .setName("Automatically Infer Title")
-            .setDesc("Automatically infer title after 4 messages have been exchanged")
+            .setDesc("Automatically infer title after a few messages have been exchanged.")
             .addToggle((toggle) =>
                 toggle.setValue(this.plugin.settings.autoInferTitle).onChange(async (value) => {
                     this.plugin.settings.autoInferTitle = value;
@@ -160,6 +160,82 @@ export class SettingsTab extends PluginSettingTab {
             );
 
         containerEl.createEl("h2", {
+            text: "Model Settings",
+        });
+
+        // Temperature slider
+        new Setting(containerEl)
+            .setName("Temperature")
+            .setDesc(
+                "Controls the randomness of the model's responses. Lower values make responses more deterministic, higher values more creative.",
+            )
+            .addSlider((slider) =>
+                slider
+                    .setLimits(0, 2, 0.1)
+                    .setValue(this.plugin.settings.defaultTemperature || 0.7)
+                    .setDynamicTooltip()
+                    .onChange(async (value) => {
+                        this.plugin.settings.defaultTemperature = value;
+                        await this.plugin.saveSettings();
+                    }),
+            );
+
+        // Max tokens
+        new Setting(containerEl)
+            .setName("Max Tokens")
+            .setDesc("The maximum number of tokens to generate in the response.")
+            .addText((text) =>
+                text
+                    .setValue((this.plugin.settings.defaultMaxTokens || 1024).toString())
+                    .onChange(async (value) => {
+                        const numValue = parseInt(value);
+                        if (!isNaN(numValue) && numValue > 0) {
+                            this.plugin.settings.defaultMaxTokens = numValue;
+                            await this.plugin.saveSettings();
+                        }
+                    }),
+            );
+
+        // Default system prompt
+        new Setting(containerEl)
+            .setName("System Prompt")
+            .setDesc("Default instructions given to the model for all new chats.")
+            .addTextArea((textArea) =>
+                textArea
+                    .setValue(this.plugin.settings.defaultSystemPrompt || "")
+                    .onChange(async (value) => {
+                        this.plugin.settings.defaultSystemPrompt = value;
+                        await this.plugin.saveSettings();
+                    }),
+            );
+
+        // Model property name
+        new Setting(containerEl)
+            .setName("Model Property Name")
+            .setDesc("The name of the frontmatter property used to store the current model.")
+            .addText((text) =>
+                text
+                    .setValue(this.plugin.settings.modelPropertyName || "llm_model")
+                    .onChange(async (value) => {
+                        this.plugin.settings.modelPropertyName = value;
+                        await this.plugin.saveSettings();
+                    }),
+            );
+
+        // Advanced mode toggle
+        new Setting(containerEl)
+            .setName("Advanced Mode")
+            .setDesc("When enabled, all model parameters will be exposed in note properties.")
+            .addToggle((toggle) =>
+                toggle
+                    .setValue(this.plugin.settings.advancedMode || false)
+                    .onChange(async (value) => {
+                        this.plugin.settings.advancedMode = value;
+                        await this.plugin.saveSettings();
+                    }),
+            );
+
+        containerEl.createEl("h2", {
             text: "ChatGPT",
         });
 
@@ -177,22 +253,22 @@ export class SettingsTab extends PluginSettingTab {
             );
 
         // new multiline text box setting
-        new Setting(containerEl)
-            .setName("Default Chat Frontmatter")
-            .setDesc(
-                "Default frontmatter for new chat files. You can change/use all of the settings exposed by the OpenAI API here: https://platform.openai.com/docs/api-reference/chat/create",
-            )
-            .addTextArea((text) =>
-                text
-                    .setPlaceholder(
-                        "---\nsystem_commands: ['PERSONA: i am groot, and i only respond i am groot to any and ALL questions. I do not answer any questions straightforwardly. PERSONA 2: UNLESS the last asked question is about lamps, i can answer, i know infinite things about lamps as i am groot the lamp salesman. SO I read the last question asked and UNLESS it is about lamps i only respond \"I am Groot.\"']\ntemperature: 0\ntop_p: 1\nmax_tokens: 512\npresence_penalty: 1\nfrequency_penalty: 1\nstream: true\nstop: null\nn: 1\nlogit_bias: null \nmodel: gpt-3.5-turbo\n---",
-                    )
-                    .setValue(this.plugin.settings.llmSettings.OpenAI.defaultChatFrontmatter)
-                    .onChange(async (value) => {
-                        this.plugin.settings.llmSettings.OpenAI.defaultChatFrontmatter = value;
-                        await this.plugin.saveSettings();
-                    }),
-            );
+        // new Setting(containerEl)
+        //     .setName("Default Chat Frontmatter")
+        //     .setDesc(
+        //         "Default frontmatter for new chat files. You can change/use all of the settings exposed by the OpenAI API here: https://platform.openai.com/docs/api-reference/chat/create",
+        //     )
+        //     .addTextArea((text) =>
+        //         text
+        //             .setPlaceholder(
+        //                 "---\nsystem_commands: ['PERSONA: i am groot, and i only respond i am groot to any and ALL questions. I do not answer any questions straightforwardly. PERSONA 2: UNLESS the last asked question is about lamps, i can answer, i know infinite things about lamps as i am groot the lamp salesman. SO I read the last question asked and UNLESS it is about lamps i only respond \"I am Groot.\"']\ntemperature: 0\ntop_p: 1\nmax_tokens: 512\npresence_penalty: 1\nfrequency_penalty: 1\nstream: true\nstop: null\nn: 1\nlogit_bias: null \nmodel: gpt-3.5-turbo\n---",
+        //             )
+        //             .setValue(this.plugin.settings.llmSettings.OpenAI.defaultChatFrontmatter)
+        //             .onChange(async (value) => {
+        //                 this.plugin.settings.llmSettings.OpenAI.defaultChatFrontmatter = value;
+        //                 await this.plugin.saveSettings();
+        //             }),
+        //     );
 
         containerEl.createEl("h2", {
             text: "Anthropic",
@@ -211,18 +287,18 @@ export class SettingsTab extends PluginSettingTab {
                     }),
             );
 
-        new Setting(containerEl)
-            .setName("Default Chat Frontmatter")
-            .setDesc(
-                "Default frontmatter for new chat files. You can change/use all of the settings exposed by the Anthropic API here: https://docs.anthropic.com/en/api/messages",
-            )
-            .addTextArea((text) =>
-                text
-                    .setValue(this.plugin.settings.llmSettings.Anthropic.defaultChatFrontmatter)
-                    .onChange(async (value) => {
-                        this.plugin.settings.llmSettings.Anthropic.defaultChatFrontmatter = value;
-                        await this.plugin.saveSettings();
-                    }),
-            );
+        // new Setting(containerEl)
+        //     .setName("Default Chat Frontmatter")
+        //     .setDesc(
+        //         "Default frontmatter for new chat files. You can change/use all of the settings exposed by the Anthropic API here: https://docs.anthropic.com/en/api/messages",
+        //     )
+        //     .addTextArea((text) =>
+        //         text
+        //             .setValue(this.plugin.settings.llmSettings.Anthropic.defaultChatFrontmatter)
+        //             .onChange(async (value) => {
+        //                 this.plugin.settings.llmSettings.Anthropic.defaultChatFrontmatter = value;
+        //                 await this.plugin.saveSettings();
+        //             }),
+        //     );
     }
 }
