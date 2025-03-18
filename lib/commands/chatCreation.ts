@@ -51,6 +51,7 @@ export async function openInMainEditor(
     newFile: TFile,
     chatInterface: ChatInterface,
 ): Promise<void> {
+    console.log("Opening");
     await plugin.app.workspace.openLinkText(newFile.basename, "", true, {
         state: { mode: "source" },
     });
