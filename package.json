@@ -28,9 +28,15 @@
         "node": ">=16.0.0"
     },
     "dependencies": {
+        "@ai-sdk/anthropic": "^1.1.17",
+        "@ai-sdk/deepseek": "^0.1.15",
+        "@ai-sdk/google": "^1.1.25",
+        "@ai-sdk/openai": "^1.2.5",
+        "@ai-sdk/xai": "^1.1.15",
         "@anthropic-ai/sdk": "^0.39.0",
         "@codemirror/state": "^6.5.2",
         "@codemirror/view": "^6.36.4",
+        "ai": "^4.1.62",
         "obsidian": "^1.8.7",
         "openai": "^4.87.4",
         "pino": "^9.6.0",

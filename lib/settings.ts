@@ -1,62 +1,68 @@
-import { LLM } from "./types";
+import { Provider } from "./types";
 
-export interface LLMSettings {
+export interface ProviderSettings {
     apiKey: string;
-    defaultChatFrontmatter: string;
-    model: string;
 }
 
 export interface CerebroSettings {
-    defaultLLM: LLM;
-    llmSettings: Record<LLM, LLMSettings>;
-    username: string;
+    providerSettings: Record<Provider, ProviderSettings>;
+    userName: string;
     assistantName: string;
-    stream: boolean;
     chatTemplateFolder: string;
     chatFolder: string;
     autoInferTitle: boolean;
     dateFormat: string;
     headingLevel: number;
     inferTitleLanguage: string;
+
+    defaultModel: string;
+    defaultStream: boolean;
     defaultTemperature: number;
     defaultMaxTokens: number;
     defaultSystemPrompt: string;
+
     modelPropertyName: string;
     advancedMode: boolean;
 }
 
 export const DEFAULT_SETTINGS: CerebroSettings = {
-    llmSettings: {
+    providerSettings: {
         OpenAI: {
             apiKey: "default",
-            defaultChatFrontmatter:
-                "---\nsystem_commands: ['I am a helpful assistant.']\ntemperature: 0\ntop_p: 1\nmax_tokens: 1024\npresence_penalty: 1\nfrequency_penalty: 1\nstream: true\nstop: null\nn: 1\nmodel: gpt-3.5-turbo\nllm: OpenAI\n---",
-            model: "gpt-3.5-turbo",
         },
         Anthropic: {
             apiKey: "default",
-            defaultChatFrontmatter:
-                "---\nsystem: []\ntemperature: 1.0\nmax_tokens: 1024\nstream: true\nstop: null\nmodel: claude-3-5-haiku-latest\nllm: Anthropic\n---",
-            model: "claude-3-5-haiku-latest",
+        },
+        Google: {
+            apiKey: "default",
+        },
+        DeepSeek: {
+            apiKey: "default",
+        },
+        XAI: {
+            apiKey: "default",
         },
     },
-    username: "User",
+    userName: "User",
     assistantName: "Cerebro",
-    defaultLLM: "Anthropic",
-    stream: true,
     chatTemplateFolder: "Cerebro/Templates",
     chatFolder: "Cerebro/Chats",
     autoInferTitle: true,
     dateFormat: "YYYY-MM-DD-hhmmss",
     headingLevel: 3,
     inferTitleLanguage: "English",
+
+    defaultModel: "openai:gpt-4o-mini",
+    defaultStream: true,
     defaultTemperature: 0.7,
     defaultMaxTokens: 1024,
     defaultSystemPrompt: "I am a helpful assistant.",
     modelPropertyName: "llm_model",
+
     advancedMode: false,
 };
 
 export const getFrontmatter = (settings: CerebroSettings): string => {
-    return settings.llmSettings[settings.defaultLLM].defaultChatFrontmatter;
+    // return settings.llmSettings[settings.defaultLLM];
+    return "---\nsystem_commands: ['I am a helpful assistant.']\ntemperature: 0\ntop_p: 1\nmax_tokens: 1024\npresence_penalty: 1\nfrequency_penalty: 1\nstream: true\nstop: null\nn: 1\nmodel: gpt-3.5-turbo\nllm: OpenAI\n---";
 };

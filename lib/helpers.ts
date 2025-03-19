@@ -1,6 +1,5 @@
 import { App, FileManager, MarkdownView, Notice, Vault } from "obsidian";
 import { logger } from "./logger";
-import { CerebroSettings } from "./settings";
 import {
     DocumentMessageContent,
     ImageExtension,
@@ -12,14 +11,7 @@ import {
     TextMessageContent,
 } from "./types";
 import { FolderCreationModal } from "./views/folderCreation";
-
-export const sanitizeTitle = (title: string): string => {
-    return title
-        .replace(/[:/\\]/g, "")
-        .replace("Title", "")
-        .replace("title", "")
-        .trim();
-};
+import { CerebroSettings } from "./settings";
 
 export const unfinishedCodeBlock = (txt: string): boolean => {
     /**
@@ -62,7 +54,7 @@ export const writeInferredTitleToEditor = async (
         }
     } catch (err) {
         new Notice("[Cerebro] Error writing inferred title to editor");
-        logger.info("[Cerebro] Error writing inferred title to editor", err);
+        logger.error("[Cerebro] Error writing inferred title to editor", err);
         throw err;
     }
 };

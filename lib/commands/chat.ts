@@ -26,17 +26,21 @@ export const chatCommand = (plugin: Cerebro): Command => ({
         }
 
         const frontmatter = chatInterface.getFrontmatter(plugin.app);
-        const llm = plugin.getLLMClient(frontmatter.llm);
         const { messages, files } = await chatInterface.getMessages(plugin.app);
         logger.debug(`[Cerebro] Retrieved messages`, messages);
         chatInterface.completeUserResponse();
 
         try {
-            const response = await llm.chat(messages, frontmatter, chatInterface);
+            const response = await plugin.ai.chat(
+                messages,
+                frontmatter,
+                plugin.settings,
+                chatInterface,
+            );
             chatInterface.completeAssistantResponse();
 
             if (response && plugin.settings.autoInferTitle) {
-                await plugin.handleTitleInference(messages.concat(response), view, llm);
+                await plugin.handleTitleInference(messages.concat(response), view, plugin.ai);
             }
         } catch (e) {
             new Notice("[Cerebro] Chat failed: " + e.message, ERROR_NOTICE_TIMEOUT_MILLISECONDS);

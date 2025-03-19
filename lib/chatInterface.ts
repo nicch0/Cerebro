@@ -25,7 +25,7 @@ import {
     isValidPDFExtension,
 } from "./helpers";
 import { logger } from "./logger";
-import { CerebroSettings, DEFAULT_SETTINGS } from "./settings";
+import { CerebroSettings } from "./settings";
 
 export type ShouldContinue = boolean;
 
@@ -243,14 +243,14 @@ export default class ChatInterface {
         this.userScrolling = false;
     }
 
-    // public appendNonStreamingMessage(message: string): void {
-    //     /**
-    //      * 1. Places assistant's response
-    //      * 2. Moves cursor to end of line
-    //      */
-    //     this.editor.replaceRange(message, this.editor.getCursor());
-    //     this.editorPosition = this.moveCursorToEndOfLine(this.editor, message);
-    // }
+    public appendNonStreamingMessage(message: string): void {
+        /**
+         * 1. Places assistant's response
+         * 2. Moves cursor to end of line
+         */
+        this.editor.replaceRange(message, this.editor.getCursor());
+        this.editorPosition = this.moveCursorToEndOfLine(this.editor, message);
+    }
 
     public moveCursorToEndOfFile(editor: Editor): EditorPosition {
         try {
@@ -307,55 +307,60 @@ export default class ChatInterface {
          * Retrieves the frontmatter from a markdown file
          */
         try {
-            // Retrieve frontmatter
             const noteFile = app.workspace.getActiveFile();
 
             if (!noteFile) {
                 throw new Error("No active file");
             }
-
             const metaMatter = app.metadataCache.getFileCache(noteFile)?.frontmatter;
 
-            // Checks three layers in decreasing priority - frontmatter, user settings, then default settings
-            const stream =
-                metaMatter?.stream !== undefined
-                    ? metaMatter.stream // If defined in frontmatter, use its value.
-                    : this.settings.stream !== undefined
-                      ? this.settings.stream // If not defined in frontmatter but exists globally, use its value.
-                      : DEFAULT_SETTINGS.stream; // Otherwise fallback on true.
+            // Get basic properties
+            const title = metaMatter?.title || this.view.file?.basename;
+            const tags = metaMatter?.tags || [];
 
-            const llm =
-                metaMatter?.llm !== undefined
-                    ? metaMatter.llm
-                    : this.settings.defaultLLM || DEFAULT_SETTINGS.defaultLLM;
-
-            const model =
-                metaMatter?.model !== undefined
-                    ? metaMatter.model
-                    : this.settings.llmSettings[this.settings.defaultLLM].model;
-
-            const system_commands = [
+            // Get system commands/instructions
+            const system = [
                 ...getCerebroBaseSystemPrompts(this.settings),
-                metaMatter?.systemCommands || metaMatter?.system || [],
-            ];
+                ...(metaMatter?.system || []),
+            ].filter((cmd) => cmd); // Filter out empty values
 
-            return {
-                llm,
-                model,
-                stream,
-                title: metaMatter?.title || this.view.file?.basename,
-                tags: metaMatter?.tags || [],
-                temperature: metaMatter?.temperature || null,
-                top_p: metaMatter?.top_p || null,
-                presence_penalty: metaMatter?.presence_penalty || null,
-                frequency_penalty: metaMatter?.frequency_penalty || null,
-                max_tokens: metaMatter?.max_tokens || null,
-                stop: metaMatter?.stop || null,
-                n: metaMatter?.n || null,
-                logit_bias: metaMatter?.logit_bias || null,
-                user: metaMatter?.user || null,
-                system_commands,
+            // Create basic frontmatter object with required properties
+            const frontmatter: ChatFrontmatter = {
+                title,
+                tags,
+                system,
             };
+
+            // Add model generation parameters if they exist in the frontmatter
+            if (metaMatter?.model !== undefined) {
+                frontmatter.model = metaMatter.model;
+            }
+            if (metaMatter?.stream !== undefined) {
+                frontmatter.stream = metaMatter.stream;
+            }
+            if (metaMatter?.temperature !== undefined) {
+                frontmatter.temperature = metaMatter.temperature;
+            }
+            if (metaMatter?.topP !== undefined) {
+                frontmatter.topP = metaMatter.topP;
+            }
+            if (metaMatter?.topK !== undefined) {
+                frontmatter.topK = metaMatter.topK;
+            }
+            if (metaMatter?.maxTokens !== undefined) {
+                frontmatter.maxTokens = metaMatter.maxTokens;
+            }
+            if (metaMatter?.presencePenalty !== undefined) {
+                frontmatter.presencePenalty = metaMatter.presencePenalty;
+            }
+            if (metaMatter?.frequencyPenalty !== undefined) {
+                frontmatter.frequencyPenalty = metaMatter.frequencyPenalty;
+            }
+            if (metaMatter?.seed !== undefined) {
+                frontmatter.seed = metaMatter.seed;
+            }
+
+            return frontmatter;
         } catch (err) {
             throw new Error("Error getting frontmatter");
         }

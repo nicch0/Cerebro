@@ -9,8 +9,7 @@ export const MAX_DOCUMENT_DEPTH = 2; // Maximum depth of document resolution
 // Cerebro plugin messages
 export enum CerebroMessages {
     CALLING_API = "[Cerebro] Calling API",
-    INFER_TITLE_MESSAGE_TOO_SHORT_FAILURE = "Not enough messages to infer title. Minimum 2 messages.",
-    INFER_TITLE_UNKNOWN_FAILURE = "Title unable to be inferred",
+    INFER_TITLE_UNKNOWN_FAILURE = "[Cerebro] Title unable to be inferred",
     UPDATING_PROPERTIES = "[Cerebro] Updating files accessed",
     EMPTY = "",
 }
@@ -27,3 +26,8 @@ export enum CSSAssets {
     HR = "__crb-hr",
     HEADER = "__crb-header",
 }
+
+export const AVAILABLE_MODELS = {
+    openai: ["o1", "o1-mini", "o3-mini", "gpt-4.5-preview", "gpt-4o-mini"],
+    anthropic: ["claude-3-7-sonnet-latest", "claude-3-5-haiku-latest", "claude-3-5-sonnet-latest"],
+};

@@ -1,21 +1,25 @@
+import * as anthropic from "@ai-sdk/anthropic";
+import * as deepseek from "@ai-sdk/deepseek";
+import * as google from "@ai-sdk/google";
+import * as openai from "@ai-sdk/openai";
+import * as xai from "@ai-sdk/xai";
+import { experimental_createProviderRegistry as createProviderRegistry } from "ai";
 import { isTitleTimestampFormat, sanitizeTitle, writeInferredTitleToEditor } from "lib/helpers";
 import { MarkdownView, Notice, Platform, Plugin, TFile } from "obsidian";
 import ChatInterface from "./chatInterface";
 import { getCommands } from "./commands";
 import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "./constants";
 import { logger } from "./logger";
-import { AnthropicClient } from "./models/anthropicClient";
-import { LLMClient } from "./models/client";
-import { OpenAIClient } from "./models/openAIClient";
+import { AI } from "./models/ai";
 import { CerebroSettings, DEFAULT_SETTINGS } from "./settings";
-import { LLM, Message } from "./types";
+import { Message } from "./types";
 import { SettingsTab } from "./views/settingsTab";
 
 export default class Cerebro extends Plugin {
     public chatInterfaces: Map<TFile, ChatInterface> = new Map();
     public settings: CerebroSettings;
     public statusBar: HTMLElement;
-    private llmClients: Record<LLM, LLMClient>;
+    public ai: AI;
 
     public async onload(): Promise<void> {
         logger.debug("[Cerebro] Adding status bar");
@@ -24,7 +28,7 @@ export default class Cerebro extends Plugin {
         logger.debug("[Cerebro] Loading settings");
         await this.loadSettings();
 
-        this.initializeLLMClients();
+        this.initializeAI();
         this.addSettingTab(new SettingsTab(this.app, this));
 
         // Register all commands
@@ -32,21 +36,49 @@ export default class Cerebro extends Plugin {
         commands.forEach((command) => this.addCommand(command));
     }
 
-    private initializeLLMClients(): void {
-        this.llmClients = {
-            OpenAI: new OpenAIClient(this.settings.llmSettings.OpenAI.apiKey),
-            Anthropic: new AnthropicClient(this.settings.llmSettings.Anthropic.apiKey),
-        };
-    }
+    private initializeAI(): void {
+        type ProviderConfigs = Parameters<typeof createProviderRegistry>[0];
 
-    public getLLMClient(llm: LLM): LLMClient {
-        return this.llmClients[llm];
+        const providerConfig: ProviderConfigs = {};
+
+        if (this.settings.providerSettings.OpenAI.apiKey) {
+            providerConfig.openai = openai.createOpenAI({
+                apiKey: this.settings.providerSettings.OpenAI.apiKey,
+            });
+        }
+
+        if (this.settings.providerSettings.Anthropic.apiKey) {
+            providerConfig.anthropic = anthropic.createAnthropic({
+                apiKey: this.settings.providerSettings?.Anthropic?.apiKey,
+            });
+        }
+
+        if (this.settings.providerSettings.Google.apiKey) {
+            providerConfig.google = google.createGoogleGenerativeAI({
+                apiKey: this.settings.providerSettings?.Google?.apiKey,
+            });
+        }
+
+        if (this.settings.providerSettings.DeepSeek.apiKey) {
+            providerConfig.deepseek = deepseek.createDeepSeek({
+                apiKey: this.settings.providerSettings.DeepSeek.apiKey,
+            });
+        }
+
+        if (this.settings.providerSettings.XAI.apiKey) {
+            providerConfig.xai = xai.createXai({
+                apiKey: this.settings.providerSettings.XAI.apiKey,
+            });
+        }
+
+        const llmProvider = createProviderRegistry(providerConfig);
+        this.ai = new AI(llmProvider);
     }
 
     public async handleTitleInference(
         messages: Message[],
         view: MarkdownView,
-        llm: LLMClient,
+        ai: AI,
     ): Promise<void> {
         const title = view?.file?.basename;
 
@@ -59,7 +91,7 @@ export default class Cerebro extends Plugin {
             this.statusBar.setText("[Cerebro] Calling API...");
 
             try {
-                const newTitle = await this.inferTitleFromMessages(messages, llm);
+                const newTitle = await this.inferTitleFromMessages(messages, ai);
                 if (newTitle) {
                     await writeInferredTitleToEditor(
                         this.app.vault,
@@ -84,21 +116,7 @@ export default class Cerebro extends Plugin {
         }
     }
 
-    public async inferTitleFromMessages(messages: Message[], client: LLMClient): Promise<string> {
-        logger.info("[Cerebro] Inferring title");
-        new Notice("[Cerebro] Inferring title from messages...");
-
-        try {
-            const title = await client.inferTitle(messages, this.settings.inferTitleLanguage);
-            return sanitizeTitle(title);
-        } catch (e) {
-            new Notice(
-                "[Cerebro] Error inferring title from messages",
-                ERROR_NOTICE_TIMEOUT_MILLISECONDS,
-            );
-            throw new Error("[Cerebro] Error inferring title from messages" + e);
-        }
-    }
+    public async inferTitleFromMessages(messages: Message[], ai: AI): Promise<string> {}
 
     private async loadSettings(): Promise<void> {
         this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
@@ -108,6 +126,7 @@ export default class Cerebro extends Plugin {
     public async saveSettings(): Promise<void> {
         logger.info("[Cerebro] Saving settings");
         await this.saveData(this.settings);
+        this.initializeAI();
     }
 
     public async onunload(): Promise<void> {
