@@ -19,15 +19,16 @@ export const createNewChatCommand = (plugin: Cerebro): Command => ({
                 return;
             }
 
-            const newView: any = await plugin.app.workspace.getLeaf().openFile(newFile);
+            const leaf = plugin.app.workspace.getLeaf();
+            await leaf.openFile(newFile);
 
-            if (!(newView instanceof MarkdownView)) {
+            if (!(leaf.view instanceof MarkdownView)) {
                 return;
             }
+            const view = leaf.view as MarkdownView;
 
-            const chatInterface = new ChatInterface(plugin.settings, newView.editor, newView);
+            const chatInterface = new ChatInterface(plugin.settings, view.editor, view);
             plugin.chatInterfaces.set(newFile, chatInterface);
-
             openInMainEditor(plugin, newFile, chatInterface);
         } catch (e) {
             logger.error(`[Cerebro] Error when creating new chat`, e);
