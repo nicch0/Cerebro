@@ -1,4 +1,4 @@
-import { LLM } from "lib/types";
+import { Provider } from "lib/types";
 import { App, PluginSettingTab, Setting } from "obsidian";
 import Cerebro from "../main";
 
@@ -126,24 +126,6 @@ export class SettingsTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.dateFormat)
                     .onChange(async (value) => {
                         this.plugin.settings.dateFormat = value;
-                        await this.plugin.saveSettings();
-                    }),
-            );
-
-        new Setting(containerEl)
-            .setName("Default LLM provider")
-            .setDesc(
-                "Default LLM provider to chat with. You can still create a chat with other providers in the dropdown!",
-            )
-            .addDropdown((dropdown) =>
-                dropdown
-                    .addOptions({
-                        OpenAI: "OpenAI",
-                        Anthropic: "Anthropic",
-                    })
-                    .setValue(this.plugin.settings.defaultLLM)
-                    .onChange(async (value) => {
-                        this.plugin.settings.defaultLLM = value as LLM;
                         await this.plugin.saveSettings();
                     }),
             );
@@ -283,6 +265,57 @@ export class SettingsTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.llmSettings.Anthropic.apiKey)
                     .onChange(async (value) => {
                         this.plugin.settings.llmSettings.Anthropic.apiKey = value;
+                        await this.plugin.saveSettings();
+                    }),
+            );
+
+        containerEl.createEl("h2", {
+            text: "Google",
+        });
+
+        new Setting(containerEl)
+            .setName("Google API Key")
+            .setDesc("API Key for Google Gemini")
+            .addText((text) =>
+                text
+                    .setPlaceholder("some-api-key")
+                    .setValue(this.plugin.settings.llmSettings.Google?.apiKey || "")
+                    .onChange(async (value) => {
+                        this.plugin.settings.llmSettings.Google.apiKey = value;
+                        await this.plugin.saveSettings();
+                    }),
+            );
+
+        containerEl.createEl("h2", {
+            text: "DeepSeek",
+        });
+
+        new Setting(containerEl)
+            .setName("DeepSeek API Key")
+            .setDesc("API Key for DeepSeek")
+            .addText((text) =>
+                text
+                    .setPlaceholder("some-api-key")
+                    .setValue(this.plugin.settings.llmSettings.DeepSeek?.apiKey || "")
+                    .onChange(async (value) => {
+                        this.plugin.settings.llmSettings.DeepSeek.apiKey = value;
+                        await this.plugin.saveSettings();
+                    }),
+            );
+
+        containerEl.createEl("h2", {
+            text: "XAI (Grok)",
+        });
+
+        new Setting(containerEl)
+            .setName("XAI API Key")
+            .setDesc("API Key for XAI/Grok")
+            .addText((text) =>
+                text
+                    .setPlaceholder("some-api-key")
+                    .setValue(this.plugin.settings.llmSettings.XAI?.apiKey || "")
+                    .onChange(async (value) => {
+                        this.plugin.settings.llmSettings.XAI.apiKey = value;
                         await this.plugin.saveSettings();
                     }),
             );

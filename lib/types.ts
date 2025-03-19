@@ -1,18 +1,29 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { EditorView } from "@codemirror/view";
 import { Editor, FrontMatterCache } from "obsidian";
-import OpenAI from "openai";
 
-export type LLM = "OpenAI" | "Anthropic";
+export type Provider = "OpenAI" | "Anthropic" | "Google" | "DeepSeek" | "XAI";
 
-export type ChatFrontmatter = Omit<
-    OpenAI.ChatCompletionCreateParams & Anthropic.MessageCreateParams,
-    "messages"
-> & {
+export type CallSettings = {
+    maxTokens?: number;
+    temperature?: number;
+    topP?: number;
+    topK?: number;
+    presencePenalty?: number;
+    frequencyPenalty?: number;
+    stopSequences?: string[];
+    seed?: number;
+    maxRetries?: number;
+    headers?: Record<string, string | undefined>;
+};
+
+export type ChatFrontmatter = CallSettings & {
+    // Basic parameters
     title: string;
     tags: FrontMatterCache;
-    llm: LLM;
-    system_commands: string[];
+
+    model?: string;
+    stream?: boolean;
+    system?: string[];
 };
 
 export enum TextFileExtension {

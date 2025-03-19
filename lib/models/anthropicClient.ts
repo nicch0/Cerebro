@@ -270,10 +270,6 @@ export class AnthropicClient implements LLMClient {
     }
 
     public async inferTitle(messages: Message[], inferTitleLanguage: string): Promise<string> {
-        if (messages.length < 2) {
-            new Notice(CerebroMessages.INFER_TITLE_MESSAGE_TOO_SHORT_FAILURE);
-        }
-
         const textMessages = getTextOnlyContent(messages);
 
         const textJson = JSON.stringify(textMessages);
