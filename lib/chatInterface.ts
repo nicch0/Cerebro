@@ -243,14 +243,14 @@ export default class ChatInterface {
         this.userScrolling = false;
     }
 
-    // public appendNonStreamingMessage(message: string): void {
-    //     /**
-    //      * 1. Places assistant's response
-    //      * 2. Moves cursor to end of line
-    //      */
-    //     this.editor.replaceRange(message, this.editor.getCursor());
-    //     this.editorPosition = this.moveCursorToEndOfLine(this.editor, message);
-    // }
+    public appendNonStreamingMessage(message: string): void {
+        /**
+         * 1. Places assistant's response
+         * 2. Moves cursor to end of line
+         */
+        this.editor.replaceRange(message, this.editor.getCursor());
+        this.editorPosition = this.moveCursorToEndOfLine(this.editor, message);
+    }
 
     public moveCursorToEndOfFile(editor: Editor): EditorPosition {
         try {

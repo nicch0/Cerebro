@@ -1,3 +1,4 @@
+import { stat } from "node:original-fs";
 import { LLM } from "./types";
 
 export interface LLMSettings {
@@ -9,6 +10,7 @@ export interface LLMSettings {
 export interface CerebroSettings {
     defaultLLM: LLM;
     llmSettings: Record<LLM, LLMSettings>;
+    defaultModel: string;
     username: string;
     assistantName: string;
     stream: boolean;
@@ -43,6 +45,7 @@ export const DEFAULT_SETTINGS: CerebroSettings = {
     username: "User",
     assistantName: "Cerebro",
     defaultLLM: "Anthropic",
+    defaultModel: "claude-3-5-haiku-latest",
     stream: true,
     chatTemplateFolder: "Cerebro/Templates",
     chatFolder: "Cerebro/Chats",
@@ -58,5 +61,5 @@ export const DEFAULT_SETTINGS: CerebroSettings = {
 };
 
 export const getFrontmatter = (settings: CerebroSettings): string => {
-    return settings.llmSettings[settings.defaultLLM].defaultChatFrontmatter;
+    return `---\n${settings.modelPropertyName}: ${settings.defaultModel}\n---`;
 };

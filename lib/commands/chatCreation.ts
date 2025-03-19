@@ -42,7 +42,7 @@ export async function createNewChatFile(
     )}.md`;
 
     const frontmatter = getFrontmatterFromSettings(plugin.settings);
-    const fileContent = `${frontmatter}\n\n${selectedText}`;
+    const fileContent = `${frontmatter}\n${selectedText}`;
     return plugin.app.vault.create(filePath, fileContent);
 }
 
