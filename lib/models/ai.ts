@@ -1,7 +1,7 @@
 import { generateText, Provider, streamText } from "ai";
 import ChatInterface from "lib/chatInterface";
 import { CerebroMessages } from "lib/constants";
-import { getTextOnlyContent, sanitizeTitle, unfinishedCodeBlock } from "lib/helpers";
+import { getTextOnlyContent, unfinishedCodeBlock } from "lib/helpers";
 import { logger } from "lib/logger";
 import { CerebroSettings } from "lib/settings";
 import { ChatFrontmatter, Message } from "lib/types";

@@ -66,10 +66,6 @@ const removeCommentsFromMessages = (message: string): string => {
     }
 };
 
-// const escapeRegExp = (text: string): string => {
-// 	return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-// };
-
 const extractRoleAndMessage = (message: string, settings: CerebroSettings): Message => {
     try {
         if (!message.includes(CSSAssets.HEADER)) {
@@ -170,7 +166,7 @@ export default class ChatInterface {
     }
 
     public addHR(): void {
-        const newLine = `\n<hr class="${CSSAssets.HR}">\n${userHeader(this.settings.username, this.settings.headingLevel)}\n`;
+        const newLine = `\n<hr class="${CSSAssets.HR}">\n${userHeader(this.settings.userName, this.settings.headingLevel)}\n`;
         this.editor.replaceRange(newLine, this.editor.getCursor());
 
         // Move cursor to end of file
@@ -220,7 +216,7 @@ export default class ChatInterface {
          * 2. Completes the assistants response by placing the user's header
          * 3. Moves cursor to end of line
          */
-        const newLine = `\n\n<hr class="${CSSAssets.HR}">\n${userHeader(this.settings.username, this.settings.headingLevel)}\n`;
+        const newLine = `\n\n<hr class="${CSSAssets.HR}">\n${userHeader(this.settings.userName, this.settings.headingLevel)}\n`;
         const cm6editor = this.editor as EditorWithCM6;
         const cursor = this.editor.getCursor();
         const line = cm6editor.cm.state.doc.line(cursor.line + 1).from;

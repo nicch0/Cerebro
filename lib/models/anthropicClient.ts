@@ -2,7 +2,6 @@ import Anthropic from "@anthropic-ai/sdk";
 import {
     Base64PDFSource,
     ContentBlockParam,
-    ImageBlockParam,
     InputJSONDelta,
     MessageParam,
     RawMessageStreamEvent,
@@ -22,7 +21,6 @@ import {
     MessageContent,
     TextMessageContent,
 } from "lib/types";
-import { Notice } from "obsidian";
 import { LLMClient } from "./client";
 
 interface DocumentNode {
