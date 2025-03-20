@@ -4,12 +4,12 @@ Cerebro is an Obsidian-first LLM integration that transforms your vault into an 
 
 ## Key Features
 
--   💭 Chat intuitively: open a conversation in the sidebar or in your main view.
--   🎯 Powerful features: Attach an image, pdf, even other notes using Obsidian's native linking.
--   📝 [File-over-app](https://stephango.com/file-over-app): Uses pure Markdown. All responses render natively.
--   🔧 Powerful templating system for repeatable interactions
--   ⚡️ Real-time streaming responses for natural conversation flow
--   🛠️ Highly configurable through familiar frontmatter syntax
+- 💭 Chat intuitively: open a conversation in the sidebar or in your main view.
+- 🎯 Powerful features: Attach an image, pdf, even other notes using Obsidian's native linking.
+- 📝 [File-over-app](https://stephango.com/file-over-app): Uses pure Markdown. All responses render natively.
+- 🔧 Powerful templating system for repeatable interactions
+- ⚡️ Real-time streaming responses for natural conversation flow
+- 🛠️ Highly configurable through familiar frontmatter syntax
 
 ## Installation
 
@@ -36,24 +36,24 @@ Start an AI conversation from any note or selection. Core command for interactin
 
 #### Create Chat Tools
 
--   **New Chat**: Convert highlighted text into a new chat file
--   **From Template**: Create chat from your custom templates
--   **Add Divider**: Quick add `role::user` with HR divider
--   **Clear Chat**: Reset chat while preserving settings
+- **New Chat**: Convert highlighted text into a new chat file
+- **From Template**: Create chat from your custom templates
+- **Add Divider**: Quick add `role::user` with HR divider
+- **Clear Chat**: Reset chat while preserving settings
 
 #### Smart Features
 
--   **Infer Title**: Auto-generate chat titles from context
--   **Comment Blocks**: Add notes/links that won't process through AI
+- **Infer Title**: Auto-generate chat titles from context
+- **Comment Blocks**: Add notes/links that won't process through AI
     ```
     =begin-chatgpt-md-comment
     Your notes here...
     =end-chatgpt-md-comment
     ```
--   **Stop Stream**: Cancel ongoing AI response (desktop only)
+- **Stop Stream**: Cancel ongoing AI response (desktop only)
 
 ## Roadmap
 
--   Whiteboard mode: Edit a main note with Cerebro.
--   Better undo/stop flows in conversations
--   Rolodex view: Show an outline of your conversation with Cerebro
+- Whiteboard mode: Edit a main note with Cerebro.
+- Better undo/stop flows in conversations
+- Rolodex view: Show an outline of your conversation with Cerebro
