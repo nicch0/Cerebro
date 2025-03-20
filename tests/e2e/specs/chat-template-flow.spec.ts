@@ -22,7 +22,7 @@ test.describe("Chat Template Flow", () => {
         await createCreativeWritingTemplate(testVaultDir);
     });
 
-    test("should create a new chat from productivity template", async ({ page }) => {
+    test("should create a new chat from productivity template", async () => {
         // We're simulating creating a new chat from the productivity template
         const templatePath = path.join(
             testVaultDir,
@@ -76,9 +76,7 @@ test.describe("Chat Template Flow", () => {
         expect(fs.existsSync(chatFilePath)).toBeFalsy();
     });
 
-    test("should create a chat from creative writing template and handle complex content", async ({
-        page,
-    }) => {
+    test("should create a chat from creative writing template and handle complex content", async () => {
         // We're simulating creating a new chat from the creative writing template
         const templatePath = path.join(
             testVaultDir,

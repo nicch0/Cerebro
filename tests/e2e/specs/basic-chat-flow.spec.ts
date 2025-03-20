@@ -6,21 +6,13 @@ import * as fs from "fs";
 // we'll simulate the interactions at a higher level
 
 test.describe("Basic Chat Flow", () => {
-    let page: Page;
     let testVaultDir: string;
 
-    test.beforeAll(async ({ browser }) => {
+    test.beforeEach(async () => {
         // Get test vault path from environment variable
         testVaultDir = process.env.TEST_VAULT_PATH || "";
         expect(testVaultDir).toBeTruthy();
         expect(fs.existsSync(testVaultDir)).toBeTruthy();
-
-        // Launch a new page for testing
-        page = await browser.newPage();
-    });
-
-    test.afterAll(async () => {
-        await page.close();
     });
 
     test("should create a new chat from template", async () => {

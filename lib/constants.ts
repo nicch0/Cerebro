@@ -16,11 +16,11 @@ export enum CerebroMessages {
 }
 
 export const userHeader = (username: string, headingLevel: number): string => {
-    return `<h${headingLevel} class="${CSSAssets.HEADER}">${username}:</h${headingLevel}>`;
+    return `<h${headingLevel} class="${CSSAssets.HEADER}">${username}</h${headingLevel}>`;
 };
 
 export const assistantHeader = (assistantName: string, headingLevel: number): string => {
-    return `<h${headingLevel} class="${CSSAssets.HEADER}">${assistantName}:</h${headingLevel}>`;
+    return `<h${headingLevel} class="${CSSAssets.HEADER}">${assistantName}</h${headingLevel}>`;
 };
 
 export enum CSSAssets {
