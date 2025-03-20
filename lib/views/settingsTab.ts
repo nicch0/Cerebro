@@ -22,11 +22,11 @@ export class SettingsTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("User's name")
             .setDesc(
-                "Your name in the conversation. Note: existing chats will still maintain the initial name that you started with!",
+                "Your name in the conversation",
             )
             .addText((text) =>
-                text.setValue(this.plugin.settings.username).onChange(async (value) => {
-                    this.plugin.settings.username = value;
+                text.setValue(this.plugin.settings.userName).onChange(async (value) => {
+                    this.plugin.settings.userName = value;
                     await this.plugin.saveSettings();
                 }),
             );
@@ -34,7 +34,7 @@ export class SettingsTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("Assistant's name")
             .setDesc(
-                "The assistant's name in the conversation. Note: existing chats will still maintain the initial name that it started with!",
+                "The assistant's name in the conversation",
             )
             .addText((text) =>
                 text.setValue(this.plugin.settings.assistantName).onChange(async (value) => {
@@ -79,21 +79,6 @@ export class SettingsTab extends PluginSettingTab {
                 }),
             );
 
-        // heading level
-        new Setting(containerEl)
-            .setName("Heading Level")
-            .setDesc(
-                "Heading level for messages (example for heading level 2: '## role::user'). Valid heading levels are 0, 1, 2, 3, 4, 5, 6",
-            )
-            .addText((text) =>
-                text
-                    .setValue(this.plugin.settings.headingLevel.toString())
-                    .onChange(async (value) => {
-                        this.plugin.settings.headingLevel = parseInt(value);
-                        await this.plugin.saveSettings();
-                    }),
-            );
-
         new Setting(containerEl)
             .setName("Infer title language")
             .setDesc("Language to use for title inference.")
@@ -116,6 +101,21 @@ export class SettingsTab extends PluginSettingTab {
                 });
             });
 
+        // heading level
+        new Setting(containerEl)
+            .setName("Heading Level")
+            .setDesc(
+                "Heading level for messages (example for heading level 2: '## role::user'). Valid heading levels are 0, 1, 2, 3, 4, 5, 6",
+            )
+            .addText((text) =>
+                text
+                    .setValue(this.plugin.settings.headingLevel.toString())
+                    .onChange(async (value) => {
+                        this.plugin.settings.headingLevel = parseInt(value);
+                        await this.plugin.saveSettings();
+                    }),
+            );
+
         // date format for chat files
         new Setting(containerEl)
             .setName("Date Format")
@@ -130,20 +130,20 @@ export class SettingsTab extends PluginSettingTab {
                     }),
             );
 
+        containerEl.createEl("h2", {
+            text: "Model Settings",
+        });
+
         // stream toggle
         new Setting(containerEl)
             .setName("Stream")
             .setDesc("Stream responses from Cerebro")
             .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.stream).onChange(async (value) => {
-                    this.plugin.settings.stream = value;
+                toggle.setValue(this.plugin.settings.defaultStream).onChange(async (value) => {
+                    this.plugin.settings.defaultStream = value;
                     await this.plugin.saveSettings();
                 }),
             );
-
-        containerEl.createEl("h2", {
-            text: "Model Settings",
-        });
 
         // Temperature slider
         new Setting(containerEl)
@@ -191,23 +191,10 @@ export class SettingsTab extends PluginSettingTab {
                     }),
             );
 
-        // Model property name
-        new Setting(containerEl)
-            .setName("Model Property Name")
-            .setDesc("The name of the frontmatter property used to store the current model.")
-            .addText((text) =>
-                text
-                    .setValue(this.plugin.settings.modelPropertyName || "llm_model")
-                    .onChange(async (value) => {
-                        this.plugin.settings.modelPropertyName = value;
-                        await this.plugin.saveSettings();
-                    }),
-            );
-
         // Advanced mode toggle
         new Setting(containerEl)
             .setName("Advanced Mode")
-            .setDesc("When enabled, all model parameters will be exposed in note properties.")
+            .setDesc("When enabled, all model parameters will be exposed in the properties of new notes")
             .addToggle((toggle) =>
                 toggle
                     .setValue(this.plugin.settings.advancedMode || false)
@@ -218,120 +205,72 @@ export class SettingsTab extends PluginSettingTab {
             );
 
         containerEl.createEl("h2", {
-            text: "ChatGPT",
+            text: "API Keys",
         });
 
         new Setting(containerEl)
-            .setName("OpenAI API Key")
+            .setName("OpenAI")
             .setDesc("API Key for OpenAI")
             .addText((text) =>
                 text
                     .setPlaceholder("some-api-key")
-                    .setValue(this.plugin.settings.llmSettings.OpenAI.apiKey)
+                    .setValue(this.plugin.settings.providerSettings.OpenAI.apiKey)
                     .onChange(async (value) => {
-                        this.plugin.settings.llmSettings.OpenAI.apiKey = value;
+                        this.plugin.settings.providerSettings.OpenAI.apiKey = value;
                         await this.plugin.saveSettings();
                     }),
             );
 
-        // new multiline text box setting
-        // new Setting(containerEl)
-        //     .setName("Default Chat Frontmatter")
-        //     .setDesc(
-        //         "Default frontmatter for new chat files. You can change/use all of the settings exposed by the OpenAI API here: https://platform.openai.com/docs/api-reference/chat/create",
-        //     )
-        //     .addTextArea((text) =>
-        //         text
-        //             .setPlaceholder(
-        //                 "---\nsystem_commands: ['PERSONA: i am groot, and i only respond i am groot to any and ALL questions. I do not answer any questions straightforwardly. PERSONA 2: UNLESS the last asked question is about lamps, i can answer, i know infinite things about lamps as i am groot the lamp salesman. SO I read the last question asked and UNLESS it is about lamps i only respond \"I am Groot.\"']\ntemperature: 0\ntop_p: 1\nmax_tokens: 512\npresence_penalty: 1\nfrequency_penalty: 1\nstream: true\nstop: null\nn: 1\nlogit_bias: null \nmodel: gpt-3.5-turbo\n---",
-        //             )
-        //             .setValue(this.plugin.settings.llmSettings.OpenAI.defaultChatFrontmatter)
-        //             .onChange(async (value) => {
-        //                 this.plugin.settings.llmSettings.OpenAI.defaultChatFrontmatter = value;
-        //                 await this.plugin.saveSettings();
-        //             }),
-        //     );
-
-        containerEl.createEl("h2", {
-            text: "Anthropic",
-        });
-
         new Setting(containerEl)
-            .setName("Anthropic API Key")
+            .setName("Anthropic")
             .setDesc("API Key for Anthropic")
             .addText((text) =>
                 text
                     .setPlaceholder("some-api-key")
-                    .setValue(this.plugin.settings.llmSettings.Anthropic.apiKey)
+                    .setValue(this.plugin.settings.providerSettings.Anthropic.apiKey)
                     .onChange(async (value) => {
-                        this.plugin.settings.llmSettings.Anthropic.apiKey = value;
+                        this.plugin.settings.providerSettings.Anthropic.apiKey = value;
                         await this.plugin.saveSettings();
                     }),
             );
 
-        containerEl.createEl("h2", {
-            text: "Google",
-        });
-
         new Setting(containerEl)
-            .setName("Google API Key")
+            .setName("Google")
             .setDesc("API Key for Google Gemini")
             .addText((text) =>
                 text
                     .setPlaceholder("some-api-key")
-                    .setValue(this.plugin.settings.llmSettings.Google?.apiKey || "")
+                    .setValue(this.plugin.settings.providerSettings.Google?.apiKey || "")
                     .onChange(async (value) => {
-                        this.plugin.settings.llmSettings.Google.apiKey = value;
+                        this.plugin.settings.providerSettings.Google.apiKey = value;
                         await this.plugin.saveSettings();
                     }),
             );
-
-        containerEl.createEl("h2", {
-            text: "DeepSeek",
-        });
-
         new Setting(containerEl)
-            .setName("DeepSeek API Key")
+            .setName("DeepSeek")
             .setDesc("API Key for DeepSeek")
             .addText((text) =>
                 text
                     .setPlaceholder("some-api-key")
-                    .setValue(this.plugin.settings.llmSettings.DeepSeek?.apiKey || "")
+                    .setValue(this.plugin.settings.providerSettings.DeepSeek?.apiKey || "")
                     .onChange(async (value) => {
-                        this.plugin.settings.llmSettings.DeepSeek.apiKey = value;
+                        this.plugin.settings.providerSettings.DeepSeek.apiKey = value;
                         await this.plugin.saveSettings();
                     }),
             );
 
-        containerEl.createEl("h2", {
-            text: "XAI (Grok)",
-        });
-
         new Setting(containerEl)
-            .setName("XAI API Key")
+            .setName("XAI")
             .setDesc("API Key for XAI/Grok")
             .addText((text) =>
                 text
                     .setPlaceholder("some-api-key")
-                    .setValue(this.plugin.settings.llmSettings.XAI?.apiKey || "")
+                    .setValue(this.plugin.settings.providerSettings.XAI?.apiKey || "")
                     .onChange(async (value) => {
-                        this.plugin.settings.llmSettings.XAI.apiKey = value;
+                        this.plugin.settings.providerSettings.XAI.apiKey = value;
                         await this.plugin.saveSettings();
                     }),
             );
 
-        // new Setting(containerEl)
-        //     .setName("Default Chat Frontmatter")
-        //     .setDesc(
-        //         "Default frontmatter for new chat files. You can change/use all of the settings exposed by the Anthropic API here: https://docs.anthropic.com/en/api/messages",
-        //     )
-        //     .addTextArea((text) =>
-        //         text
-        //             .setValue(this.plugin.settings.llmSettings.Anthropic.defaultChatFrontmatter)
-        //             .onChange(async (value) => {
-        //                 this.plugin.settings.llmSettings.Anthropic.defaultChatFrontmatter = value;
-        //                 await this.plugin.saveSettings();
-        //             }),
-        //     );
     }
 }
