@@ -7,7 +7,7 @@ import { createNewChatCommand } from "./newChat";
 import { createNewChatInSidebarCommand } from "./newChatInSidebar";
 import { stopStreamingCommand } from "./stopStreaming";
 import { chooseChatTemplateCommand } from "./template";
-import { inferTitleCommand } from "./title";
+import { inferTitleCommand } from "./inferTitle";
 
 export const getCommands = (plugin: Cerebro): Command[] => [
     createNewChatCommand(plugin),

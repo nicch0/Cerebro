@@ -21,9 +21,7 @@ export class SettingsTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName("User's name")
-            .setDesc(
-                "Your name in the conversation",
-            )
+            .setDesc("Your name in the conversation")
             .addText((text) =>
                 text.setValue(this.plugin.settings.userName).onChange(async (value) => {
                     this.plugin.settings.userName = value;
@@ -33,9 +31,7 @@ export class SettingsTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName("Assistant's name")
-            .setDesc(
-                "The assistant's name in the conversation",
-            )
+            .setDesc("The assistant's name in the conversation")
             .addText((text) =>
                 text.setValue(this.plugin.settings.assistantName).onChange(async (value) => {
                     this.plugin.settings.assistantName = value;
@@ -194,7 +190,9 @@ export class SettingsTab extends PluginSettingTab {
         // Advanced mode toggle
         new Setting(containerEl)
             .setName("Advanced Mode")
-            .setDesc("When enabled, all model parameters will be exposed in the properties of new notes")
+            .setDesc(
+                "When enabled, all model parameters will be exposed in the properties of new notes",
+            )
             .addToggle((toggle) =>
                 toggle
                     .setValue(this.plugin.settings.advancedMode || false)
@@ -271,6 +269,5 @@ export class SettingsTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }),
             );
-
     }
 }

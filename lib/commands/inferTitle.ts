@@ -9,11 +9,24 @@ export const inferTitleCommand = (plugin: Cerebro): Command => ({
     name: "Infer title",
     icon: "subtitles",
     editorCallback: async (editor: Editor, view: MarkdownView) => {
-        const chatInterface = new ChatInterface(plugin.settings, editor, view);
+        if (!view.file) {
+            throw new Error("No active file");
+        }
+
+        // Get or create ChatInterface for this file
+        let chatInterface = plugin.chatInterfaces.get(view.file);
+        if (!chatInterface) {
+            chatInterface = new ChatInterface(plugin.settings, editor, view);
+            plugin.chatInterfaces.set(view.file, chatInterface);
+        }
+
         const frontmatter = chatInterface.getFrontmatter(plugin.app);
         const { messages } = await chatInterface.getMessages(plugin.app);
-        new Notice("[Cerebro] Inferring title from messages...");
+
         try {
+            new Notice("[Cerebro] Inferring title from messages...");
+
+            // TODO: Doesn't work when the user hasn't provided a message yet
             const title = await plugin.ai.inferTitle(
                 messages,
                 plugin.settings.inferTitleLanguage,

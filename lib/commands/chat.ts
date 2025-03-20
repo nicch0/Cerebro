@@ -9,7 +9,6 @@ export const chatCommand = (plugin: Cerebro): Command => ({
     name: "Chat",
     icon: "message-circle",
     editorCallback: async (editor: Editor, view: MarkdownView) => {
-        plugin.statusBar.setText(CerebroMessages.CALLING_API);
         if (Platform.isMobile) {
             new Notice(CerebroMessages.CALLING_API);
         }
@@ -31,6 +30,7 @@ export const chatCommand = (plugin: Cerebro): Command => ({
         chatInterface.completeUserResponse();
 
         try {
+            plugin.statusBar.setText(CerebroMessages.CALLING_API);
             const response = await plugin.ai.chat(
                 messages,
                 frontmatter,
@@ -40,7 +40,7 @@ export const chatCommand = (plugin: Cerebro): Command => ({
             chatInterface.completeAssistantResponse();
 
             if (response && plugin.settings.autoInferTitle) {
-                await plugin.handleTitleInference(messages.concat(response), view, plugin.ai);
+                await plugin.handleTitleInference(messages.concat(response), view, frontmatter);
             }
         } catch (e) {
             new Notice("[Cerebro] Chat failed: " + e.message, ERROR_NOTICE_TIMEOUT_MILLISECONDS);

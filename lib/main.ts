@@ -4,7 +4,7 @@ import * as google from "@ai-sdk/google";
 import * as openai from "@ai-sdk/openai";
 import * as xai from "@ai-sdk/xai";
 import { experimental_createProviderRegistry as createProviderRegistry } from "ai";
-import { isTitleTimestampFormat, sanitizeTitle, writeInferredTitleToEditor } from "lib/helpers";
+import { isTitleTimestampFormat, writeInferredTitleToEditor } from "lib/helpers";
 import { MarkdownView, Notice, Platform, Plugin, TFile } from "obsidian";
 import ChatInterface from "./chatInterface";
 import { getCommands } from "./commands";
@@ -12,7 +12,7 @@ import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "./constants"
 import { logger } from "./logger";
 import { AI } from "./models/ai";
 import { CerebroSettings, DEFAULT_SETTINGS } from "./settings";
-import { Message } from "./types";
+import { ChatFrontmatter, Message } from "./types";
 import { SettingsTab } from "./views/settingsTab";
 
 export default class Cerebro extends Plugin {
@@ -78,7 +78,7 @@ export default class Cerebro extends Plugin {
     public async handleTitleInference(
         messages: Message[],
         view: MarkdownView,
-        ai: AI,
+        frontmatter: ChatFrontmatter,
     ): Promise<void> {
         const title = view?.file?.basename;
 
@@ -87,11 +87,13 @@ export default class Cerebro extends Plugin {
             isTitleTimestampFormat(title, this.settings.dateFormat) &&
             messages.length >= 4
         ) {
-            logger.info("[Cerebro] Auto inferring title from messages");
-            this.statusBar.setText("[Cerebro] Calling API...");
-
             try {
-                const newTitle = await this.inferTitleFromMessages(messages, ai);
+                const newTitle = await this.ai.inferTitle(
+                    messages,
+                    this.settings.inferTitleLanguage,
+                    frontmatter,
+                    this.settings,
+                );
                 if (newTitle) {
                     await writeInferredTitleToEditor(
                         this.app.vault,
@@ -115,8 +117,6 @@ export default class Cerebro extends Plugin {
             }
         }
     }
-
-    public async inferTitleFromMessages(messages: Message[], ai: AI): Promise<string> {}
 
     private async loadSettings(): Promise<void> {
         this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
