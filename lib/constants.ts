@@ -28,6 +28,6 @@ export enum CSSAssets {
 }
 
 export const AVAILABLE_MODELS = {
-    openai: ["o1", "o1-mini", "o3-mini", "gpt-4.5-preview", "gpt-4o-mini"],
-    anthropic: ["claude-3-7-sonnet-latest", "claude-3-5-haiku-latest", "claude-3-5-sonnet-latest"],
+    OpenAI: ["o1", "o1-mini", "o3-mini", "gpt-4.5-preview", "gpt-4o-mini", "gpt-4o"],
+    Anthropic: ["claude-3-7-sonnet-latest", "claude-3-5-haiku-latest", "claude-3-5-sonnet-latest"],
 };

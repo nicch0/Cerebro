@@ -12,6 +12,7 @@ import {
 } from "./types";
 import { FolderCreationModal } from "./views/folderCreation";
 import { CerebroSettings } from "./settings";
+import { AVAILABLE_MODELS } from "./constants";
 
 export const unfinishedCodeBlock = (txt: string): boolean => {
     /**
@@ -196,3 +197,19 @@ export const getTextOnlyContent = (messages: Message[]): Message[] => {
         };
     });
 };
+
+// Helper function to create dropdown options from available models
+export const getModelOptions = () => {
+    const options: Record<string, string> = {};
+
+    Object.entries(AVAILABLE_MODELS).forEach(([provider, models]) => {
+        models.forEach((model) => {
+            const key = `${provider.toLowerCase()}:${model}`;
+            // Format the display text to be more readable
+            const displayText = `${provider} - ${model}`;
+            options[key] = displayText;
+        });
+    });
+
+    return options;
+}
