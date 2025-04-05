@@ -64,5 +64,6 @@ export const DEFAULT_SETTINGS: CerebroSettings = {
 
 export const getFrontmatter = (settings: CerebroSettings): string => {
     // return settings.llmSettings[settings.defaultLLM];
-    return "---\nsystem_commands: ['I am a helpful assistant.']\ntemperature: 0\ntop_p: 1\nmax_tokens: 1024\npresence_penalty: 1\nfrequency_penalty: 1\nstream: true\nstop: null\nn: 1\nmodel: gpt-3.5-turbo\nllm: OpenAI\n---";
+    // return "---\nsystem_commands: ['I am a helpful assistant.']\ntemperature: 0\ntop_p: 1\nmax_tokens: 1024\npresence_penalty: 1\nfrequency_penalty: 1\nstream: true\nstop: null\nn: 1\nmodel: gpt-3.5-turbo\nllm: OpenAI\n---";
+    return `---\n${settings.modelPropertyName}: ${settings.defaultModel}\n---\n`;
 };
