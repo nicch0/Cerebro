@@ -96,6 +96,60 @@ const extractRoleAndMessage = (message: string, settings: CerebroSettings): Mess
     }
 };
 
+
+// Helper function to parse content for image URLs
+const parseMessageForUrls = (message: Message): Message => {
+    if (typeof message.content !== 'string') {
+        return message;
+    }
+
+    const content = message.content;
+    // Regex to match both direct URLs and Markdown image syntax
+    const imageUrlRegex = /(?:!\[.*?\]\((https?:\/\/[^\s)]+?\.(?:jpg|jpeg|gif|png|webp))\)|(https?:\/\/[^\s<]+?\.(?:jpg|jpeg|gif|png|webp)))(?:\s|$)/gi;
+
+    const matches = Array.from(content.matchAll(imageUrlRegex));
+
+    if (matches.length === 0) {
+        return message;
+    }
+
+    const parts: (TextMessageContent | ImageMessageContent)[] = [];
+    let lastIndex = 0;
+
+    for (const match of matches) {
+        // Add text before the image URL if any
+        if (match.index! > lastIndex) {
+            parts.push({
+                type: "text",
+                text: content.substring(lastIndex, match.index)
+            });
+        }
+
+        // Extract the URL - it's either in group 1 (markdown syntax) or group 0 (direct URL)
+        const imageUrl = (match[1] || match[0]).trim();
+
+        parts.push({
+            type: "image",
+            source: {
+                type: "url",
+                data: imageUrl
+            }
+        });
+
+        lastIndex = match.index! + match[0].length;
+    }
+
+    // Add remaining text if any
+    if (lastIndex < content.length) {
+        parts.push({
+            type: "text",
+            text: content.substring(lastIndex)
+        });
+    }
+
+    return { ...message, content: parts };
+};
+
 export default class ChatInterface {
     private editor: Editor;
     private view: MarkdownView;
@@ -132,7 +186,8 @@ export default class ChatInterface {
         const bodyWithoutYML = removeYMLFromMessage(rawEditorVal);
         const messages = splitMessages(bodyWithoutYML)
             .map((message) => removeCommentsFromMessages(message))
-            .map((message) => extractRoleAndMessage(message, this.settings));
+            .map((message) => extractRoleAndMessage(message, this.settings))
+            .map((message) => parseMessageForUrls(message));
 
         const processedFiles = new Set<string>();
         const messagesWithFiles = await Promise.all(

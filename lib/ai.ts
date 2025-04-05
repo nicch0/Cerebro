@@ -37,36 +37,33 @@ export class AI {
                 };
             }
 
-            // For complex content types (images, documents, etc.), format appropriately
-            // This is a simplified version - we may need to adapt based on provider requirements
+            console.log("messages", messages);
+
+            const messageContents = Array.isArray(msg.content) ? msg.content.map((item) => {
+                    if (item.type === "text") {
+                        return { type: "text", text: item.text };
+                    } else if (item.type === "image") {
+                        return {
+                            type: "image",
+                            image: item.source.data
+                        };
+                    } else if (item.type === "document") {
+                        return {
+                            type: "document",
+                            source: {
+                                type: "base64",
+                                media_type: item.source.media_type,
+                                data: item.source.data,
+                            },
+                        };
+                    }
+                    return { type: "text", text: JSON.stringify(item) };
+                })
+                : JSON.stringify(msg.content);
+
             return {
                 role: msg.role,
-                content: Array.isArray(msg.content)
-                    ? msg.content.map((item) => {
-                          if (item.type === "text") {
-                              return { type: "text", text: item.text };
-                          } else if (item.type === "image") {
-                              return {
-                                  type: "image",
-                                  source: {
-                                      type: "base64",
-                                      media_type: item.source.media_type,
-                                      data: item.source.data,
-                                  },
-                              };
-                          } else if (item.type === "document") {
-                              return {
-                                  type: "document",
-                                  source: {
-                                      type: "base64",
-                                      media_type: item.source.media_type,
-                                      data: item.source.data,
-                                  },
-                              };
-                          }
-                          return { type: "text", text: JSON.stringify(item) };
-                      })
-                    : JSON.stringify(msg.content),
+                content: messageContents,
             };
         });
     }

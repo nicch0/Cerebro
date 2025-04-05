@@ -46,11 +46,11 @@ export enum ImageExtensionToMimeType {
 }
 export type ImageExtension = keyof typeof ImageExtensionToMimeType;
 
-export type ImageSource = {
-    type: "base64";
-    media_type: string;
+export interface ImageSource {
+    type: "base64" | "url";
+    media_type?: string;
     data: string;
-};
+}
 
 export type ImageMessageContent = {
     type: "image";

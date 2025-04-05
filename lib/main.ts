@@ -10,7 +10,7 @@ import ChatInterface from "./chatInterface";
 import { getCommands } from "./commands";
 import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "./constants";
 import { logger } from "./logger";
-import { AI } from "./models/ai";
+import { AI } from "./ai";
 import { CerebroSettings, DEFAULT_SETTINGS } from "./settings";
 import { ChatFrontmatter, Message } from "./types";
 import { SettingsTab } from "./views/settingsTab";
