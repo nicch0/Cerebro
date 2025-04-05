@@ -50,6 +50,7 @@ export default class Cerebro extends Plugin {
         if (this.settings.providerSettings.Anthropic.apiKey) {
             providerConfig.anthropic = anthropic.createAnthropic({
                 apiKey: this.settings.providerSettings?.Anthropic?.apiKey,
+                headers: { 'anthropic-dangerous-direct-browser-access': 'true' }
             });
         }
 
