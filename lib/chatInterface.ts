@@ -193,6 +193,7 @@ export default class ChatInterface {
         const messagesWithFiles = await Promise.all(
             messages.map((message) => this.parseFilesFromMessage(app, message, 1, processedFiles)),
         );
+        console.log("messages", messagesWithFiles)
         return {
             messages: messagesWithFiles,
             files: processedFiles,
@@ -209,7 +210,6 @@ export default class ChatInterface {
             // Convert files to Obsidian wiki link format
             const linkedFiles = Array.from(processedFiles).map((file) => `[[${file}]]`);
 
-            console.log("linkedFiles", linkedFiles);
             // Use Obsidian's metadata API
             await app.fileManager.processFrontMatter(activeFile, (frontmatter) => {
                 frontmatter.files = linkedFiles;
@@ -481,25 +481,15 @@ export default class ChatInterface {
         depth: number,
         processedFiles: Set<string>,
     ): Promise<Message> {
-        // Stop if we've exceeded the max depth
         if (depth > MAX_DOCUMENT_DEPTH) {
             return message;
         }
 
-        // Matches Obsidian-style wiki links [[file]] or [[file|alias]], but ignores any matches inside inline code blocks
-        // (?<!`[^`]*)     - Negative lookbehind to ensure not preceded by backtick
-        // \[\[            - Match opening [[
-        // (.*?)           - Capture any characters (non-greedy) for filename
-        // (?:\|.*?)?      - Optionally match | followed by alias text (non-capturing)
-        // \]\]            - Match closing ]]
-        // (?![^`]*`)      - Negative lookahead to ensure not inside code block
         const fileRegex = /(?<!`[^`]*)\[\[(.*?)(?:\|.*?)?\]\](?![^`]*`)/g;
+        const contents: (TextMessageContent | ImageMessageContent | DocumentMessageContent)[] = [];
+        const documentRelations = new Map<string, Set<string>>();
 
-        const images: ImageMessageContent[] = [];
-        const texts: TextMessageContent[] = [];
-        const pdfs: DocumentMessageContent[] = [];
-
-        // If message.content is an array, we only process the text contents
+        // Process the original message first
         const contentToProcess = Array.isArray(message.content)
             ? message.content
                   .filter((c) => c.type === "text")
@@ -507,81 +497,128 @@ export default class ChatInterface {
                   .join("\n")
             : (message.content as string);
 
-        // Find any file matches
+        // Add the original text as first content block
+        contents.push({
+            type: "text",
+            text: contentToProcess.replace(/\[\[.*?\]\]/g, '').trim() // Remove wiki-links
+        });
+
+        // Find and process all files
         const filesMatches = contentToProcess.match(fileRegex);
-        if (!filesMatches) {
-            return message;
-        }
-        for (const match of filesMatches) {
-            const filePath = match.replace(/\[\[|\]\]/g, "").split("|")[0];
-            const file = app.metadataCache.getFirstLinkpathDest(filePath, "");
+        if (filesMatches) {
+            for (const match of filesMatches) {
+                const filePath = match.replace(/\[\[|\]\]/g, "").split("|")[0];
+                const file = app.metadataCache.getFirstLinkpathDest(filePath, "");
 
-            // Skip if we've already processed this file to prevent cycles
-            if (processedFiles.has(filePath)) {
-                continue;
-            }
-            processedFiles.add(filePath);
+                if (processedFiles.has(filePath) || !file || !(file instanceof TFile)) {
+                    continue;
+                }
+                processedFiles.add(filePath);
 
-            if (file && file instanceof TFile) {
-                if (isValidImageExtension(file?.extension)) {
-                    try {
-                        images.push({
-                            type: "image",
-                            source: await this.getImageSourceFromFile(app, file),
-                            originalPath: filePath,
-                        });
-                    } catch (error) {
-                        console.error(`Failed to process image ${filePath}:`, error);
-                    }
-                } else if (isValidPDFExtension(file?.extension)) {
-                    try {
-                        pdfs.push({
-                            type: "document",
-                            source: await this.getPDFSourceFromFile(app, file),
-                            originalPath: filePath,
-                        });
-                    } catch (error) {
-                        console.error(`Failed to process PDF ${filePath}:`, error);
-                    }
-                } else if (isValidFileExtension(file?.extension)) {
-                    try {
-                        const fileContent = await app.vault.cachedRead(file);
-                        // Remove YAML frontmatter before processing the file content
-                        const contentWithoutYAML = removeYMLFromMessage(fileContent);
-                        const nestedContent = await this.parseFilesFromMessage(
-                            app,
-                            { role: "user", content: contentWithoutYAML },
-                            depth + 1,
-                            processedFiles,
-                        );
+                // Add document header
+                contents.push({
+                    type: "text",
+                    text: `[${filePath}]\n`
+                });
 
-                        texts.push({
-                            type: "text",
-                            text: fileContent,
-                            originalPath: filePath,
-                            resolvedContent: Array.isArray(nestedContent.content)
-                                ? nestedContent.content
-                                : undefined,
-                        });
-                    } catch (error) {
-                        console.error(`Failed to process file ${filePath}:`, error);
+                if (isValidImageExtension(file.extension)) {
+                    contents.push({
+                        type: "image",
+                        source: await this.getImageSourceFromFile(app, file),
+                        originalPath: filePath
+                    });
+                } else if (isValidPDFExtension(file.extension)) {
+                    contents.push({
+                        type: "document",
+                        source: await this.getPDFSourceFromFile(app, file),
+                        originalPath: filePath
+                    });
+                } else if (isValidFileExtension(file.extension)) {
+                    const fileContent = await app.vault.cachedRead(file);
+                    const contentWithoutYAML = removeYMLFromMessage(fileContent);
+
+                    // Add the file content
+                    contents.push({
+                        type: "text",
+                        text: contentWithoutYAML,
+                        originalPath: filePath
+                    });
+
+                    // Process nested files
+                    const nestedMatches = contentWithoutYAML.match(fileRegex);
+                    if (nestedMatches && depth < MAX_DOCUMENT_DEPTH) {
+                        documentRelations.set(filePath, new Set());
+                        for (const nestedMatch of nestedMatches) {
+                            const nestedPath = nestedMatch.replace(/\[\[|\]\]/g, "").split("|")[0];
+                            documentRelations.get(filePath)?.add(nestedPath);
+
+                            // Recursively process nested file
+                            if (!processedFiles.has(nestedPath)) {
+                                const nestedFile = app.metadataCache.getFirstLinkpathDest(nestedPath, "");
+                                if (nestedFile && nestedFile instanceof TFile) {
+                                    await this.processFile(app, nestedFile, nestedPath, depth + 1, processedFiles, contents);
+                                }
+                            }
+                        }
                     }
                 }
+            }
+
+            // Add document relationships if there are any
+            if (documentRelations.size > 0) {
+                contents.push({
+                    type: "text",
+                    text: "\nDocument relationships:\n" +
+                        Array.from(documentRelations.entries())
+                            .map(([path, refs]) =>
+                                `${path} → ${refs.size ? Array.from(refs).join(", ") : "(no embedded documents)"}`)
+                            .join("\n")
+                });
             }
         }
 
         return {
             ...message,
-            content: [
-                {
-                    type: "text",
-                    text: contentToProcess,
-                },
-                ...images,
-                ...texts,
-                ...pdfs,
-            ],
+            content: contents
         };
+    }
+    private async processFile(
+        app: App,
+        file: TFile,
+        filePath: string,
+        depth: number,
+        processedFiles: Set<string>,
+        contents: (TextMessageContent | ImageMessageContent | DocumentMessageContent)[]
+    ): Promise<void> {
+        processedFiles.add(filePath);
+
+        contents.push({
+            type: "text",
+            text: `[${filePath}]\n`
+        });
+
+        if (isValidImageExtension(file.extension)) {
+            contents.push({
+                type: "image",
+                source: await this.getImageSourceFromFile(app, file),
+                originalPath: filePath
+            });
+        } else if (isValidPDFExtension(file.extension)) {
+            contents.push({
+                type: "document",
+                source: await this.getPDFSourceFromFile(app, file),
+                originalPath: filePath
+            });
+        } else if (isValidFileExtension(file.extension)) {
+            const fileContent = await app.vault.cachedRead(file);
+            const cleanContent = removeYMLFromMessage(fileContent)
+                .replace(/\[\[.*?\]\]/g, ''); // Remove wiki-links
+            contents.push({
+                type: "text",
+                text: cleanContent,
+                originalPath: filePath
+            });
+        }
     }
 
     public clearConversationExceptFrontmatter(editor: Editor): EditorPosition {

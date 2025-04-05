@@ -37,8 +37,6 @@ export class AI {
                 };
             }
 
-            console.log("messages", messages);
-
             const messageContents = Array.isArray(msg.content) ? msg.content.map((item) => {
                     if (item.type === "text") {
                         return { type: "text", text: item.text };
