@@ -13,7 +13,6 @@ export const createNewChatCommand = (plugin: Cerebro): Command => ({
         try {
             const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
             const selectedText = activeView?.editor?.getSelection() || "";
-
             const newFile = await createNewChatFile(plugin, selectedText);
             if (!newFile) {
                 return;

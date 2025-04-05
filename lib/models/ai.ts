@@ -6,13 +6,6 @@ import { logger } from "lib/logger";
 import { CerebroSettings } from "lib/settings";
 import { ChatFrontmatter, Message } from "lib/types";
 
-const sanitizeTitle = (title: string): string => {
-    return title
-        .replace(/[:/\\]/g, "")
-        .replace("Title", "")
-        .replace("title", "")
-        .trim();
-};
 
 export class AI {
     private providerRegistry: Provider;
@@ -80,7 +73,6 @@ export class AI {
             settingsKey: keyof CerebroSettings;
         }
 
-        // Map each ChatFrontmatter property to its corresponding default in CerebroSettings
         const propertyMappings: DefaultsMapping[] = [
             { frontmatterKey: "stream", settingsKey: "defaultStream" },
             { frontmatterKey: "model", settingsKey: "defaultModel" },
@@ -114,6 +106,7 @@ export class AI {
     ): Promise<Message> {
         const formattedMessages = this.formatMessagesForProvider(messages);
         let responseStr: string;
+        // Find call settings, prioritising frontmatter over settings
         const callSettings = this.resolveChatParameters(frontmatter, settings);
 
         // Handle streaming vs non-streaming
@@ -124,14 +117,15 @@ export class AI {
                 chatInterface,
             );
             responseStr = fullResponse;
-            logger.info("[Cerebro] Model finished generating", { finish_reason: finishReason });
+            logger.info("[Cerebro] Model finished streaming", { finish_reason: finishReason });
         } else {
             const response = await this.generateNonStreaming(formattedMessages, callSettings);
             responseStr = response;
 
-            if (unfinishedCodeBlock(responseStr)) {
-                responseStr = responseStr + "\n```";
-            }
+            // Commenting as unsure if still required today
+            // if (unfinishedCodeBlock(responseStr)) {
+            //     responseStr = responseStr + "\n```";
+            // }
             chatInterface.appendNonStreamingMessage(responseStr);
         }
 
@@ -213,6 +207,15 @@ export class AI {
         frontmatter: ChatFrontmatter,
         settings: CerebroSettings,
     ): Promise<string> {
+        const sanitizeTitle = (title: string): string => {
+            return title
+                .replace(/[:/\\]/g, "")
+                .replace("Title", "")
+                .replace("title", "")
+                .trim();
+        };
+
+
         const callSettings = this.resolveChatParameters(frontmatter, settings);
 
         if (!callSettings.model) {
