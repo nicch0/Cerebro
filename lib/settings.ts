@@ -1,3 +1,4 @@
+import { PROPERTY_MAPPINGS } from "./models/ai";
 import { Provider } from "./types";
 
 export interface ProviderSettings {
@@ -62,8 +63,24 @@ export const DEFAULT_SETTINGS: CerebroSettings = {
     advancedMode: false,
 };
 
+
 export const getFrontmatter = (settings: CerebroSettings): string => {
-    // return settings.llmSettings[settings.defaultLLM];
-    // return "---\nsystem_commands: ['I am a helpful assistant.']\ntemperature: 0\ntop_p: 1\nmax_tokens: 1024\npresence_penalty: 1\nfrequency_penalty: 1\nstream: true\nstop: null\nn: 1\nmodel: gpt-3.5-turbo\nllm: OpenAI\n---";
-    return `---\n${settings.modelPropertyName}: ${settings.defaultModel}\n---\n`;
+    if (!settings.advancedMode) {
+        // Original simple behavior
+        return `---\n${settings.modelPropertyName}: ${settings.defaultModel}\n---\n`;
+    }
+
+    // Advanced mode: include all parameters from property mappings
+    const yamlLines = PROPERTY_MAPPINGS.map(mapping => {
+        const value = settings[mapping.settingsKey];
+
+        // Handle different types of values
+        const formattedValue = typeof value === 'string' ? `"${value}"` : value;
+        return `${mapping.frontmatterKey}: ${formattedValue}`;
+    });
+
+    // Add other settings not part of the regular mappings
+    yamlLines.push(`system_prompt: "${settings.defaultSystemPrompt}"`);
+
+    return `---\n${yamlLines.join('\n')}\n---\n`;
 };

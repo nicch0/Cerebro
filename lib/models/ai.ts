@@ -6,6 +6,19 @@ import { logger } from "lib/logger";
 import { CerebroSettings } from "lib/settings";
 import { ChatFrontmatter, Message } from "lib/types";
 
+// Define mapping between ChatFrontmatter properties and their default values in CerebroSettings
+interface DefaultsMapping {
+    frontmatterKey: keyof ChatFrontmatter;
+    settingsKey: keyof CerebroSettings;
+}
+
+export const PROPERTY_MAPPINGS: DefaultsMapping[] = [
+    { frontmatterKey: "stream", settingsKey: "defaultStream" },
+    { frontmatterKey: "model", settingsKey: "defaultModel" },
+    { frontmatterKey: "maxTokens", settingsKey: "defaultMaxTokens" },
+    { frontmatterKey: "temperature", settingsKey: "defaultTemperature" },
+];
+
 
 export class AI {
     private providerRegistry: Provider;
@@ -67,21 +80,8 @@ export class AI {
             ...frontmatter,
         };
 
-        // Define mapping between ChatFrontmatter properties and their default values in CerebroSettings
-        interface DefaultsMapping {
-            frontmatterKey: keyof ChatFrontmatter;
-            settingsKey: keyof CerebroSettings;
-        }
-
-        const propertyMappings: DefaultsMapping[] = [
-            { frontmatterKey: "stream", settingsKey: "defaultStream" },
-            { frontmatterKey: "model", settingsKey: "defaultModel" },
-            { frontmatterKey: "maxTokens", settingsKey: "defaultMaxTokens" },
-            { frontmatterKey: "temperature", settingsKey: "defaultTemperature" },
-        ];
-
         // Apply all defaults from the settings object
-        propertyMappings.forEach((mapping) => {
+        PROPERTY_MAPPINGS.forEach((mapping) => {
             const { frontmatterKey, settingsKey } = mapping;
 
             // Only apply default if the property is undefined in the frontmatter
