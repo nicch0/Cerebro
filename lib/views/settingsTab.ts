@@ -1,5 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import Cerebro from "../main";
+import { getModelOptions } from "lib/helpers";
 
 export class SettingsTab extends PluginSettingTab {
     private plugin: Cerebro;
@@ -128,6 +129,19 @@ export class SettingsTab extends PluginSettingTab {
         containerEl.createEl("h2", {
             text: "Model Settings",
         });
+
+        new Setting(containerEl)
+            .setName("Default model")
+            .setDesc("Default model to use for new chats")
+            .addDropdown((dropdown) => {
+                dropdown
+                    .addOptions(getModelOptions())
+                    .setValue(this.plugin.settings.defaultModel)
+                    .onChange(async (value) => {
+                        this.plugin.settings.defaultModel = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
 
         // stream toggle
         new Setting(containerEl)
