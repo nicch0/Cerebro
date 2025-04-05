@@ -1,4 +1,4 @@
-import { PROPERTY_MAPPINGS } from "./models/ai";
+import { PROPERTY_MAPPINGS } from "./ai";
 import { Provider } from "./types";
 
 export interface ProviderSettings {
