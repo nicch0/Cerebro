@@ -73,7 +73,7 @@ const extractRoleAndMessage = (message: string, settings: CerebroSettings): Mess
         }
 
         // Extract name from header
-        const headerRegex = new RegExp(`<h[1-6] class="${CSSAssets.HEADER}">(.*?):</h[1-6]>`);
+        const headerRegex = new RegExp(`<h[1-6] class="${CSSAssets.HEADER}">(.*?)(?::)?</h[1-6]>`);
         const headerMatch = message.match(headerRegex);
 
         if (!headerMatch) {
@@ -96,16 +96,16 @@ const extractRoleAndMessage = (message: string, settings: CerebroSettings): Mess
     }
 };
 
-
 // Helper function to parse content for image URLs
 const parseMessageForUrls = (message: Message): Message => {
-    if (typeof message.content !== 'string') {
+    if (typeof message.content !== "string") {
         return message;
     }
 
     const content = message.content;
     // Regex to match both direct URLs and Markdown image syntax
-    const imageUrlRegex = /(?:!\[.*?\]\((https?:\/\/[^\s)]+?\.(?:jpg|jpeg|gif|png|webp))\)|(https?:\/\/[^\s<]+?\.(?:jpg|jpeg|gif|png|webp)))(?:\s|$)/gi;
+    const imageUrlRegex =
+        /(?:!\[.*?\]\((https?:\/\/[^\s)]+?\.(?:jpg|jpeg|gif|png|webp))\)|(https?:\/\/[^\s<]+?\.(?:jpg|jpeg|gif|png|webp)))(?:\s|$)/gi;
 
     const matches = Array.from(content.matchAll(imageUrlRegex));
 
@@ -121,7 +121,7 @@ const parseMessageForUrls = (message: Message): Message => {
         if (match.index! > lastIndex) {
             parts.push({
                 type: "text",
-                text: content.substring(lastIndex, match.index)
+                text: content.substring(lastIndex, match.index),
             });
         }
 
@@ -132,8 +132,8 @@ const parseMessageForUrls = (message: Message): Message => {
             type: "image",
             source: {
                 type: "url",
-                data: imageUrl
-            }
+                data: imageUrl,
+            },
         });
 
         lastIndex = match.index! + match[0].length;
@@ -143,7 +143,7 @@ const parseMessageForUrls = (message: Message): Message => {
     if (lastIndex < content.length) {
         parts.push({
             type: "text",
-            text: content.substring(lastIndex)
+            text: content.substring(lastIndex),
         });
     }
 
@@ -193,7 +193,7 @@ export default class ChatInterface {
         const messagesWithFiles = await Promise.all(
             messages.map((message) => this.parseFilesFromMessage(app, message, 1, processedFiles)),
         );
-        console.log("messages", messagesWithFiles)
+        console.log("messages", messagesWithFiles);
         return {
             messages: messagesWithFiles,
             files: processedFiles,
@@ -500,7 +500,7 @@ export default class ChatInterface {
         // Add the original text as first content block
         contents.push({
             type: "text",
-            text: contentToProcess.replace(/\[\[.*?\]\]/g, '').trim() // Remove wiki-links
+            text: contentToProcess.replace(/\[\[.*?\]\]/g, "").trim(), // Remove wiki-links
         });
 
         // Find and process all files
@@ -518,20 +518,20 @@ export default class ChatInterface {
                 // Add document header
                 contents.push({
                     type: "text",
-                    text: `[${filePath}]\n`
+                    text: `[${filePath}]\n`,
                 });
 
                 if (isValidImageExtension(file.extension)) {
                     contents.push({
                         type: "image",
                         source: await this.getImageSourceFromFile(app, file),
-                        originalPath: filePath
+                        originalPath: filePath,
                     });
                 } else if (isValidPDFExtension(file.extension)) {
                     contents.push({
                         type: "document",
                         source: await this.getPDFSourceFromFile(app, file),
-                        originalPath: filePath
+                        originalPath: filePath,
                     });
                 } else if (isValidFileExtension(file.extension)) {
                     const fileContent = await app.vault.cachedRead(file);
@@ -541,7 +541,7 @@ export default class ChatInterface {
                     contents.push({
                         type: "text",
                         text: contentWithoutYAML,
-                        originalPath: filePath
+                        originalPath: filePath,
                     });
 
                     // Process nested files
@@ -554,9 +554,19 @@ export default class ChatInterface {
 
                             // Recursively process nested file
                             if (!processedFiles.has(nestedPath)) {
-                                const nestedFile = app.metadataCache.getFirstLinkpathDest(nestedPath, "");
+                                const nestedFile = app.metadataCache.getFirstLinkpathDest(
+                                    nestedPath,
+                                    "",
+                                );
                                 if (nestedFile && nestedFile instanceof TFile) {
-                                    await this.processFile(app, nestedFile, nestedPath, depth + 1, processedFiles, contents);
+                                    await this.processFile(
+                                        app,
+                                        nestedFile,
+                                        nestedPath,
+                                        depth + 1,
+                                        processedFiles,
+                                        contents,
+                                    );
                                 }
                             }
                         }
@@ -568,18 +578,21 @@ export default class ChatInterface {
             if (documentRelations.size > 0) {
                 contents.push({
                     type: "text",
-                    text: "\nDocument relationships:\n" +
+                    text:
+                        "\nDocument relationships:\n" +
                         Array.from(documentRelations.entries())
-                            .map(([path, refs]) =>
-                                `${path} → ${refs.size ? Array.from(refs).join(", ") : "(no embedded documents)"}`)
-                            .join("\n")
+                            .map(
+                                ([path, refs]) =>
+                                    `${path} → ${refs.size ? Array.from(refs).join(", ") : "(no embedded documents)"}`,
+                            )
+                            .join("\n"),
                 });
             }
         }
 
         return {
             ...message,
-            content: contents
+            content: contents,
         };
     }
     private async processFile(
@@ -588,35 +601,34 @@ export default class ChatInterface {
         filePath: string,
         depth: number,
         processedFiles: Set<string>,
-        contents: (TextMessageContent | ImageMessageContent | DocumentMessageContent)[]
+        contents: (TextMessageContent | ImageMessageContent | DocumentMessageContent)[],
     ): Promise<void> {
         processedFiles.add(filePath);
 
         contents.push({
             type: "text",
-            text: `[${filePath}]\n`
+            text: `[${filePath}]\n`,
         });
 
         if (isValidImageExtension(file.extension)) {
             contents.push({
                 type: "image",
                 source: await this.getImageSourceFromFile(app, file),
-                originalPath: filePath
+                originalPath: filePath,
             });
         } else if (isValidPDFExtension(file.extension)) {
             contents.push({
                 type: "document",
                 source: await this.getPDFSourceFromFile(app, file),
-                originalPath: filePath
+                originalPath: filePath,
             });
         } else if (isValidFileExtension(file.extension)) {
             const fileContent = await app.vault.cachedRead(file);
-            const cleanContent = removeYMLFromMessage(fileContent)
-                .replace(/\[\[.*?\]\]/g, ''); // Remove wiki-links
+            const cleanContent = removeYMLFromMessage(fileContent).replace(/\[\[.*?\]\]/g, ""); // Remove wiki-links
             contents.push({
                 type: "text",
                 text: cleanContent,
-                originalPath: filePath
+                originalPath: filePath,
             });
         }
     }
