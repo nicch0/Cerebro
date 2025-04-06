@@ -1,4 +1,4 @@
-import { PROPERTY_MAPPINGS } from "./ai";
+import { MODEL_PROPERTY_NAME, PROPERTY_MAPPINGS } from "./ai";
 import { Provider } from "./types";
 
 export interface ProviderSettings {
@@ -21,8 +21,6 @@ export interface CerebroSettings {
     defaultTemperature: number;
     defaultMaxTokens: number;
     defaultSystemPrompt: string;
-
-    modelPropertyName: string;
     advancedMode: boolean;
 }
 
@@ -58,8 +56,6 @@ export const DEFAULT_SETTINGS: CerebroSettings = {
     defaultTemperature: 0.7,
     defaultMaxTokens: 1024,
     defaultSystemPrompt: "I am a helpful assistant.",
-    modelPropertyName: "llm_model",
-
     advancedMode: false,
 };
 
@@ -67,7 +63,7 @@ export const DEFAULT_SETTINGS: CerebroSettings = {
 export const getFrontmatter = (settings: CerebroSettings): string => {
     if (!settings.advancedMode) {
         // Original simple behavior
-        return `---\n${settings.modelPropertyName}: ${settings.defaultModel}\n---\n`;
+        return `---${MODEL_PROPERTY_NAME}: ${settings.defaultModel}\n---\n`;
     }
 
     // Advanced mode: include all parameters from property mappings

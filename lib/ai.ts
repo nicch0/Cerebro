@@ -12,9 +12,11 @@ interface DefaultsMapping {
     settingsKey: keyof CerebroSettings;
 }
 
+export const MODEL_PROPERTY_NAME = "model";
+
 export const PROPERTY_MAPPINGS: DefaultsMapping[] = [
+    { frontmatterKey: MODEL_PROPERTY_NAME, settingsKey: "defaultModel" },
     { frontmatterKey: "stream", settingsKey: "defaultStream" },
-    { frontmatterKey: "model", settingsKey: "defaultModel" },
     { frontmatterKey: "maxTokens", settingsKey: "defaultMaxTokens" },
     { frontmatterKey: "temperature", settingsKey: "defaultTemperature" },
 ];

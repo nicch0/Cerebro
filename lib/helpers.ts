@@ -150,7 +150,7 @@ export const getDate = (date: Date, format = "YYYYMMDDhhmmss"): string => {
 export const getCerebroBaseSystemPrompts = (settings: CerebroSettings): string[] => {
     return [
         // Formalities
-        `Your name is ${settings.assistantName}. You are speaking to ${settings.username}.`,
+        `Your name is ${settings.assistantName}. You are speaking to ${settings.userName}.`,
 
         // Obsidian Context
         "You are speaking through an Obsidian markdown document. You understand markdown syntax and can interpret double-bracketed links to files and images. When referenced, focus on content rather than the file nature.",
