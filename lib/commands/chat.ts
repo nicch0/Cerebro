@@ -8,7 +8,7 @@ export const chatCommand = (plugin: Cerebro): Command => ({
     id: "cerebro-chat",
     name: "Chat",
     icon: "message-circle",
-    editorCallback: async (editor: Editor, view: MarkdownView) => {
+    editorCallback: async (_: Editor, view: MarkdownView) => {
         if (Platform.isMobile) {
             new Notice(CerebroMessages.CALLING_API);
         }

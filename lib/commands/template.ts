@@ -7,7 +7,7 @@ export const chooseChatTemplateCommand = (plugin: Cerebro): Command => ({
     id: "cerebro-choose-chat-template",
     name: "Create new chat from template",
     icon: "layout-template",
-    editorCallback: async (_editor: Editor, _view: MarkdownView): Promise<void> => {
+    editorCallback: async (_: Editor, __: MarkdownView): Promise<void> => {
         if (!plugin.settings.chatFolder || plugin.settings.chatFolder.trim() === "") {
             new Notice("[Cerebro] No chat folder value found. Please set one in settings.");
             return;
