@@ -1,7 +1,7 @@
 import ChatInterface from "lib/chatInterface";
+import { CEREBRO_CHAT_ID } from "lib/commands/chat";
 import Cerebro from "lib/main";
-import { setIcon } from "obsidian";
-import { P } from "pino";
+import { MarkdownView, setIcon } from "obsidian";
 
 const ARROW_UP_ICON = "arrow-up";
 
@@ -14,7 +14,7 @@ export default class ChatToolbar {
         this._plugin = plugin;
         this._chatInterface = chatInterface;
         this._containerEl = this.createElement();
-        this._setupEventListeners();
+        // this._setupEventListeners();
     }
 
    	get visible(): boolean {
@@ -47,19 +47,16 @@ export default class ChatToolbar {
         toolbarEl.appendChild(chatButtonEl);
         this._connectToDOM(toolbarEl);
 
+        // Add click handler to execute the chat command
+        chatButtonEl.addEventListener("click", () => {
+            const activeView = this._plugin.app.workspace.getActiveViewOfType(MarkdownView);
+            if (!activeView) return;
+            // @ts-ignore
+            this._plugin.app.commands.executeCommandById(`cerebro:${CEREBRO_CHAT_ID}`);
+        });
+
         return toolbarEl;
 
-        // // Add click handler to execute the chat command
-        // chatButton.addEventListener("click", () => {
-        //     const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
-        //     if (activeView) {
-        //         // Find and execute the chat command
-        //         // @ts-ignore
-        //         this.app.commands.executeCommandById("cerebro:cerebro-chat");
-        //     } else {
-        //         new Notice("[Cerebro] Please open a markdown file first");
-        //     }
-        // });
 
         // // Hide toolbar initially
         // this.floatingToolbar.style.display = "none";
@@ -71,8 +68,8 @@ export default class ChatToolbar {
         // }
     }
 
-    private _setupEventListeners() {
-        // this._plugin.registerDomEvent(this._containerEl, "click", () => this.handleClick());
+    handleClick(): any {
+        throw new Error("Method not implemented.");
     }
 
     private _connectToDOM(toolbar: HTMLDivElement): void {
