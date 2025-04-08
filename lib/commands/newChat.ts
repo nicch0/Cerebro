@@ -26,7 +26,7 @@ export const createNewChatCommand = (plugin: Cerebro): Command => ({
             }
             const view = leaf.view as MarkdownView;
 
-            const chatInterface = new ChatInterface(plugin.settings, view.editor, view);
+            const chatInterface = new ChatInterface(plugin.settings, view);
             plugin.chatInterfaces.set(newFile, chatInterface);
             openInMainEditor(plugin, newFile, chatInterface);
         } catch (e) {

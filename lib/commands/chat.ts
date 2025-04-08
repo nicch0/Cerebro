@@ -20,7 +20,7 @@ export const chatCommand = (plugin: Cerebro): Command => ({
         // Get or create ChatInterface for this file
         let chatInterface = plugin.chatInterfaces.get(view.file);
         if (!chatInterface) {
-            chatInterface = new ChatInterface(plugin.settings, editor, view);
+            chatInterface = new ChatInterface(plugin.settings, view);
             plugin.chatInterfaces.set(view.file, chatInterface);
         }
 

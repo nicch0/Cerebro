@@ -7,7 +7,7 @@ export const addDividerCommand = (plugin: Cerebro): Command => ({
     name: "Add divider",
     icon: "minus",
     editorCallback: (editor: Editor, view: MarkdownView) => {
-        const chatInterface = new ChatInterface(plugin.settings, editor, view);
+        const chatInterface = new ChatInterface(plugin.settings, view);
         chatInterface.addHR();
     },
 });

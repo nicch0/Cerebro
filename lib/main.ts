@@ -5,7 +5,7 @@ import * as openai from "@ai-sdk/openai";
 import * as xai from "@ai-sdk/xai";
 import { experimental_createProviderRegistry as createProviderRegistry } from "ai";
 import { isTitleTimestampFormat, writeInferredTitleToEditor } from "lib/helpers";
-import { MarkdownView, Notice, Platform, Plugin, TFile } from "obsidian";
+import { MarkdownView, Notice, Platform, Plugin, TFile, WorkspaceLeaf } from "obsidian";
 import ChatInterface from "./chatInterface";
 import { getCommands } from "./commands";
 import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "./constants";
@@ -14,9 +14,11 @@ import { AI } from "./ai";
 import { CerebroSettings, DEFAULT_SETTINGS } from "./settings";
 import { ChatFrontmatter, Message } from "./types";
 import { SettingsTab } from "./views/settingsTab";
+import ChatInterfaceManager from "./chatInterfaceManager";
 
 export default class Cerebro extends Plugin {
     public chatInterfaces: Map<TFile, ChatInterface> = new Map();
+    private chatInterfaceManager: ChatInterfaceManager;
     public settings: CerebroSettings;
     public statusBar: HTMLElement;
     public ai: AI;
@@ -27,13 +29,34 @@ export default class Cerebro extends Plugin {
 
         logger.debug("[Cerebro] Loading settings");
         await this.loadSettings();
+        this.addSettingTab(new SettingsTab(this.app, this));
+
+        this.chatInterfaceManager = ChatInterfaceManager.initialize(this);
 
         this.initializeAI();
-        this.addSettingTab(new SettingsTab(this.app, this));
+
+        this.app.workspace.onLayoutReady(() => {
+			this.chatInterfaceManager.createChatInOpenViews();
+		});
+
+		this.registerEvent(
+			this.app.workspace.on(
+				"active-leaf-change",
+				(leaf: WorkspaceLeaf | null) => {
+					if (!(leaf?.view instanceof MarkdownView)) return;
+
+					const view: MarkdownView = leaf.view as MarkdownView;
+
+					this.chatInterfaceManager.updateViewForChat(view);
+					this.chatInterfaceManager.handleActiveLeafChange(view);
+				}
+			)
+		);
 
         // Register all commands
         const commands = getCommands(this);
         commands.forEach((command) => this.addCommand(command));
+
     }
 
     private initializeAI(): void {

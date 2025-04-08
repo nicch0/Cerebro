@@ -151,23 +151,28 @@ const parseMessageForUrls = (message: Message): Message => {
 };
 
 export default class ChatInterface {
-    private editor: Editor;
-    private view: MarkdownView;
+    private _editor: Editor;
+    public view: MarkdownView;
     public stopStreaming = false;
     public userScrolling = false;
 
     public settings: CerebroSettings;
     public editorPosition: EditorPosition;
 
-    constructor(settings: CerebroSettings, editor: Editor, view: MarkdownView) {
+    // UI elements
+
+    constructor(settings: CerebroSettings, view: MarkdownView) {
         this.settings = settings;
-        this.editor = editor;
         this.view = view;
+        this._editor = view.editor;
         this.initScrollTracking();
     }
 
+    public showInterface() {
+	}
+
     private initScrollTracking(): void {
-        const cm6editor = this.editor as EditorWithCM6;
+        const cm6editor = this._editor as EditorWithCM6;
         const handleWheel = (e: WheelEvent): void => {
             if (e.deltaY !== 0 && !this.userScrolling) {
                 this.userScrolling = true;
@@ -182,7 +187,7 @@ export default class ChatInterface {
         files: Set<string>;
     }> {
         // Retrieve and process messages
-        const rawEditorVal = this.editor.getValue();
+        const rawEditorVal = this._editor.getValue();
         const bodyWithoutYML = removeYMLFromMessage(rawEditorVal);
         const messages = splitMessages(bodyWithoutYML)
             .map((message) => removeCommentsFromMessages(message))
@@ -222,15 +227,15 @@ export default class ChatInterface {
 
     public addHR(): void {
         const newLine = `\n<hr class="${CSSAssets.HR}">\n${userHeader(this.settings.userName, this.settings.headingLevel)}\n`;
-        this.editor.replaceRange(newLine, this.editor.getCursor());
+        this._editor.replaceRange(newLine, this._editor.getCursor());
 
         // Move cursor to end of file
-        const cursor = this.editor.getCursor();
+        const cursor = this._editor.getCursor();
         const newCursor = {
             line: cursor.line,
             ch: cursor.ch + newLine.length,
         };
-        this.editor.setCursor(newCursor);
+        this._editor.setCursor(newCursor);
     }
 
     public completeUserResponse(): void {
@@ -239,11 +244,11 @@ export default class ChatInterface {
          * 2. Places divider
          * 3. Completes the user's response by placing the assistant's header
          */
-        this.moveCursorToEndOfFile(this.editor);
+        this.moveCursorToEndOfFile(this._editor);
         const newLine = `\n\n<hr class="${CSSAssets.HR}">\n${assistantHeader(this.settings.assistantName, this.settings.headingLevel)}\n`;
 
-        const cm6editor = this.editor as EditorWithCM6;
-        const cursor = this.editor.getCursor();
+        const cm6editor = this._editor as EditorWithCM6;
+        const cursor = this._editor.getCursor();
         const line = cm6editor.cm.state.doc.line(cursor.line + 1).from;
 
         cm6editor.cm.dispatch({
@@ -272,8 +277,8 @@ export default class ChatInterface {
          * 3. Moves cursor to end of line
          */
         const newLine = `\n\n<hr class="${CSSAssets.HR}">\n${userHeader(this.settings.userName, this.settings.headingLevel)}\n`;
-        const cm6editor = this.editor as EditorWithCM6;
-        const cursor = this.editor.getCursor();
+        const cm6editor = this._editor as EditorWithCM6;
+        const cursor = this._editor.getCursor();
         const line = cm6editor.cm.state.doc.line(cursor.line + 1).from;
         cm6editor.cm.dispatch({
             changes: {
@@ -299,8 +304,8 @@ export default class ChatInterface {
          * 1. Places assistant's response
          * 2. Moves cursor to end of line
          */
-        this.editor.replaceRange(message, this.editor.getCursor());
-        this.editorPosition = this.moveCursorToEndOfLine(this.editor, message);
+        this._editor.replaceRange(message, this._editor.getCursor());
+        this.editorPosition = this.moveCursorToEndOfLine(this._editor, message);
     }
 
     public moveCursorToEndOfFile(editor: Editor): EditorPosition {
@@ -422,8 +427,8 @@ export default class ChatInterface {
             logger.info("Stopping stream...");
             return false;
         }
-        const cm6editor = this.editor as EditorWithCM6;
-        const cursor = this.editor.getCursor();
+        const cm6editor = this._editor as EditorWithCM6;
+        const cursor = this._editor.getCursor();
         const line = cm6editor.cm.state.doc.line(cursor.line + 1).from;
 
         // Create a transaction that adds text without scrolling
@@ -446,8 +451,8 @@ export default class ChatInterface {
         fullResponse: string,
         { line: initialLine, ch: initialCh }: EditorPosition,
     ): void {
-        const cm6editor = this.editor as EditorWithCM6;
-        const endCursor = this.editor.getCursor();
+        const cm6editor = this._editor as EditorWithCM6;
+        const endCursor = this._editor.getCursor();
         const initialPos = cm6editor.cm.state.doc.line(initialLine + 1).from + initialCh;
         const endPos = cm6editor.cm.state.doc.line(endCursor.line + 1).from + endCursor.ch;
 

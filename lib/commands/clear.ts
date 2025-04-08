@@ -7,7 +7,7 @@ export const clearChatCommand = (plugin: Cerebro): Command => ({
     name: "Clear chat (except frontmatter)",
     icon: "trash",
     editorCallback: async (editor: Editor, view: MarkdownView) => {
-        const chatInterface = new ChatInterface(plugin.settings, editor, view);
+        const chatInterface = new ChatInterface(plugin.settings, view);
         try {
             chatInterface.clearConversationExceptFrontmatter(editor);
         } catch (e) {
