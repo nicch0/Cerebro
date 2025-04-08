@@ -43,12 +43,11 @@ export default class Cerebro extends Plugin {
             this.app.workspace.on("active-leaf-change", (leaf: WorkspaceLeaf | null) => {
                 if (!(leaf?.view instanceof MarkdownView)) return;
                 const view: MarkdownView = leaf.view as MarkdownView;
-
-                if (view.file && !fileIsChat(this.app, view?.file)) return;
-
-                console.log("Active leaf changed");
-                this.chatInterfaceManager.updateViewForChat(view);
-                this.chatInterfaceManager.handleActiveLeafChange(view);
+                if (view.file && fileIsChat(this.app, view?.file)) {
+                    this.chatInterfaceManager.updateViewForChat(view);
+                    this.chatInterfaceManager.handleActiveLeafChange(view);
+                }
+                // Let the ChatInterfaceManager handle the non-chat case in its event listener
             }),
         );
 

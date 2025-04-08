@@ -13,14 +13,14 @@ export default class ChatInterfaceManager {
         this.setupEventListeners();
     }
 
-    static initialize(plugin: Cerebro): ChatInterfaceManager {
+    public static initialize(plugin: Cerebro): ChatInterfaceManager {
         if (!ChatInterfaceManager.instance) {
             ChatInterfaceManager.instance = new ChatInterfaceManager(plugin);
         }
         return ChatInterfaceManager.instance;
     }
 
-    static getInstance(): ChatInterfaceManager {
+    public static getInstance(): ChatInterfaceManager {
         if (!ChatInterfaceManager.instance) {
             throw new Error("ChatInterfaceManager not initialized");
         }
@@ -50,7 +50,6 @@ export default class ChatInterfaceManager {
     public getChatInView(view: MarkdownView): ChatInterface {
         const viewId: string = this._getViewId(view);
         if (!this._chats.has(viewId)) {
-            console.log("getChatInView creating", view?.file?.name);
             this._chats.set(viewId, new ChatInterface(this._plugin, view));
         }
 
@@ -74,15 +73,33 @@ export default class ChatInterfaceManager {
     }
 
     private setupEventListeners() {
-        // this._plugin.registerEvent(
-        //     this._plugin.app.workspace.on("active-leaf-change", (leaf) => {
-        //         if (!(leaf?.view instanceof MarkdownView)) return;
-        //         const view: MarkdownView = leaf.view as MarkdownView;
-        //         if (view.file && !fileIsChat(this._plugin.app, view?.file)) return;
-        //         const chat = this.getChatInView(view);
-        //         chat.view = view;
-        //     }),
-        // );
+        this._plugin.registerEvent(
+            this._plugin.app.workspace.on("active-leaf-change", (leaf) => {
+                if (!(leaf?.view instanceof MarkdownView)) return;
+                const view: MarkdownView = leaf.view as MarkdownView;
+
+                // Check if this is a chat file
+                const isChat = view.file && fileIsChat(this._plugin.app, view?.file);
+
+                // Get the view ID to track if we have a toolbar for this view
+                const viewId = this._getViewId(view);
+
+                if (isChat) {
+                    // For chat files, get/create and update the chat interface
+                    const chat = this.getChatInView(view);
+                    chat.view = view;
+                    if (!chat.isToolbarVisible) {
+                        chat.showToolbar();
+                    }
+                } else if (this._chats.has(viewId)) {
+                    // For non-chat files, hide toolbar if it exists for this view
+                    const chat = this._chats.get(viewId)!;
+                    if (chat.isToolbarVisible) {
+                        chat.toolbar.hide();
+                    }
+                }
+            }),
+        );
     }
 
     private updateChatVisibility(view: MarkdownView, isMetadataChange = false): void {

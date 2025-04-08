@@ -129,6 +129,8 @@
     transition:
         transform 0.2s ease,
         background-color 0.2s ease;
+    opacity: 1;
+    transition: all 0.2s ease-in-out;
 }
 
 .cerebro-floating-button:hover {
@@ -144,6 +146,7 @@
 .cerebro-floating-toolbar.hidden {
     opacity: 0;
     pointer-events: none;
+    transition: all 0.2s ease-in-out;
 }
 
 /* Mobile adjustments */

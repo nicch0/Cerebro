@@ -213,7 +213,6 @@ export default class ChatInterface {
         const messagesWithFiles = await Promise.all(
             messages.map((message) => this.parseFilesFromMessage(app, message, 1, processedFiles)),
         );
-        console.log("messages", messagesWithFiles);
         return {
             messages: messagesWithFiles,
             files: processedFiles,

@@ -9,7 +9,6 @@ export default class ChatToolbar {
     private _chatInterface: ChatInterface;
     private _plugin: Cerebro;
     private _containerEl: HTMLDivElement;
-    public visible: boolean;
 
     constructor(plugin: Cerebro, chatInterface: ChatInterface) {
         this._plugin = plugin;
@@ -18,8 +17,23 @@ export default class ChatToolbar {
         this._setupEventListeners();
     }
 
+   	get visible(): boolean {
+		const isInDOM: boolean = this._containerEl.isConnected;
+		const isHidden: boolean =
+			this._containerEl.classList.contains("hidden");
+
+		return isInDOM && !isHidden;
+	}
+
+	set visible(value: boolean) {
+		const isInDOM: boolean = this._containerEl.isConnected;
+		if (!isInDOM) {
+			this._connectToDOM(this._containerEl);
+		}
+		this._containerEl.classList.toggle("hidden", !value);
+	}
+
     private createElement(): HTMLDivElement {
-        console.log(`creating new toolbar for ${this._chatInterface.view.file?.basename}`);
         const toolbarEl = createEl("div", {
             cls: ["cerebro-floating-toolbar"],
         });
