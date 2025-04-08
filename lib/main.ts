@@ -4,9 +4,8 @@ import * as google from "@ai-sdk/google";
 import * as openai from "@ai-sdk/openai";
 import * as xai from "@ai-sdk/xai";
 import { experimental_createProviderRegistry as createProviderRegistry } from "ai";
-import { isTitleTimestampFormat, writeInferredTitleToEditor } from "lib/helpers";
-import { MarkdownView, Notice, Platform, Plugin, TFile, WorkspaceLeaf } from "obsidian";
-import ChatInterface from "./chatInterface";
+import { fileIsChat, isTitleTimestampFormat, writeInferredTitleToEditor } from "lib/helpers";
+import { MarkdownView, Notice, Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import { getCommands } from "./commands";
 import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "./constants";
 import { logger } from "./logger";
@@ -17,8 +16,7 @@ import { SettingsTab } from "./views/settingsTab";
 import ChatInterfaceManager from "./chatInterfaceManager";
 
 export default class Cerebro extends Plugin {
-    public chatInterfaces: Map<TFile, ChatInterface> = new Map();
-    private chatInterfaceManager: ChatInterfaceManager;
+    public chatInterfaceManager: ChatInterfaceManager;
     public settings: CerebroSettings;
     public statusBar: HTMLElement;
     public ai: AI;
@@ -36,27 +34,27 @@ export default class Cerebro extends Plugin {
         this.initializeAI();
 
         this.app.workspace.onLayoutReady(() => {
-			this.chatInterfaceManager.createChatInOpenViews();
-		});
+            this.chatInterfaceManager.createChatInOpenViews();
+        });
 
-		this.registerEvent(
-			this.app.workspace.on(
-				"active-leaf-change",
-				(leaf: WorkspaceLeaf | null) => {
-					if (!(leaf?.view instanceof MarkdownView)) return;
+        // When active leaf changes, it adds the ChatInterface
+        // This only applies to valid Cerebro chat files, not other md files
+        this.registerEvent(
+            this.app.workspace.on("active-leaf-change", (leaf: WorkspaceLeaf | null) => {
+                if (!(leaf?.view instanceof MarkdownView)) return;
+                const view: MarkdownView = leaf.view as MarkdownView;
 
-					const view: MarkdownView = leaf.view as MarkdownView;
+                if (view.file && !fileIsChat(this.app, view?.file)) return;
 
-					this.chatInterfaceManager.updateViewForChat(view);
-					this.chatInterfaceManager.handleActiveLeafChange(view);
-				}
-			)
-		);
+                console.log("Active leaf changed");
+                this.chatInterfaceManager.updateViewForChat(view);
+                this.chatInterfaceManager.handleActiveLeafChange(view);
+            }),
+        );
 
         // Register all commands
         const commands = getCommands(this);
         commands.forEach((command) => this.addCommand(command));
-
     }
 
     private initializeAI(): void {
@@ -73,7 +71,7 @@ export default class Cerebro extends Plugin {
         if (this.settings.providerSettings.Anthropic.apiKey) {
             providerConfig.anthropic = anthropic.createAnthropic({
                 apiKey: this.settings.providerSettings?.Anthropic?.apiKey,
-                headers: { 'anthropic-dangerous-direct-browser-access': 'true' }
+                headers: { "anthropic-dangerous-direct-browser-access": "true" },
             });
         }
 
@@ -144,7 +142,7 @@ export default class Cerebro extends Plugin {
 
     private async loadSettings(): Promise<void> {
         this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-        logger.debug("Loaded settings", this.settings);
+        logger.debug("[Cerebro] Loaded settings", this.settings);
     }
 
     public async saveSettings(): Promise<void> {
@@ -154,6 +152,7 @@ export default class Cerebro extends Plugin {
     }
 
     public async onunload(): Promise<void> {
-        this.chatInterfaces.clear();
+        // TODO: Ensure all HTML elements are removed from the DOM
+        this.chatInterfaceManager.removeAll();
     }
 }

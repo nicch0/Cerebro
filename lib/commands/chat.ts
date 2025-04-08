@@ -17,14 +17,8 @@ export const chatCommand = (plugin: Cerebro): Command => ({
             throw new Error("No active file");
         }
 
-        // Get or create ChatInterface for this file
-        let chatInterface = plugin.chatInterfaces.get(view.file);
-        if (!chatInterface) {
-            chatInterface = new ChatInterface(plugin.settings, view);
-            plugin.chatInterfaces.set(view.file, chatInterface);
-        }
-
-        const frontmatter = chatInterface.getFrontmatter(plugin.app);
+        const chatInterface = plugin.chatInterfaceManager.getChatInView(view);
+        const frontmatter = chatInterface.getChatFrontmatter(plugin.app);
         const { messages, files } = await chatInterface.getMessages(plugin.app);
         logger.debug(`[Cerebro] Retrieved messages`, messages);
         chatInterface.completeUserResponse();

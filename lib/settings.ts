@@ -59,24 +59,23 @@ export const DEFAULT_SETTINGS: CerebroSettings = {
     advancedMode: false,
 };
 
-
-export const getFrontmatter = (settings: CerebroSettings): string => {
+export const generateChatFrontmatter = (settings: CerebroSettings): string => {
     if (!settings.advancedMode) {
         // Original simple behavior
         return `---${MODEL_PROPERTY_NAME}: ${settings.defaultModel}\n---\n`;
     }
 
     // Advanced mode: include all parameters from property mappings
-    const yamlLines = PROPERTY_MAPPINGS.map(mapping => {
+    const yamlLines = PROPERTY_MAPPINGS.map((mapping) => {
         const value = settings[mapping.settingsKey];
 
         // Handle different types of values
-        const formattedValue = typeof value === 'string' ? `"${value}"` : value;
+        const formattedValue = typeof value === "string" ? `"${value}"` : value;
         return `${mapping.frontmatterKey}: ${formattedValue}`;
     });
 
     // Add other settings not part of the regular mappings
     yamlLines.push(`system_prompt: "${settings.defaultSystemPrompt}"`);
 
-    return `---\n${yamlLines.join('\n')}\n---\n`;
+    return `---\n${yamlLines.join("\n")}\n---\n`;
 };

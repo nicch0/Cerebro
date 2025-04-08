@@ -1,6 +1,7 @@
 import { MarkdownView } from "obsidian";
 import ChatInterface from "./chatInterface";
 import Cerebro from "./main";
+import { fileIsChat } from "./helpers";
 
 export default class ChatInterfaceManager {
     private _plugin: Cerebro;
@@ -9,7 +10,7 @@ export default class ChatInterfaceManager {
 
     private constructor(plugin: Cerebro) {
         this._plugin = plugin;
-        this._setupEventListeners();
+        this.setupEventListeners();
     }
 
     static initialize(plugin: Cerebro): ChatInterfaceManager {
@@ -26,122 +27,124 @@ export default class ChatInterfaceManager {
         return ChatInterfaceManager.instance;
     }
 
-   	private getActiveMDView(): MarkdownView | null {
-		const view: MarkdownView | null =
-			this._plugin.app.workspace.getActiveViewOfType(MarkdownView);
-		return view;
-	}
-
-	public getVisibleMDViews(): MarkdownView[] {
-		const views: MarkdownView[] = this._plugin.app.workspace
-			.getLeavesOfType("markdown")
-			.map((leaf) => leaf.view as MarkdownView)
-			.filter((view) => view.contentEl);
-		return views;
-	}
-
-	private _getViewId(view: MarkdownView): string {
-		// @ts-ignore:2239
-		return view.leaf.id;
-	}
-
-	public getChatInView(view: MarkdownView): ChatInterface {
-		const viewId: string = this._getViewId(view);
-		if (!this._chats.has(viewId)) {
-			this._chats.set(viewId, new ChatInterface(this._plugin.settings, view));
-		}
-
-		return this._chats.get(viewId)!;
-	}
-
-	public updateViewForChat(view: MarkdownView): void {
-		const chat: ChatInterface = this.getChatInView(view);
-		chat.view = view;
-	}
-
-	public handleActiveLeafChange(view: MarkdownView): void {
-		this.updateChatVisibility(view);
-	}
-
-	public handleMetadataChanged(): void {
-		const view = this.getActiveMDView();
-		if (!view) return;
-
-		this.updateChatVisibility(view, true);
-	}
-
-    private _setupEventListeners() {
-        this._plugin.registerEvent(
-			this._plugin.app.workspace.on("active-leaf-change", (leaf) => {
-				if (leaf?.view instanceof MarkdownView) {
-					const view: MarkdownView = leaf.view as MarkdownView;
-					const chat = this.getChatInView(view);
-					chat.view = view;
-				}
-			})
-		);
+    private getActiveMDView(): MarkdownView | null {
+        const view: MarkdownView | null =
+            this._plugin.app.workspace.getActiveViewOfType(MarkdownView);
+        return view;
     }
 
-   	private updateChatVisibility(
-		view: MarkdownView,
-		isMetadataChange = false
-	): void {
-		const chat: ChatInterface = this.getChatInView(view);
+    public getVisibleMDChatViews(): MarkdownView[] {
+        const views: MarkdownView[] = this._plugin.app.workspace
+            .getLeavesOfType("markdown")
+            .map((leaf) => leaf.view as MarkdownView)
+            .filter((view) => view.file && fileIsChat(this._plugin.app, view.file))
+            .filter((view) => view.contentEl);
+        return views;
+    }
 
-		// const hasHeadings: boolean =
-		// 	chat.headings && chat.headings.length > 1;
-		// const hasMinimumHeadings: boolean =
-		// 	hasHeadings &&
-		// 	chat.headings.length >=
-		// 		this._plugin.settings.minimumHeadingsToRevealAutomatically;
+    private _getViewId(view: MarkdownView): string {
+        // @ts-ignore:2239
+        return view.leaf.id;
+    }
 
-		// // Update button visibility
-		// chat.toggleButton(hasHeadings);
+    public getChatInView(view: MarkdownView): ChatInterface {
+        const viewId: string = this._getViewId(view);
+        if (!this._chats.has(viewId)) {
+            console.log("getChatInView creating", view?.file?.name);
+            this._chats.set(viewId, new ChatInterface(this._plugin, view));
+        }
 
-		// // Determine window visibility
-		// const shouldHideWindow: boolean =
-		// 	!hasHeadings ||
-		// 	(!isMetadataChange &&
-		// 		this._plugin.settings.revealAutomaticallyOnFileOpen &&
-		// 		!hasMinimumHeadings);
+        return this._chats.get(viewId)!;
+    }
 
-		// const shouldShowWindow: boolean =
-		// 	!isMetadataChange &&
-		// 	!chat.toggledAutomaticallyOnce &&
-		// 	this._plugin.settings.revealAutomaticallyOnFileOpen &&
-		// 	hasMinimumHeadings &&
-		// 	this._isEnoughWidthForAutomaticToggle(view);
+    public updateViewForChat(view: MarkdownView): void {
+        const chat: ChatInterface = this.getChatInView(view);
+        chat.view = view;
+    }
 
-		// // Update window state
-		// if (shouldHideWindow) {
-		// 	chat.hideWindow();
-		// 	chat.windowPinned = false;
-		// } else if (shouldShowWindow) {
-		// 	chat.showWindow();
-		// 	chat.windowPinned = true;
-		// }
+    public handleActiveLeafChange(view: MarkdownView): void {
+        this.updateChatVisibility(view);
+    }
 
-		// // Update window if visible
-		// if (chat.windowVisible) {
-		// 	chat.toggledAutomaticallyOnce
-		// 	chat.updateWindow();
-		// }
-	}
+    public handleMetadataChanged(): void {
+        const view = this.getActiveMDView();
+        if (!view) return;
+
+        this.updateChatVisibility(view, true);
+    }
+
+    private setupEventListeners() {
+        // this._plugin.registerEvent(
+        //     this._plugin.app.workspace.on("active-leaf-change", (leaf) => {
+        //         if (!(leaf?.view instanceof MarkdownView)) return;
+        //         const view: MarkdownView = leaf.view as MarkdownView;
+        //         if (view.file && !fileIsChat(this._plugin.app, view?.file)) return;
+        //         const chat = this.getChatInView(view);
+        //         chat.view = view;
+        //     }),
+        // );
+    }
+
+    private updateChatVisibility(view: MarkdownView, isMetadataChange = false): void {
+        const chat: ChatInterface = this.getChatInView(view);
+
+        // const hasHeadings: boolean =
+        // 	chat.headings && chat.headings.length > 1;
+        // const hasMinimumHeadings: boolean =
+        // 	hasHeadings &&
+        // 	chat.headings.length >=
+        // 		this._plugin.settings.minimumHeadingsToRevealAutomatically;
+
+        // // Update button visibility
+        // chat.toggleButton(hasHeadings);
+
+        // // Determine window visibility
+        // const shouldHideWindow: boolean =
+        // 	!hasHeadings ||
+        // 	(!isMetadataChange &&
+        // 		this._plugin.settings.revealAutomaticallyOnFileOpen &&
+        // 		!hasMinimumHeadings);
+
+        // const shouldShowWindow: boolean =
+        // 	!isMetadataChange &&
+        // 	!chat.toggledAutomaticallyOnce &&
+        // 	this._plugin.settings.revealAutomaticallyOnFileOpen &&
+        // 	hasMinimumHeadings &&
+        // 	this._isEnoughWidthForAutomaticToggle(view);
+
+        // // Update window state
+        // if (shouldHideWindow) {
+        // 	chat.hideWindow();
+        // 	chat.windowPinned = false;
+        // } else if (shouldShowWindow) {
+        // 	chat.showWindow();
+        // 	chat.windowPinned = true;
+        // }
+
+        // // Update window if visible
+        // if (chat.windowVisible) {
+        // 	chat.toggledAutomaticallyOnce
+        // 	chat.updateWindow();
+        // }
+    }
     public createChatInOpenViews() {
-  		const views: MarkdownView[] = this.getVisibleMDViews();
-		if (views.length === 0) return;
+        const views: MarkdownView[] = this.getVisibleMDChatViews();
+        if (views.length === 0) return;
 
-		views.map((view) => this.createChatInView(view));
+        views.map((view) => this.createChatInView(view));
     }
 
     private createChatInView(view: MarkdownView): any {
         const chat = this.getChatInView(view);
-		// if (
-		// 	!chat.isButtonVisible &&
-		// 	chat.headings &&
-		// 	chat.headings.length > 1
-		// ) {
-		// 	chat.showButton();
-		// }
+        if (!chat.isToolbarVisible) {
+            chat.showToolbar();
+        }
+    }
+
+    public removeAll() {
+        this._chats.forEach((chat) => {
+            chat.toolbar.destroy();
+        });
+        this._chats.clear();
     }
 }

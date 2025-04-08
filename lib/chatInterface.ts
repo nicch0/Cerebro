@@ -20,12 +20,15 @@ import {
 } from "./constants";
 import {
     getCerebroBaseSystemPrompts,
+    getMetaMatter,
     isValidFileExtension,
     isValidImageExtension,
     isValidPDFExtension,
 } from "./helpers";
 import { logger } from "./logger";
 import { CerebroSettings } from "./settings";
+import ChatToolbar from "./components/toolbar";
+import Cerebro from "./main";
 
 export type ShouldContinue = boolean;
 
@@ -151,25 +154,37 @@ const parseMessageForUrls = (message: Message): Message => {
 };
 
 export default class ChatInterface {
+    private _plugin: Cerebro;
     private _editor: Editor;
     public view: MarkdownView;
+    public toolbar: ChatToolbar;
     public stopStreaming = false;
     public userScrolling = false;
 
-    public settings: CerebroSettings;
     public editorPosition: EditorPosition;
 
-    // UI elements
-
-    constructor(settings: CerebroSettings, view: MarkdownView) {
-        this.settings = settings;
+    constructor(plugin: Cerebro, view: MarkdownView) {
+        this._plugin = plugin;
         this.view = view;
+        this.toolbar = new ChatToolbar(this._plugin, this);
         this._editor = view.editor;
         this.initScrollTracking();
+        this.moveCursorToEndOfFile();
     }
 
-    public showInterface() {
-	}
+    get isToolbarVisible(): boolean {
+        return this.toolbar.visible;
+    }
+
+    set isToolbarVisible(value: boolean) {
+        this.toolbar.visible = value;
+    }
+
+    public showToolbar() {
+        if (!this.isToolbarVisible) {
+            this.toolbar.show();
+        }
+    }
 
     private initScrollTracking(): void {
         const cm6editor = this._editor as EditorWithCM6;
@@ -191,7 +206,7 @@ export default class ChatInterface {
         const bodyWithoutYML = removeYMLFromMessage(rawEditorVal);
         const messages = splitMessages(bodyWithoutYML)
             .map((message) => removeCommentsFromMessages(message))
-            .map((message) => extractRoleAndMessage(message, this.settings))
+            .map((message) => extractRoleAndMessage(message, this._plugin.settings))
             .map((message) => parseMessageForUrls(message));
 
         const processedFiles = new Set<string>();
@@ -226,7 +241,7 @@ export default class ChatInterface {
     }
 
     public addHR(): void {
-        const newLine = `\n<hr class="${CSSAssets.HR}">\n${userHeader(this.settings.userName, this.settings.headingLevel)}\n`;
+        const newLine = `\n<hr class="${CSSAssets.HR}">\n${userHeader(this._plugin.settings.userName, this._plugin.settings.headingLevel)}\n`;
         this._editor.replaceRange(newLine, this._editor.getCursor());
 
         // Move cursor to end of file
@@ -244,8 +259,8 @@ export default class ChatInterface {
          * 2. Places divider
          * 3. Completes the user's response by placing the assistant's header
          */
-        this.moveCursorToEndOfFile(this._editor);
-        const newLine = `\n\n<hr class="${CSSAssets.HR}">\n${assistantHeader(this.settings.assistantName, this.settings.headingLevel)}\n`;
+        this.moveCursorToEndOfFile();
+        const newLine = `\n\n<hr class="${CSSAssets.HR}">\n${assistantHeader(this._plugin.settings.assistantName, this._plugin.settings.headingLevel)}\n`;
 
         const cm6editor = this._editor as EditorWithCM6;
         const cursor = this._editor.getCursor();
@@ -276,7 +291,7 @@ export default class ChatInterface {
          * 2. Completes the assistants response by placing the user's header
          * 3. Moves cursor to end of line
          */
-        const newLine = `\n\n<hr class="${CSSAssets.HR}">\n${userHeader(this.settings.userName, this.settings.headingLevel)}\n`;
+        const newLine = `\n\n<hr class="${CSSAssets.HR}">\n${userHeader(this._plugin.settings.userName, this._plugin.settings.headingLevel)}\n`;
         const cm6editor = this._editor as EditorWithCM6;
         const cursor = this._editor.getCursor();
         const line = cm6editor.cm.state.doc.line(cursor.line + 1).from;
@@ -308,9 +323,9 @@ export default class ChatInterface {
         this.editorPosition = this.moveCursorToEndOfLine(this._editor, message);
     }
 
-    public moveCursorToEndOfFile(editor: Editor): EditorPosition {
+    public moveCursorToEndOfFile(): EditorPosition {
         try {
-            const cm6editor = editor as EditorWithCM6;
+            const cm6editor = this._editor as EditorWithCM6;
             const lastPos = cm6editor.cm.state.doc.length;
 
             cm6editor.cm.dispatch({
@@ -322,8 +337,8 @@ export default class ChatInterface {
             });
 
             // Return cursor position in editor coordinates
-            const lastLine = editor.lastLine();
-            const lastLineContent = editor.getLine(lastLine);
+            const lastLine = cm6editor.lastLine();
+            const lastLineContent = cm6editor.getLine(lastLine);
             return {
                 line: lastLine,
                 ch: lastLineContent.length,
@@ -355,10 +370,10 @@ export default class ChatInterface {
 
     public updateSettings(settings: CerebroSettings): void {
         logger.info("Saving settings in ChatController");
-        this.settings = settings;
+        this._plugin.settings = settings;
     }
 
-    public getFrontmatter(app: App): ChatFrontmatter {
+    public getChatFrontmatter(app: App): ChatFrontmatter {
         /**
          * Retrieves the frontmatter from a markdown file
          */
@@ -368,7 +383,8 @@ export default class ChatInterface {
             if (!noteFile) {
                 throw new Error("No active file");
             }
-            const metaMatter = app.metadataCache.getFileCache(noteFile)?.frontmatter;
+
+            const metaMatter = getMetaMatter(app, noteFile);
 
             // Get basic properties
             const title = metaMatter?.title || this.view.file?.basename;
@@ -376,7 +392,7 @@ export default class ChatInterface {
 
             // Get system commands/instructions
             const system = [
-                ...getCerebroBaseSystemPrompts(this.settings),
+                ...getCerebroBaseSystemPrompts(this._plugin.settings),
                 ...(metaMatter?.system || []),
             ].filter((cmd) => cmd); // Filter out empty values
 

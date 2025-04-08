@@ -8,19 +8,13 @@ export const inferTitleCommand = (plugin: Cerebro): Command => ({
     id: "cerebro-infer-title",
     name: "Infer title",
     icon: "subtitles",
-    editorCallback: async (editor: Editor, view: MarkdownView) => {
+    editorCallback: async (_: Editor, view: MarkdownView) => {
         if (!view.file) {
             throw new Error("No active file");
         }
 
-        // Get or create ChatInterface for this file
-        let chatInterface = plugin.chatInterfaces.get(view.file);
-        if (!chatInterface) {
-            chatInterface = new ChatInterface(plugin.settings, view);
-            plugin.chatInterfaces.set(view.file, chatInterface);
-        }
-
-        const frontmatter = chatInterface.getFrontmatter(plugin.app);
+        const chatInterface = plugin.chatInterfaceManager.getChatInView(view);
+        const frontmatter = chatInterface.getChatFrontmatter(plugin.app);
         const { messages } = await chatInterface.getMessages(plugin.app);
 
         try {

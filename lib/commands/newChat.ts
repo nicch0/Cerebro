@@ -7,28 +7,15 @@ import { createNewChatFile, openInMainEditor } from "./chatCreation";
 
 export const createNewChatCommand = (plugin: Cerebro): Command => ({
     id: "cerebro-create-new-chat",
-    name: "Create new chat",
+    name: "New Chat",
     icon: "message-square-plus",
     callback: async () => {
         try {
             const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
             const selectedText = activeView?.editor?.getSelection() || "";
             const newFile = await createNewChatFile(plugin, selectedText);
-            if (!newFile) {
-                return;
-            }
-
-            const leaf = plugin.app.workspace.getLeaf();
-            await leaf.openFile(newFile);
-
-            if (!(leaf.view instanceof MarkdownView)) {
-                return;
-            }
-            const view = leaf.view as MarkdownView;
-
-            const chatInterface = new ChatInterface(plugin.settings, view);
-            plugin.chatInterfaces.set(newFile, chatInterface);
-            openInMainEditor(plugin, newFile, chatInterface);
+            if (!newFile) return;
+            openInMainEditor(plugin, newFile);
         } catch (e) {
             logger.error(`[Cerebro] Error when creating new chat`, e);
             new Notice(

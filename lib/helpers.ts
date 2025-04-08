@@ -1,4 +1,4 @@
-import { App, FileManager, MarkdownView, Notice, Vault } from "obsidian";
+import { App, FileManager, FrontMatterCache, MarkdownView, Notice, TFile, Vault } from "obsidian";
 import { logger } from "./logger";
 import {
     DocumentMessageContent,
@@ -13,6 +13,7 @@ import {
 import { FolderCreationModal } from "./views/folderCreation";
 import { CerebroSettings } from "./settings";
 import { AVAILABLE_MODELS } from "./constants";
+import { MODEL_PROPERTY_NAME } from "./ai";
 
 export const unfinishedCodeBlock = (txt: string): boolean => {
     /**
@@ -212,4 +213,12 @@ export const getModelOptions = () => {
     });
 
     return options;
-}
+};
+
+export const getMetaMatter = (app: App, file: TFile): FrontMatterCache | undefined => {
+    return app.metadataCache.getFileCache(file)?.frontmatter;
+};
+
+export const fileIsChat = (app: App, file: TFile): boolean => {
+    return getMetaMatter(app, file)?.[MODEL_PROPERTY_NAME];
+};

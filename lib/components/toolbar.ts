@@ -1,0 +1,99 @@
+import ChatInterface from "lib/chatInterface";
+import Cerebro from "lib/main";
+import { setIcon } from "obsidian";
+import { P } from "pino";
+
+const ARROW_UP_ICON = "arrow-up";
+
+export default class ChatToolbar {
+    private _chatInterface: ChatInterface;
+    private _plugin: Cerebro;
+    private _containerEl: HTMLDivElement;
+    public visible: boolean;
+
+    constructor(plugin: Cerebro, chatInterface: ChatInterface) {
+        this._plugin = plugin;
+        this._chatInterface = chatInterface;
+        this._containerEl = this.createElement();
+        this._setupEventListeners();
+    }
+
+    private createElement(): HTMLDivElement {
+        console.log(`creating new toolbar for ${this._chatInterface.view.file?.basename}`);
+        const toolbarEl = createEl("div", {
+            cls: ["cerebro-floating-toolbar"],
+        });
+
+        // Create the chat button
+        const chatButtonEl = createEl("button", {
+            cls: "cerebro-floating-button",
+        });
+        setIcon(chatButtonEl, ARROW_UP_ICON);
+
+        toolbarEl.appendChild(chatButtonEl);
+        this._connectToDOM(toolbarEl);
+
+        return toolbarEl;
+
+        // // Add click handler to execute the chat command
+        // chatButton.addEventListener("click", () => {
+        //     const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+        //     if (activeView) {
+        //         // Find and execute the chat command
+        //         // @ts-ignore
+        //         this.app.commands.executeCommandById("cerebro:cerebro-chat");
+        //     } else {
+        //         new Notice("[Cerebro] Please open a markdown file first");
+        //     }
+        // });
+
+        // // Hide toolbar initially
+        // this.floatingToolbar.style.display = "none";
+
+        // // Initial toolbar visibility check
+        // const activeLeaf = this.app.workspace.activeLeaf;
+        // if (activeLeaf) {
+        //     this.updateFloatingToolbarVisibility(activeLeaf);
+        // }
+    }
+
+    private _setupEventListeners() {
+        // this._plugin.registerDomEvent(this._containerEl, "click", () => this.handleClick());
+    }
+
+    private _connectToDOM(toolbar: HTMLDivElement): void {
+        // Find the view-content div in the current view
+        const viewContent = this._chatInterface.view.containerEl.querySelector(".view-content");
+        if (viewContent) {
+            viewContent.appendChild(toolbar);
+        } else {
+            console.error("Could not find view-content div to attach toolbar");
+        }
+    }
+
+    get active(): boolean {
+        // TODO: Might not work. Define class.
+        return this._containerEl.classList.contains("toolbar-active");
+    }
+
+    set active(value: boolean) {
+        // TODO: Might not work. Define class.
+        this._containerEl.classList.toggle("toolbar-active", value);
+    }
+
+    public show(): void {
+        if (this.visible) return;
+        // Workaround because we have no view.onClose event to deactivate buttons properly.
+        this.active = this.visible;
+        this.visible = true;
+    }
+
+    public hide(): void {
+        if (!this.visible) return;
+        this.visible = false;
+    }
+
+    public destroy(): void {
+        this._containerEl.remove();
+    }
+}

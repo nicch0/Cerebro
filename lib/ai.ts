@@ -21,7 +21,6 @@ export const PROPERTY_MAPPINGS: DefaultsMapping[] = [
     { frontmatterKey: "temperature", settingsKey: "defaultTemperature" },
 ];
 
-
 export class AI {
     private providerRegistry: Provider;
 
@@ -39,26 +38,27 @@ export class AI {
                 };
             }
 
-            const messageContents = Array.isArray(msg.content) ? msg.content.map((item) => {
-                    if (item.type === "text") {
-                        return { type: "text", text: item.text };
-                    } else if (item.type === "image") {
-                        return {
-                            type: "image",
-                            image: item.source.data
-                        };
-                    } else if (item.type === "document") {
-                        return {
-                            type: "document",
-                            source: {
-                                type: "base64",
-                                media_type: item.source.media_type,
-                                data: item.source.data,
-                            },
-                        };
-                    }
-                    return { type: "text", text: JSON.stringify(item) };
-                })
+            const messageContents = Array.isArray(msg.content)
+                ? msg.content.map((item) => {
+                      if (item.type === "text") {
+                          return { type: "text", text: item.text };
+                      } else if (item.type === "image") {
+                          return {
+                              type: "image",
+                              image: item.source.data,
+                          };
+                      } else if (item.type === "document") {
+                          return {
+                              type: "document",
+                              source: {
+                                  type: "base64",
+                                  media_type: item.source.media_type,
+                                  data: item.source.data,
+                              },
+                          };
+                      }
+                      return { type: "text", text: JSON.stringify(item) };
+                  })
                 : JSON.stringify(msg.content);
 
             return {
@@ -211,7 +211,6 @@ export class AI {
                 .replace("title", "")
                 .trim();
         };
-
 
         const callSettings = this.resolveChatParameters(frontmatter, settings);
 

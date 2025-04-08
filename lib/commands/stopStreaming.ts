@@ -10,20 +10,10 @@ export const stopStreamingCommand = (plugin: Cerebro): Command => ({
     editorCallback: async (_: Editor, view: MarkdownView) => {
         try {
             const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
-            if (!activeView) {
-                throw new Error("No active markdown view");
-            }
-
-            if (!view.file) {
-                throw new Error("No active file");
-            }
-
-            const chatInterface = plugin.chatInterfaces.get(view.file);
-            if (!chatInterface) {
-                throw new Error("No active chat found for this file");
-            }
-
-            chatInterface.stopStreaming = true;
+            if (!activeView) throw new Error("No active markdown view");
+            if (!view.file) throw new Error("No active file");
+            const chat = plugin.chatInterfaceManager.getChatInView(activeView);
+            chat.stopStreaming = true;
         } catch (e) {
             logger.error(`[Cerebro] Error when stopping stream`, e);
             new Notice(
