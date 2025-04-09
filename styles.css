@@ -162,16 +162,23 @@
     }
 }
 
-.chat-message {
-    padding: 8px;
+.chat-bubble {
+    padding: 8x;
     margin: 4px 0;
     border-radius: 4px;
+    max-width: 85%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
-.chat-user {
+/* User messages align to the right */
+.user-bubble {
+    margin-left: auto;
     background-color: var(--background-secondary);
+    color: var(--text-normal);
 }
 
-.chat-ai {
-    background-color: var(--background-primary-alt);
+.bubble-content {
+    padding: 0px 0px;
+    line-height: 1.5;
 }
