@@ -215,5 +215,6 @@ export const getMetaMatter = (app: App, file: TFile): FrontMatterCache | undefin
 };
 
 export const fileIsChat = (app: App, file: TFile): boolean => {
-    return getMetaMatter(app, file)?.[MODEL_PROPERTY_NAME];
+    const meta = getMetaMatter(app, file);
+    return meta ? MODEL_PROPERTY_NAME in meta : false;
 };
