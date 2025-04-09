@@ -1,7 +1,8 @@
 import { Decoration, DecorationSet, EditorView, WidgetType } from "@codemirror/view";
 import { Extension, RangeSet, RangeSetBuilder, StateField, Transaction, Text } from "@codemirror/state";
-import { App, editorInfoField, editorLivePreviewField } from "obsidian";
+import { App, editorInfoField, editorLivePreviewField, MarkdownRenderChild, MarkdownRenderer, MarkdownView } from "obsidian";
 import { fileIsChat } from "./helpers";
+import Cerebro from "./main";
 
 type Speaker = 'assistant' | 'user' | null;
 
@@ -18,26 +19,48 @@ class SpeechBubbleWidget extends WidgetType {
     private speaker: Speaker;
     private content: string;
 
-    constructor(speaker: Speaker, content: Text) {
+    constructor(speaker: Speaker, content: string, private app: App) {
         super();
         this.speaker = speaker;
-        this.content = content.sliceString(0, content.length, '\n');
+        this.content = content;
     }
 
     toDOM(view: EditorView): HTMLElement {
         const bubble = document.createElement('div');
-        bubble.className = `chat-bubble ${this.speaker}-bubble`;
+        bubble.className = `chat-bubble ${this.speaker}-bubble cm-widget`;  // Add cm-widget class
+        bubble.contentEditable = "false";  // Prevent editing
+        bubble.setAttribute("aria-hidden", "true");  // Optional: hide from screen readers
 
-        bubble.innerHTML = `
-            <div class="bubble-content">
-                ${this.content}
-            </div>
-        `;
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'bubble-content';
+
+        // Create a container for the content with proper padding
+        const formattedContent = this.content
+            .trim()
+            .split(/\n{2,}/)  // Split on 3 or more newlines
+            .map(block => block.trim())
+            .filter(block => block.length > 0)
+            .join('\n\n');  // Join with exactly two newlines
+
+        console.log("formatted content", formattedContent);
+
+        // Use Obsidian's markdown renderer
+        const component = new MarkdownRenderChild(bubble);
+
+        MarkdownRenderer.render(
+            this.app,
+            formattedContent,
+            contentDiv,
+            "",
+            component
+        );
+
+        bubble.appendChild(contentDiv);
         return bubble;
     }
 }
 
-function buildDecorations(tr: Transaction, app: App): DecorationSet {
+function buildDecorations(tr: Transaction, cerebro: Cerebro): DecorationSet {
     const doc = tr.state.doc;
     let currentBlock: MessageBlock | null = null;
     const blocks: MessageBlock[] = [];
@@ -47,25 +70,16 @@ function buildDecorations(tr: Transaction, app: App): DecorationSet {
         const line = doc.line(lineNo);
         const lineText = line.text.trim();
 
-        if (lineText === ASSISTANT_BREAKPOINT) {
+        // Only create new blocks for marker lines
+        if (lineText === ASSISTANT_BREAKPOINT || lineText === USER_BREAKPOINT) {
             if (currentBlock) {
                 currentBlock.to = line.from;
                 blocks.push(currentBlock);
             }
             currentBlock = {
-                speaker: 'assistant',
-                from: line.to,
+                speaker: lineText === ASSISTANT_BREAKPOINT ? 'assistant' : 'user',
+                from: line.from,
                 to: 0,
-            }
-        } else if (lineText === USER_BREAKPOINT) {
-            if (currentBlock) {
-                currentBlock.to = line.from;
-                blocks.push(currentBlock);
-            }
-            currentBlock = {
-                speaker: 'user',
-                from: line.to,
-                to: 0
             };
         }
     }
@@ -77,43 +91,60 @@ function buildDecorations(tr: Transaction, app: App): DecorationSet {
 
     const builder = new RangeSetBuilder<Decoration>();
     for (const block of blocks) {
-        if (block.speaker === "user") {
-            const content = tr.state.doc.slice(block.from, block.to);
+
+        if (block.speaker === "assistant") {
+            // Just hide the [assistant] marker
+            const markerLine = doc.lineAt(block.from);
             builder.add(
                 block.from,
-                block.to,
-                Decoration.replace({
-                    widget: new SpeechBubbleWidget(block.speaker, content),
-                })
+                markerLine.to,
+                Decoration.replace({}) // Empty replacement hides the marker
             );
+        } else if (block.speaker === "user") {
+            const markerLine = doc.lineAt(block.from);
+            const contentStart = markerLine.to + 1;
+            let contentText = tr.state.doc.slice(contentStart, block.to);
+            const content = contentText.sliceString(0, contentText.length, '\n');
+            // Only style if it's not the last user block
+            const lastUserBlock = [...blocks].reverse().find(block => block.speaker === 'user');
+            if (block !== lastUserBlock) {
+                builder.add(
+                    block.from,
+                    block.to,
+                    Decoration.replace({
+                        widget: new SpeechBubbleWidget(block.speaker, content, cerebro.app),
+                    })
+                );
+            }
         }
     }
 
     return builder.finish();
 }
 
-export const chatOverlayField = (app: App) => StateField.define<DecorationSet>({
+
+export const chatOverlayField = (cerebro: Cerebro) => StateField.define<DecorationSet>({
     create(state) {
+        state.update();
         return RangeSet.empty;
     },
 
     update(decorations, tr) {
         const view = tr.state.field(editorInfoField);
         const file = view?.file;
-        const isChat = file && fileIsChat(app, file);
+        const isChat = file && fileIsChat(cerebro.app, file);
         const isLivePreview = tr.state.field(editorLivePreviewField);
-        if ((tr.docChanged || decorations.size === 0) && isChat && isLivePreview) {
+        // (tr.docChanged || decorations.size === 0) &&
+        if (isChat && isLivePreview) {
             console.log("REBUILDING");
-            return buildDecorations(tr, app);
-        } else {
-            return RangeSet.empty;
+            return buildDecorations(tr, cerebro);
         }
+        return RangeSet.empty;
     },
-
     provide: field => EditorView.decorations.from(field)
 });
 
 // Use EditorInfoField.app
-export const chatOverlayExtension = (app: App): Extension => [
-    chatOverlayField(app)
+export const chatOverlayExtension = (cerebro: Cerebro): Extension => [
+    chatOverlayField(cerebro)
 ];

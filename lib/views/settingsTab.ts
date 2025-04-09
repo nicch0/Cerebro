@@ -15,10 +15,6 @@ export class SettingsTab extends PluginSettingTab {
 
         containerEl.empty();
 
-        containerEl.createEl("h1", {
-            text: "Cerebro",
-        });
-
         new Setting(containerEl)
             .setName("User's name")
             .setDesc("Your name in the conversation")
@@ -129,6 +125,7 @@ export class SettingsTab extends PluginSettingTab {
         containerEl.createEl("h2", {
             text: "Model Settings",
         });
+        new Setting(containerEl).setName("Models").
 
         new Setting(containerEl)
             .setName("Default model")

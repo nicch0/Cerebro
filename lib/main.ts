@@ -56,7 +56,7 @@ export default class Cerebro extends Plugin {
         const commands = getCommands(this);
         commands.forEach((command) => this.addCommand(command));
 
-        this.registerEditorExtension(chatOverlayExtension(this.app));
+        this.registerEditorExtension(chatOverlayExtension(this));
     }
 
     private initializeAI(): void {
