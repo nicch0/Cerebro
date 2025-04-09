@@ -1,6 +1,5 @@
-import { Decoration, DecorationSet, EditorView, GutterMarker, PluginSpec, PluginValue, ViewPlugin, ViewUpdate, WidgetType } from "@codemirror/view";
-import { Extension, Prec, RangeSet, RangeSetBuilder } from "@codemirror/state";
-import { syntaxTree} from "@codemirror/language";
+import { Decoration, DecorationSet, EditorView, WidgetType } from "@codemirror/view";
+import { Extension, RangeSet, RangeSetBuilder, StateField, Transaction, Text } from "@codemirror/state";
 import { App, editorInfoField, editorLivePreviewField } from "obsidian";
 import { fileIsChat } from "./helpers";
 
@@ -15,98 +14,106 @@ interface MessageBlock {
     to: number;
 }
 
-class EmojiWidget extends WidgetType {
-  toDOM(view: EditorView): HTMLElement {
-    const div = document.createElement('span');
+class SpeechBubbleWidget extends WidgetType {
+    private speaker: Speaker;
+    private content: string;
 
-    div.innerText = '👉';
-
-    return div;
-  }
-}
-
-class ChatOverlayPlugin implements PluginValue {
-    decorations: DecorationSet;
-    private _app: App;
-
-    constructor(view: EditorView, app: App) {
-        this.decorations = this.buildDecorations(view);
-        this._app = app;
-        this.buildDecorations(view);
+    constructor(speaker: Speaker, content: Text) {
+        super();
+        this.speaker = speaker;
+        this.content = content.sliceString(0, content.length, '\n');
     }
 
-    buildDecorations(view: EditorView): DecorationSet {
-        const builder = new RangeSetBuilder<Decoration>();
-        const doc = view.state.doc;
+    toDOM(view: EditorView): HTMLElement {
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble ${this.speaker}-bubble`;
 
-        let currentBlock: MessageBlock | null = null;
-        const blocks: MessageBlock[] = [];
+        bubble.innerHTML = `
+            <div class="bubble-content">
+                ${this.content}
+            </div>
+        `;
+        return bubble;
+    }
+}
 
-        // Iterate through all lines
-        for (let lineNo = 1; lineNo <= doc.lines; lineNo++) {
-            const line = doc.line(lineNo);
+function buildDecorations(tr: Transaction, app: App): DecorationSet {
+    const doc = tr.state.doc;
+    let currentBlock: MessageBlock | null = null;
+    const blocks: MessageBlock[] = [];
 
-            const lineText = line.text.trim();
+    // Iterate through all lines
+    for (let lineNo = 1; lineNo <= doc.lines; lineNo++) {
+        const line = doc.line(lineNo);
+        const lineText = line.text.trim();
 
-            if (lineText === ASSISTANT_BREAKPOINT) {
-                if (currentBlock) {
-                    currentBlock.to = line.from;
-                    blocks.push(currentBlock);
-                }
-                currentBlock = {
-                    speaker: 'assistant',
-                    from: line.to, // start after the market
-                    to: 0,         // is set when next speaker is found
-                }
-            } else if (lineText === USER_BREAKPOINT) {
-                if (currentBlock) {
-                    currentBlock.to = line.from;
-                    blocks.push(currentBlock);
-                }
-                currentBlock = {
-                    speaker: 'user',
-                    from: line.to,
-                    to: 0
-                };
+        if (lineText === ASSISTANT_BREAKPOINT) {
+            if (currentBlock) {
+                currentBlock.to = line.from;
+                blocks.push(currentBlock);
             }
+            currentBlock = {
+                speaker: 'assistant',
+                from: line.to,
+                to: 0,
+            }
+        } else if (lineText === USER_BREAKPOINT) {
+            if (currentBlock) {
+                currentBlock.to = line.from;
+                blocks.push(currentBlock);
+            }
+            currentBlock = {
+                speaker: 'user',
+                from: line.to,
+                to: 0
+            };
         }
-        // Don't forget the last block
-        if (currentBlock) {
-            currentBlock.to = doc.length;
-            blocks.push(currentBlock);
-        }
-
-        // Create decorations for each block
-        for (const block of blocks) {
-            console.log(`Found ${block.speaker} message: ${view.state.doc.slice(block.from, block.to)}`);
-            // Add your decorations here
-        }
-
-        return builder.finish();
     }
 
-    update(update: ViewUpdate) {
-        const info = update.view.state.field(editorInfoField);
-        const file = info?.file;
-        const isChat = file && fileIsChat(this._app, file);
-        if ((update.docChanged || update.viewportChanged) && isChat && update.view.state.field(editorLivePreviewField)) {
-            this.decorations = this.buildDecorations(update.view);
-        } else {
-            this.decorations = RangeSet.empty;
-        }
-        return this.decorations;
+    if (currentBlock) {
+        currentBlock.to = doc.length;
+        blocks.push(currentBlock);
     }
 
-    destroy() {}
+    const builder = new RangeSetBuilder<Decoration>();
+    for (const block of blocks) {
+        if (block.speaker === "user") {
+            const content = tr.state.doc.slice(block.from, block.to);
+            builder.add(
+                block.from,
+                block.to,
+                Decoration.replace({
+                    widget: new SpeechBubbleWidget(block.speaker, content),
+                })
+            );
+        }
+    }
+
+    return builder.finish();
 }
 
-const pluginSpec: PluginSpec<ChatOverlayPlugin> = {
-  decorations: (value: ChatOverlayPlugin) => value.decorations,
-};
+export const chatOverlayField = (app: App) => StateField.define<DecorationSet>({
+    create(state) {
+        return RangeSet.empty;
+    },
 
-export const chatOverlayPlugin = {
-    init: (app: App): Extension => ViewPlugin.define(
-        (view: EditorView) => new ChatOverlayPlugin(view, app),
-        pluginSpec
-    )
-};
+    update(decorations, tr) {
+        const view = tr.state.field(editorInfoField);
+        const file = view?.file;
+        const isChat = file && fileIsChat(app, file);
+        const isLivePreview = tr.state.field(editorLivePreviewField);
+        if ((tr.docChanged || decorations.size === 0) && isChat && isLivePreview) {
+            console.log("REBUILDING");
+            return buildDecorations(tr, app);
+        } else {
+            return RangeSet.empty;
+        }
+    },
+
+    provide: field => EditorView.decorations.from(field)
+});
+
+// Use EditorInfoField.app
+export const chatOverlayExtension = (app: App): Extension => [
+    chatOverlayField(app)
+];

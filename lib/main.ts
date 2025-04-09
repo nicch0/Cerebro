@@ -14,7 +14,7 @@ import { CerebroSettings, DEFAULT_SETTINGS } from "./settings";
 import { ChatFrontmatter, Message } from "./types";
 import { SettingsTab } from "./views/settingsTab";
 import ChatInterfaceManager from "./chatInterfaceManager";
-import { chatOverlayPlugin, chatOverlayPlugin } from "./chatOverlayPlugin";
+import { chatOverlayExtension } from "./chatOverlayPlugin";
 
 export default class Cerebro extends Plugin {
     public chatInterfaceManager: ChatInterfaceManager;
@@ -56,7 +56,7 @@ export default class Cerebro extends Plugin {
         const commands = getCommands(this);
         commands.forEach((command) => this.addCommand(command));
 
-        this.registerEditorExtension(chatOverlayPlugin.init(this.app));
+        this.registerEditorExtension(chatOverlayExtension(this.app));
     }
 
     private initializeAI(): void {
