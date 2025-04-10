@@ -19,6 +19,7 @@ export const PROPERTY_MAPPINGS: DefaultsMapping[] = [
     { frontmatterKey: "stream", settingsKey: "defaultStream" },
     { frontmatterKey: "maxTokens", settingsKey: "defaultMaxTokens" },
     { frontmatterKey: "temperature", settingsKey: "defaultTemperature" },
+    { frontmatterKey: "system", settingsKey: "defaultSystemPrompt" },
 ];
 
 export class AI {
@@ -155,6 +156,7 @@ export class AI {
             messages,
             temperature: callSettings.temperature,
             maxTokens: callSettings.maxTokens,
+            system: callSettings.system?.join(""),
         });
 
         const reader = result.textStream.getReader();
