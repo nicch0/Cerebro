@@ -125,7 +125,6 @@ export class SettingsTab extends PluginSettingTab {
         containerEl.createEl("h2", {
             text: "Model Settings",
         });
-        new Setting(containerEl).setName("Models").
 
         new Setting(containerEl)
             .setName("Default model")

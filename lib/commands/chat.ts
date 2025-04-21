@@ -1,5 +1,4 @@
-import { Command, Editor, MarkdownView, Notice, Platform } from "obsidian";
-import ChatInterface from "../chatInterface";
+import { type Command, Editor, MarkdownView, Notice, Platform } from "obsidian";
 import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "../constants";
 import { logger } from "../logger";
 import Cerebro from "../main";
