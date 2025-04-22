@@ -12,12 +12,12 @@ module.exports = {
         ],
     },
     moduleNameMapper: {
-        "^lib/(.*)$": "<rootDir>/lib/$1",
+        "^src/(.*)$": "<rootDir>/src/$1",
         "^obsidian$": "<rootDir>/tests/mocks/obsidian.ts",
     },
     testRegex: "(/tests/(?!e2e/).*\\.(test|spec))\\.tsx?$", // Exclude e2e tests
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
     collectCoverage: true,
     coverageReporters: ["text", "lcov"],
-    collectCoverageFrom: ["lib/**/*.{ts,tsx}", "!lib/**/*.d.ts", "!lib/main.ts"],
+    collectCoverageFrom: ["src/**/*.{ts,tsx}", "!src/**/*.d.ts", "!src/main.ts"],
 };

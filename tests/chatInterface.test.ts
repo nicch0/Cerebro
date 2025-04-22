@@ -1,6 +1,6 @@
 import { App, Editor, MarkdownView, TFile } from "./mocks/obsidian";
-import { CSSAssets, YAML_FRONTMATTER_REGEX } from "lib/constants";
-import { DEFAULT_SETTINGS } from "lib/settings";
+import { CSSAssets, YAML_FRONTMATTER_REGEX } from "./constants";
+import { DEFAULT_SETTINGS } from "./settings";
 
 // Manually re-implement the functions to test
 const removeYMLFromMessage = (message: string): string => {

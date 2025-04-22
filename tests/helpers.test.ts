@@ -1,6 +1,6 @@
 // Mock the helper functions directly instead of importing from the source
 // This avoids the obsidian dependency issue
-import { ImageExtension, PDFFileExtension, TextFileExtension, TextMessageContent } from "lib/types";
+import { ImageExtension, PDFFileExtension, TextFileExtension, TextMessageContent } from "./types";
 
 // Mock implementations of the helper functions we're testing
 const sanitizeTitle = (title: string): string => {

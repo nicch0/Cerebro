@@ -1,5 +1,5 @@
-import { CerebroSettings, DEFAULT_SETTINGS, getFrontmatter } from "lib/settings";
-import { LLM } from "lib/types";
+import { CerebroSettings, DEFAULT_SETTINGS, getFrontmatter } from "./settings";
+import { LLM } from "./types";
 
 describe("Settings Module", () => {
     describe("DEFAULT_SETTINGS", () => {

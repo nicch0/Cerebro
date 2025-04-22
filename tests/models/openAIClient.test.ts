@@ -1,4 +1,4 @@
-import { Message } from "lib/types";
+import { Message } from "./types";
 
 // Define a mock OpenAIClient class
 class MockOpenAIClient {

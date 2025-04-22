@@ -1,4 +1,4 @@
-import { Message } from "lib/types";
+import { Message } from "./types";
 
 // Define a mock AnthropicClient class
 class MockAnthropicClient {
@@ -149,7 +149,7 @@ class MockAnthropicClient {
 }
 
 // Use the mock class for tests
-jest.mock("lib/models/anthropicClient", () => ({
+jest.mock("./models/anthropicClient", () => ({
     AnthropicClient: MockAnthropicClient,
 }));
 

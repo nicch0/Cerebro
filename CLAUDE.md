@@ -32,10 +32,10 @@
 
 ## Project Architecture
 
-- Main plugin code in `lib/` directory
-- Commands in `lib/commands/`
-- Views in `lib/views/`
-- LLM clients in `lib/models/`
+- Main plugin code in `src/` directory
+- Commands in `src/commands/`
+- Views in `src/views/`
+- LLM clients in `src/models/`
 - Tests in `tests/` directory
     - Unit tests in `tests/*.test.ts`
     - Obsidian API mocks in `tests/mocks/`
