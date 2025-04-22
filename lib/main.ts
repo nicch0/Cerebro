@@ -24,13 +24,10 @@ export default class Cerebro extends Plugin {
     public ai: AI;
 
     public async onload(): Promise<void> {
-        this.registerView(
-          CEREBRO_CHAT_VIEW,
-          (leaf) => new ChatView(leaf)
-        );
+        this.registerView(CEREBRO_CHAT_VIEW, (leaf) => new ChatView(leaf));
 
-        this.addRibbonIcon('dice', 'Activate view', () => {
-          this.activateView();
+        this.addRibbonIcon("dice", "Activate view", () => {
+            this.activateView();
         });
 
         logger.debug("[Cerebro] Adding status bar");
@@ -70,23 +67,23 @@ export default class Cerebro extends Plugin {
     }
 
     async activateView() {
-      const { workspace } = this.app;
+        const { workspace } = this.app;
 
-      let leaf: WorkspaceLeaf | null = null;
-      const leaves = workspace.getLeavesOfType(CEREBRO_CHAT_VIEW);
+        let leaf: WorkspaceLeaf | null = null;
+        const leaves = workspace.getLeavesOfType(CEREBRO_CHAT_VIEW);
 
-      if (leaves.length > 0) {
-        // A leaf with our view already exists, use that
-        leaf = leaves[0];
-      } else {
-        // Our view could not be found in the workspace, create a new leaf
-        // in the right sidebar for it
-        leaf = workspace.getRightLeaf(false);
-        await leaf.setViewState({ type: CEREBRO_CHAT_VIEW, active: true });
-      }
+        if (leaves.length > 0) {
+            // A leaf with our view already exists, use that
+            leaf = leaves[0];
+        } else {
+            // Our view could not be found in the workspace, create a new leaf
+            // in the right sidebar for it
+            leaf = workspace.getRightLeaf(false);
+            await leaf.setViewState({ type: CEREBRO_CHAT_VIEW, active: true });
+        }
 
-      // "Reveal" the leaf in case it is in a collapsed sidebar
-      workspace.revealLeaf(leaf);
+        // "Reveal" the leaf in case it is in a collapsed sidebar
+        workspace.revealLeaf(leaf);
     }
 
     private initializeAI(): void {
