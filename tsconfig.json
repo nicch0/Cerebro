@@ -2,6 +2,7 @@
     "compilerOptions": {
         "baseUrl": ".",
         "verbatimModuleSyntax": true,
+        "skipLibCheck": true,
         "inlineSourceMap": true,
         "inlineSources": true,
         "module": "ESNext",
@@ -13,7 +14,11 @@
         "isolatedModules": true,
         "allowSyntheticDefaultImports": true,
         "strictNullChecks": true,
-        "lib": ["DOM", "ES5", "ES6", "ES7"]
+        "lib": ["DOM", "ES5", "ES6", "ES7"],
+        "paths": {
+          "$lib": ["./lib"],
+          "$lib/*": ["./lib/*"]
+        }
     },
     "include": ["**/*.ts", "**/*.svelte"]
 }

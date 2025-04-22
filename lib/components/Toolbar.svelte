@@ -1,4 +1,9 @@
 <script lang="ts">
+ import LoaderCircle from "@lucide/svelte/icons/loader-circle";
+ import { Button } from "$lib/components/ui/button/index.js";
 </script>
 
-<p class="text-lg text-blue-100 underline">Hello World</p>
+<Button disabled>
+ <LoaderCircle class="animate-spin" />
+ Please wait
+</Button>
