@@ -24,9 +24,9 @@ export default class Cerebro extends Plugin {
     public ai: AI;
 
     public async onload(): Promise<void> {
-        this.registerView(CEREBRO_CHAT_VIEW, (leaf) => new ChatView(leaf));
+        this.registerView(CEREBRO_CHAT_VIEW, (leaf) => new ChatView(leaf, this));
 
-        this.addRibbonIcon("dice", "Activate view", () => {
+        this.addRibbonIcon("brain", "Open Cerebro", () => {
             this.activateView();
         });
 
