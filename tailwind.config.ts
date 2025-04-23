@@ -1,10 +1,10 @@
 import type { Config } from "tailwindcss";
-import colors from "tailwindcss/colors";
 import tailwindcssAnimate from "tailwindcss-animate";
+import colors from "tailwindcss/colors";
 
 /** @type {import('tailwindcss').Config} */
 const config: import('tailwindcss').Config = {
-    important: true,
+    important: false,
     content: ["./src/**/*.{html,js,svelte,ts}", "./src/styles/tailwind.css"],
     darkMode: ["class"],
     safelist: ["dark"],
