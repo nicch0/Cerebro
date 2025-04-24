@@ -2,22 +2,23 @@
 
 ## Build Commands
 
-- `npm run dev`: Development build with esbuild
-- `npm run build`: Production build with TypeScript checks
-- `npm run lint`: ESLint check (zero warnings allowed)
-- `npm run lint:fix`: Auto-fix ESLint issues
-- `npm run format`: Check formatting with Prettier
-- `npm run format:fix`: Fix formatting with Prettier
-- `npm run fix-all`: Run both Prettier and ESLint fixes
+- `pnpm run dev`: Run development build in watch mode
+- `pnpm run build`: Production build with TypeScript checks
+- `pnpm run lint`: ESLint check (zero warnings allowed)
+- `pnpm run lint:fix`: Auto-fix ESLint issues
+- `pnpm run format`: Check formatting with Prettier
+- `pnpm run format:fix`: Fix formatting with Prettier
+- `pnpm run fix-all`: Run both Prettier and ESLint fixes
+- `pnpm run svelte-check`: Check Svelte component typing
 
 ## Test Commands
 
-- `npm test`: Run unit tests with Jest
-- `npm run test:watch`: Run tests in watch mode during development
-- `npm run test:coverage`: Generate coverage report
-- `npm run test:e2e`: Run end-to-end tests with Playwright
-- `npm run test:e2e:ui`: Run E2E tests with Playwright UI
-- `npm run test:all`: Run both unit and E2E tests
+- `pnpm test`: Run unit tests with Jest
+- `pnpm run test:watch`: Run tests in watch mode during development
+- `pnpm run test:coverage`: Generate coverage report
+- `pnpm run test:e2e`: Run end-to-end tests with Playwright
+- `pnpm run test:e2e:ui`: Run E2E tests with Playwright UI
+- `pnpm run test:all`: Run both unit and E2E tests
 
 ## Code Style Guidelines
 
@@ -30,16 +31,47 @@
 - **Error Handling**: Unused vars with underscore prefix, strict equality (===)
 - **Commands**: Files in commands/ folder have relaxed typing rules
 
+## Technologies
+
+### Svelte 5
+
+- Using Svelte 5's runes for reactive state management
+- `$state()` for local component state
+- `$derived()` for computed values
+- `$props()` for component props
+- Documentation: [Svelte 5 Docs](https://svelte.dev/docs/runes)
+- LLM Info: [svelte.dev/docs/llms](https://svelte.dev/docs/llms.txt)
+
+### AI SDK
+
+- Using Vercel's AI SDK for LLM streaming
+- Supports OpenAI, Anthropic, Google, and other providers
+- Simplifies streaming and error handling
+- Documentation: [AI SDK](https://sdk.vercel.ai/)
+- LLM Info: [sdk.vercel.ai/llms.txt](https://sdk.vercel.ai/llms.txt)
+
 ## Project Architecture
 
 - Main plugin code in `src/` directory
+- Components in `src/components/`
 - Commands in `src/commands/`
 - Views in `src/views/`
-- LLM clients in `src/models/`
+- LLM clients in `lib/models/`
 - Tests in `tests/` directory
     - Unit tests in `tests/*.test.ts`
-    - Obsidian API mocks in `tests/mocks/`
-    - E2E tests in `tests/e2e/`
+    - Model tests in `tests/models/`
+    - E2E tests using Playwright
+
+## Svelte 5 Best Practices
+
+### LLM Message Streaming
+
+- Use conditional rendering based on `isStreaming` flag rather than content length
+- Clear streaming message content after it's added to the message store
+- Use distinct objects for streaming message and final response
+- Disable user input during streaming to prevent duplicate messages
+- Pass streaming state to all components that need it
+- Use the `$state()` and `$derived()` for reactive state management
 
 ## Testing Strategy
 

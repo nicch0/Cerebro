@@ -21,7 +21,7 @@ let chatProperties: ChatProperties = $state({
     title: "Test title",
     model: "openai:gpt-4o-mini",
     stream: true,
-    system: ["You are a helpful assistant"]
+    system: ["You are a sarcastic but helpful assistant"]
 });
 
 const sendMessage = async (message: Message) => {
@@ -29,10 +29,8 @@ const sendMessage = async (message: Message) => {
     pushMessage(message);
 
     // Reset incoming message and mark as streaming
-    incomingMessage = {
-        role: "assistant",
-        content: "",
-    };
+    incomingMessage.content = "";
+    isStreaming = true;
 
     try {
         // Create a streaming callback that updates the incoming message
@@ -48,12 +46,15 @@ const sendMessage = async (message: Message) => {
             streamCallback
         );
 
-        // Update with final message and mark streaming as complete
-        incomingMessage = fullResponse;
+        // Mark streaming as complete
         isStreaming = false;
-
+        
         // Add the final message to the messages store
-        pushMessage(incomingMessage);
+        // Use the fullResponse instead of incomingMessage
+        pushMessage(fullResponse);
+        
+        // Clear the incoming message after pushing to the messages store
+        incomingMessage.content = "";
     } catch (error) {
         console.error("Error in chat:", error);
     }
@@ -62,8 +63,12 @@ const sendMessage = async (message: Message) => {
 </script>
 
 <div id="cerebro-chat-view" class="flex flex-nowrap flex-col">
-    <MessageDisplay />
+    <MessageDisplay
+        {incomingMessage}
+        {isStreaming}
+    />
     <Toolbar
-        sendMessage={sendMessage}
+        {sendMessage}
+        {isStreaming}
     />
 </div>

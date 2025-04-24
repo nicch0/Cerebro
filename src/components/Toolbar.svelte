@@ -9,10 +9,12 @@ import { Platform } from "obsidian";
 
 interface ToolbarProps {
     sendMessage: (message: Message) => void;
+    isStreaming: boolean;
 }
 
 let {
-    sendMessage
+    sendMessage,
+    isStreaming
 }: ToolbarProps = $props();
 
 const messages = getMessages();
@@ -50,8 +52,8 @@ const modelOptions: string[] = [
 ]
 
 function handleKeydown(event: KeyboardEvent) {
-    if (event.isComposing) return;
-    if (event.key === 'Enter' && !event.shiftKey) {
+    if (event.isComposing || isStreaming) return;
+    if (event.key === 'Enter' && !event.shiftKey && prompt.trim().length > 0) {
         if (!Platform.isMobile) {
             event.preventDefault();
             completeUserResponse();
@@ -74,7 +76,12 @@ function handleKeydown(event: KeyboardEvent) {
             <Button variant="ghost" size="icon">
                 <Paperclip/>
             </Button>
-            <Button variant="default" size="icon" onclick={completeUserResponse}>
+            <Button 
+                variant="default" 
+                size="icon" 
+                onclick={completeUserResponse}
+                disabled={isStreaming || prompt.trim().length === 0}
+            >
                 <ArrowUp />
             </Button>
         </div>
