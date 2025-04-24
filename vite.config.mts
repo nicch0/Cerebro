@@ -24,7 +24,7 @@ export default defineConfig(async ({ mode }) => {
                 entry: resolve(__dirname, "src/main.ts"),
                 name: "main",
                 fileName: () => "main.js",
-                formats: ["es"],
+                formats: ["cjs"],
             },
             minify: prod,
             sourcemap: prod ? false : "inline",

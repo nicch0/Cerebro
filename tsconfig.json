@@ -6,10 +6,9 @@
         },
         "verbatimModuleSyntax": true,
         "skipLibCheck": true,
-        "inlineSourceMap": true,
         "inlineSources": true,
         "module": "ESNext",
-        "target": "ES6",
+        "target": "ES2022",
         "allowJs": true,
         "noImplicitAny": true,
         "moduleResolution": "node",
@@ -17,7 +16,13 @@
         "isolatedModules": true,
         "allowSyntheticDefaultImports": true,
         "strictNullChecks": true,
-        "lib": ["DOM", "ES5", "ES6", "ES7"]
+        "lib": ["DOM", "ES5", "ES6", "ES7"],
+        "plugins": [{
+            "name": "typescript-svelte-plugin",
+            "enabled": true, // enables this plugin
+            "assumeIsSvelteProject": false
+        }]
     },
-    "include": ["**/*.ts", "**/*.svelte", "vite.config.mts"]
+    "include": ["**/*.ts", "**/*.svelte", "vite.config.mts"],
+    "extends": "@tsconfig/svelte/tsconfig.json"
 }

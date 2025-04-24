@@ -1,13 +1,17 @@
-import eslint from "@eslint/js";
-import tseslint from "typescript-eslint";
-import globals from "globals";
-import simpleImportSort from "eslint-plugin-simple-import-sort";
+import js from "@eslint/js";
 import importPlugin from "eslint-plugin-import";
 import jestPlugin from "eslint-plugin-jest";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
+import svelte from "eslint-plugin-svelte";
+import globals from "globals";
+import ts from "typescript-eslint";
+import svelteConfig from "./svelte.config.js";
 
+/** @type {import('eslint').Linter.Config[]} */
 export default [
-    eslint.configs.recommended,
-    ...tseslint.configs.recommended,
+    js.configs.recommended,
+    ...ts.configs.recommended,
+    ...svelte.configs.recommended,
     {
         ignores: [
             "node_modules/**",
@@ -19,19 +23,21 @@ export default [
         ],
     },
     {
+        files: ["**/*.ts"],
         languageOptions: {
             ecmaVersion: 2023,
             sourceType: "module",
             globals: {
                 ...globals.node,
+                ...globals.browser,
             },
-            parser: tseslint.parser,
+            parser: ts.parser,
             parserOptions: {
                 project: true,
             },
         },
         plugins: {
-            "@typescript-eslint": tseslint.plugin,
+            "@typescript-eslint": ts.plugin,
             import: importPlugin,
             "simple-import-sort": simpleImportSort,
         },
@@ -149,6 +155,32 @@ export default [
         rules: {
             "@typescript-eslint/no-explicit-any": "off",
             "@typescript-eslint/explicit-function-return-type": "off",
+        },
+    },
+    // Svelte files
+    {
+        files: ["**/*.svelte", "**/*.svelte.ts", "**/*.svelte.js"],
+        languageOptions: {
+            parserOptions: {
+                projectService: true,
+                extraFileExtensions: [".svelte"],
+                parser: {
+                  ts: ts.parser,
+                  typescript: ts.parser
+                },
+                svelteConfig,
+            },
+        },
+        plugins: {
+            svelte,
+        },
+        rules: {
+            "svelte/valid-compile": [
+                "error",
+                {
+                    ignoreWarnings: true,
+                },
+            ],
         },
     },
 ];
