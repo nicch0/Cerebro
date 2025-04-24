@@ -2,10 +2,10 @@ import type { Message } from "@/types";
 
 const messages: Message[] = $state([]);
 
-export const pushMessage = (newMessage: Message) => {
+export const pushMessage = (newMessage: Message): void => {
     messages.push(newMessage);
 };
 
-export const getMessages = () => {
+export const getMessages = (): Message[] => {
     return messages;
 };
