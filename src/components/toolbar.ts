@@ -1,7 +1,7 @@
+import { MarkdownView, setIcon } from "obsidian";
 import ChatInterface from "../chatInterface";
 import { CEREBRO_CHAT_COMMAND_ID } from "../commands/chat";
 import Cerebro from "../main";
-import { MarkdownView, setIcon } from "obsidian";
 
 const ARROW_UP_ICON = "arrow-up";
 
@@ -17,21 +17,20 @@ export default class ChatToolbar {
         // this._setupEventListeners();
     }
 
-   	get visible(): boolean {
-		const isInDOM: boolean = this._containerEl.isConnected;
-		const isHidden: boolean =
-			this._containerEl.classList.contains("hidden");
+    get visible(): boolean {
+        const isInDOM: boolean = this._containerEl.isConnected;
+        const isHidden: boolean = this._containerEl.classList.contains("hidden");
 
-		return isInDOM && !isHidden;
-	}
+        return isInDOM && !isHidden;
+    }
 
-	set visible(value: boolean) {
-		const isInDOM: boolean = this._containerEl.isConnected;
-		if (!isInDOM) {
-			this._connectToDOM(this._containerEl);
-		}
-		this._containerEl.classList.toggle("hidden", !value);
-	}
+    set visible(value: boolean) {
+        const isInDOM: boolean = this._containerEl.isConnected;
+        if (!isInDOM) {
+            this._connectToDOM(this._containerEl);
+        }
+        this._containerEl.classList.toggle("hidden", !value);
+    }
 
     private createElement(): HTMLDivElement {
         const toolbarEl = createEl("div", {
@@ -50,13 +49,14 @@ export default class ChatToolbar {
         // Add click handler to execute the chat command
         chatButtonEl.addEventListener("click", () => {
             const activeView = this._plugin.app.workspace.getActiveViewOfType(MarkdownView);
-            if (!activeView) return;
+            if (!activeView) {
+                return;
+            }
             // @ts-ignore
             this._plugin.app.commands.executeCommandById(`cerebro:${CEREBRO_CHAT_COMMAND_ID}`);
         });
 
         return toolbarEl;
-
 
         // // Hide toolbar initially
         // this.floatingToolbar.style.display = "none";
@@ -93,14 +93,18 @@ export default class ChatToolbar {
     }
 
     public show(): void {
-        if (this.visible) return;
+        if (this.visible) {
+            return;
+        }
         // Workaround because we have no view.onClose event to deactivate buttons properly.
         this.active = this.visible;
         this.visible = true;
     }
 
     public hide(): void {
-        if (!this.visible) return;
+        if (!this.visible) {
+            return;
+        }
         this.visible = false;
     }
 

@@ -1,16 +1,5 @@
-import {
-    type ChatFrontmatter,
-    type DocumentMessageContent,
-    type EditorWithCM6,
-    type ImageExtension,
-    ImageExtensionToMimeType,
-    type ImageMessageContent,
-    type ImageSource,
-    type Message,
-    type PDFSource,
-    type TextMessageContent,
-} from "./types";
 import { App, Editor, type EditorPosition, MarkdownView, TFile } from "obsidian";
+import ChatToolbar from "./components/toolbar";
 import {
     assistantHeader,
     CSSAssets,
@@ -26,9 +15,20 @@ import {
     isValidPDFExtension,
 } from "./helpers";
 import { logger } from "./logger";
-import type { CerebroSettings } from "./settings";
-import ChatToolbar from "./components/toolbar";
 import Cerebro from "./main";
+import type { CerebroSettings } from "./settings";
+import {
+    type ChatFrontmatter,
+    type DocumentMessageContent,
+    type EditorWithCM6,
+    type ImageExtension,
+    ImageExtensionToMimeType,
+    type ImageMessageContent,
+    type ImageSource,
+    type Message,
+    type PDFSource,
+    type TextMessageContent,
+} from "./types";
 
 export type ShouldContinue = boolean;
 

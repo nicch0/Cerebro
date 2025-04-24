@@ -1,5 +1,5 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-module.exports = {
+export default {
     preset: "ts-jest",
     testEnvironment: "jsdom",
     roots: ["<rootDir>/tests"],
@@ -8,6 +8,7 @@ module.exports = {
             "ts-jest",
             {
                 tsconfig: "tsconfig.json",
+                useESM: true,
             },
         ],
     },
@@ -20,4 +21,5 @@ module.exports = {
     collectCoverage: true,
     coverageReporters: ["text", "lcov"],
     collectCoverageFrom: ["src/**/*.{ts,tsx}", "!src/**/*.d.ts", "!src/main.ts"],
+    extensionsToTreatAsEsm: [".ts", ".tsx"],
 };

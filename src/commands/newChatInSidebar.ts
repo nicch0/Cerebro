@@ -13,7 +13,9 @@ export const createNewChatInSidebarCommand = (plugin: Cerebro): Command => ({
             const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
             const selectedText = activeView?.editor?.getSelection() || "";
             const newFile = await createNewChatFile(plugin, selectedText);
-            if (!newFile) return;
+            if (!newFile) {
+                return;
+            }
             openInSidebar(plugin, newFile);
         } catch (e) {
             logger.error(`[Cerebro] Error when creating new chat`, e);

@@ -1,5 +1,6 @@
 import { EditorView } from "@codemirror/view";
 import { Editor, type FrontMatterCache } from "obsidian";
+
 export type Provider = "OpenAI" | "Anthropic" | "Google" | "DeepSeek" | "XAI";
 
 export type CallSettings = {
@@ -25,12 +26,11 @@ export type ChatFrontmatter = CallSettings & {
     system?: string[];
 };
 
-export type ChatProperties =  CallSettings & {
+export type ChatProperties = CallSettings & {
     title: string;
     model?: string;
     system?: string[];
 };
-
 
 export enum TextFileExtension {
     MD = "md",

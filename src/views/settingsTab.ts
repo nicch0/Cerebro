@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
-import Cerebro from "../main";
 import { getModelOptions } from "../helpers";
+import Cerebro from "../main";
 
 export class SettingsTab extends PluginSettingTab {
     private plugin: Cerebro;

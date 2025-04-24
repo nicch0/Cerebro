@@ -2,7 +2,7 @@
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
-          "@/*": ["src/*"],
+            "@/*": ["src/*"]
         },
         "verbatimModuleSyntax": true,
         "skipLibCheck": true,
@@ -17,7 +17,7 @@
         "isolatedModules": true,
         "allowSyntheticDefaultImports": true,
         "strictNullChecks": true,
-        "lib": ["DOM", "ES5", "ES6", "ES7"],
+        "lib": ["DOM", "ES5", "ES6", "ES7"]
     },
     "include": ["**/*.ts", "**/*.svelte", "vite.config.mts"]
 }

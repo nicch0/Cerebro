@@ -3,7 +3,7 @@ import { createFolderModal, getDate } from "../helpers";
 import Cerebro from "../main";
 import { generateChatFrontmatter } from "../settings";
 
-export const validateAndCreateChatFolder = async(plugin: Cerebro): Promise<boolean> => {
+export const validateAndCreateChatFolder = async (plugin: Cerebro): Promise<boolean> => {
     if (!plugin.settings.chatFolder || plugin.settings.chatFolder.trim() === "") {
         new Notice("[Cerebro] No chat folder value found. Please set one in settings.");
         return false;
@@ -24,14 +24,16 @@ export const validateAndCreateChatFolder = async(plugin: Cerebro): Promise<boole
         }
     }
     return true;
-}
+};
 
-export const createNewChatFile = async(
+export const createNewChatFile = async (
     plugin: Cerebro,
     selectedText: string,
 ): Promise<TFile | null> => {
     const folderValid = await validateAndCreateChatFolder(plugin);
-    if (!folderValid) return null;
+    if (!folderValid) {
+        return null;
+    }
 
     const filePath = `${plugin.settings.chatFolder}/${getDate(
         new Date(),
@@ -41,12 +43,9 @@ export const createNewChatFile = async(
     const frontmatter = generateChatFrontmatter(plugin.settings);
     const fileContent = `${frontmatter}${selectedText}\n`;
     return plugin.app.vault.create(filePath, fileContent);
-}
+};
 
-export const openInMainEditor = async(
-    plugin: Cerebro,
-    newFile: TFile,
-): Promise<void> => {
+export const openInMainEditor = async (plugin: Cerebro, newFile: TFile): Promise<void> => {
     await plugin.app.workspace.openLinkText(newFile.basename, "", true, {
         state: { mode: "source" },
     });
@@ -60,14 +59,13 @@ export const openInMainEditor = async(
     activeView.editor.focus();
     const chat = plugin.chatInterfaceManager.getChatInView(activeView);
     chat.moveCursorToEndOfFile();
-}
+};
 
-export const openInSidebar = async(
-    plugin: Cerebro,
-    newFile: TFile,
-): Promise<void> => {
+export const openInSidebar = async (plugin: Cerebro, newFile: TFile): Promise<void> => {
     const leaf = plugin.app.workspace.getRightLeaf(false);
-    if (!leaf) return;
+    if (!leaf) {
+        return;
+    }
 
     await leaf.setViewState({
         type: "markdown",
@@ -85,4 +83,4 @@ export const openInSidebar = async(
         const chat = plugin.chatInterfaceManager.getChatInView(sidebarView);
         chat.moveCursorToEndOfFile();
     }
-}
+};

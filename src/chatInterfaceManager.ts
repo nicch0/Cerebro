@@ -1,7 +1,7 @@
 import { MarkdownView } from "obsidian";
 import ChatInterface from "./chatInterface";
-import Cerebro from "./main";
 import { fileIsChat } from "./helpers";
+import Cerebro from "./main";
 
 export default class ChatInterfaceManager {
     private _plugin: Cerebro;
@@ -67,7 +67,9 @@ export default class ChatInterfaceManager {
 
     public handleMetadataChanged(): void {
         const view = this.getActiveMDView();
-        if (!view) return;
+        if (!view) {
+            return;
+        }
 
         this.updateChatVisibility(view, true);
     }
@@ -75,7 +77,9 @@ export default class ChatInterfaceManager {
     private setupEventListeners() {
         this._plugin.registerEvent(
             this._plugin.app.workspace.on("active-leaf-change", (leaf) => {
-                if (!(leaf?.view instanceof MarkdownView)) return;
+                if (!(leaf?.view instanceof MarkdownView)) {
+                    return;
+                }
                 const view: MarkdownView = leaf.view as MarkdownView;
 
                 // Check if this is a chat file
@@ -146,7 +150,9 @@ export default class ChatInterfaceManager {
     }
     public createChatInOpenViews() {
         const views: MarkdownView[] = this.getVisibleMDChatViews();
-        if (views.length === 0) return;
+        if (views.length === 0) {
+            return;
+        }
 
         views.map((view) => this.createChatInView(view));
     }

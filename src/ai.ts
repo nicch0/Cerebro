@@ -127,7 +127,7 @@ export class AI {
         messages: Message[],
         properties: ChatProperties,
         settings: CerebroSettings,
-        onChunk?: (chunk: string) => void
+        onChunk?: (chunk: string) => void,
     ): Promise<Message> {
         console.log(messages, properties, settings);
         const formattedMessages = this.formatMessagesForProvider(messages);
@@ -137,7 +137,7 @@ export class AI {
         const { fullResponse, finishReason } = await this.streamResponse_v2(
             formattedMessages,
             callSettings,
-            onChunk
+            onChunk,
         );
         responseStr = fullResponse;
         logger.info("[Cerebro] Model finished streaming", { finish_reason: finishReason });
@@ -226,11 +226,10 @@ export class AI {
         };
     }
 
-
     private async streamResponse_v2(
         messages: any[],
         callSettings: ChatProperties,
-        onChunk?: (chunk: string) => void
+        onChunk?: (chunk: string) => void,
     ): Promise<{
         fullResponse: string;
         finishReason: string | null | undefined;
@@ -282,7 +281,7 @@ export class AI {
                 fullResponse,
                 finishReason,
             };
-        } catch(error) {
+        } catch (error) {
             console.error("Error in streamResponse_v2:", error);
             throw error;
         }

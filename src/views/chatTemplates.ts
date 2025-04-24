@@ -1,5 +1,5 @@
-import { CerebroSettings } from "../settings";
 import { App, Notice, SuggestModal, TFile, TFolder } from "obsidian";
+import { CerebroSettings } from "../settings";
 
 interface ChatTemplates {
     title: string;

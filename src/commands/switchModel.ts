@@ -1,7 +1,7 @@
 import { type Command, Editor, MarkdownView, Notice, SuggestModal } from "obsidian";
+import { MODEL_PROPERTY_NAME } from "../ai";
 import { getModelOptions } from "../helpers";
 import Cerebro from "../main";
-import { MODEL_PROPERTY_NAME } from "../ai";
 
 export const switchModelCommand = (plugin: Cerebro): Command => ({
     id: "cerebro-switch-current-model",

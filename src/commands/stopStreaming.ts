@@ -1,7 +1,7 @@
+import { type Command, Editor, MarkdownView, Notice } from "obsidian";
 import { ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "../constants";
 import { logger } from "../logger";
 import Cerebro from "../main";
-import { type Command, Editor, MarkdownView, Notice } from "obsidian";
 
 export const stopStreamingCommand = (plugin: Cerebro): Command => ({
     id: "cerebro-stop-streaming",
@@ -10,8 +10,12 @@ export const stopStreamingCommand = (plugin: Cerebro): Command => ({
     editorCallback: async (_: Editor, view: MarkdownView) => {
         try {
             const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
-            if (!activeView) throw new Error("No active markdown view");
-            if (!view.file) throw new Error("No active file");
+            if (!activeView) {
+                throw new Error("No active markdown view");
+            }
+            if (!view.file) {
+                throw new Error("No active file");
+            }
             const chat = plugin.chatInterfaceManager.getChatInView(activeView);
             chat.stopStreaming = true;
         } catch (e) {

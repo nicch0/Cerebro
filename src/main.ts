@@ -4,18 +4,18 @@ import * as google from "@ai-sdk/google";
 import * as openai from "@ai-sdk/openai";
 import * as xai from "@ai-sdk/xai";
 import { createProviderRegistry } from "ai";
-import { fileIsChat, isTitleTimestampFormat, writeInferredTitleToEditor } from "./helpers";
 import { MarkdownView, Notice, Platform, Plugin, WorkspaceLeaf } from "obsidian";
-import { getCommands } from "./commands";
-import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "./constants";
-import { logger } from "./logger";
 import { AI } from "./ai";
-import { DEFAULT_SETTINGS, type CerebroSettings } from "./settings";
-import type { ChatFrontmatter, Message } from "./types";
-import { SettingsTab } from "./views/settingsTab";
 import ChatInterfaceManager from "./chatInterfaceManager";
 import { chatOverlayExtension } from "./chatOverlayPlugin";
+import { getCommands } from "./commands";
+import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "./constants";
+import { fileIsChat, isTitleTimestampFormat, writeInferredTitleToEditor } from "./helpers";
+import { logger } from "./logger";
+import { type CerebroSettings, DEFAULT_SETTINGS } from "./settings";
+import type { ChatFrontmatter, Message } from "./types";
 import { CEREBRO_CHAT_VIEW, ChatView } from "./views/ChatView";
+import { SettingsTab } from "./views/settingsTab";
 
 export default class Cerebro extends Plugin {
     public chatInterfaceManager: ChatInterfaceManager;
@@ -43,7 +43,9 @@ export default class Cerebro extends Plugin {
         // This only applies to valid Cerebro chat files, not other md files
         this.registerEvent(
             this.app.workspace.on("active-leaf-change", (leaf: WorkspaceLeaf | null) => {
-                if (!(leaf?.view instanceof MarkdownView)) return;
+                if (!(leaf?.view instanceof MarkdownView)) {
+                    return;
+                }
                 const view: MarkdownView = leaf.view as MarkdownView;
                 if (view.file && fileIsChat(this.app, view?.file)) {
                     this.chatInterfaceManager.updateViewForChat(view);
@@ -79,7 +81,9 @@ export default class Cerebro extends Plugin {
             // Our view could not be found in the workspace, create a new leaf
             // in the right sidebar for it
             leaf = workspace.getRightLeaf(false);
-            if (!leaf) return;
+            if (!leaf) {
+                return;
+            }
             await leaf.setViewState({ type: CEREBRO_CHAT_VIEW, active: true });
         }
 

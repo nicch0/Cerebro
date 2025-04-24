@@ -1,5 +1,16 @@
-import { App, FileManager, type FrontMatterCache, MarkdownView, Notice, TFile, Vault } from "obsidian";
+import {
+    App,
+    FileManager,
+    type FrontMatterCache,
+    MarkdownView,
+    Notice,
+    TFile,
+    Vault,
+} from "obsidian";
+import { MODEL_PROPERTY_NAME } from "./ai";
+import { AVAILABLE_MODELS } from "./constants";
 import { logger } from "./logger";
+import type { CerebroSettings } from "./settings";
 import {
     type DocumentMessageContent,
     type ImageExtension,
@@ -11,9 +22,6 @@ import {
     type TextMessageContent,
 } from "./types";
 import { FolderCreationModal } from "./views/folderCreation";
-import type { CerebroSettings } from "./settings";
-import { AVAILABLE_MODELS } from "./constants";
-import { MODEL_PROPERTY_NAME } from "./ai";
 
 export const unfinishedCodeBlock = (txt: string): boolean => {
     /**

@@ -1,7 +1,7 @@
 import { type Command, Editor, MarkdownView, Notice } from "obsidian";
+import { ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "../constants";
 import { writeInferredTitleToEditor } from "../helpers";
 import Cerebro from "../main";
-import { ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "../constants";
 
 export const inferTitleCommand = (plugin: Cerebro): Command => ({
     id: "cerebro-infer-title",
