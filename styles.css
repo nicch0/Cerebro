@@ -263,10 +263,6 @@
   resize: none
 }
 
-.flex-row {
-  flex-direction: row
-}
-
 .flex-col {
   flex-direction: column
 }
@@ -333,6 +329,10 @@
 
 .bg-background {
   background-color: var(--background-primary)
+}
+
+.bg-dropdown {
+  background-color: var(--dropdown-background)
 }
 
 .bg-interactive-accent {
@@ -452,10 +452,6 @@
   color: transparent
 }
 
-.underline {
-  text-decoration-line: underline
-}
-
 .underline-offset-4 {
   text-underline-offset: 4px
 }
@@ -503,6 +499,11 @@
   outline-style: solid
 }
 
+.drop-shadow-md {
+  --tw-drop-shadow: drop-shadow(0 4px 3px rgb(0 0 0 / 0.07)) drop-shadow(0 2px 2px rgb(0 0 0 / 0.06));
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)
+}
+
 .filter {
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)
 }
@@ -527,14 +528,12 @@
   }
 }
 
-.placeholder\:text-base::-moz-placeholder {
-  font-size: 1rem;
-  line-height: 1.5rem
+.placeholder\:text-small::-moz-placeholder {
+  font-size: var(--font-small)
 }
 
-.placeholder\:text-base::placeholder {
-  font-size: 1rem;
-  line-height: 1.5rem
+.placeholder\:text-small::placeholder {
+  font-size: var(--font-small)
 }
 
 .placeholder\:text-muted::-moz-placeholder {

@@ -3,7 +3,7 @@ import * as deepseek from "@ai-sdk/deepseek";
 import * as google from "@ai-sdk/google";
 import * as openai from "@ai-sdk/openai";
 import * as xai from "@ai-sdk/xai";
-import { experimental_createProviderRegistry as createProviderRegistry } from "ai";
+import { createProviderRegistry } from "ai";
 import { fileIsChat, isTitleTimestampFormat, writeInferredTitleToEditor } from "./helpers";
 import { MarkdownView, Notice, Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import { getCommands } from "./commands";
@@ -24,12 +24,6 @@ export default class Cerebro extends Plugin {
     public ai: AI;
 
     public async onload(): Promise<void> {
-        this.registerView(CEREBRO_CHAT_VIEW, (leaf) => new ChatView(leaf, this));
-
-        this.addRibbonIcon("brain", "Open Cerebro", () => {
-            this.activateView();
-        });
-
         logger.debug("[Cerebro] Adding status bar");
         this.statusBar = this.addStatusBarItem();
 
@@ -64,6 +58,12 @@ export default class Cerebro extends Plugin {
         commands.forEach((command) => this.addCommand(command));
 
         this.registerEditorExtension(chatOverlayExtension(this));
+
+        this.registerView(CEREBRO_CHAT_VIEW, (leaf) => new ChatView(leaf, this));
+
+        this.addRibbonIcon("brain", "Open Cerebro", () => {
+            this.activateView();
+        });
     }
 
     async activateView() {

@@ -3,9 +3,9 @@ import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "../constants
 import { logger } from "../logger";
 import Cerebro from "../main";
 
-export const CEREBRO_CHAT_ID = "cerebro-chat";
+export const CEREBRO_CHAT_COMMAND_ID = "cerebro-chat";
 export const chatCommand = (plugin: Cerebro): Command => ({
-    id: CEREBRO_CHAT_ID,
+    id: CEREBRO_CHAT_COMMAND_ID,
     name: "Chat",
     icon: "message-circle",
     editorCallback: async (_: Editor, view: MarkdownView) => {

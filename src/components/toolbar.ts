@@ -1,5 +1,5 @@
 import ChatInterface from "../chatInterface";
-import { CEREBRO_CHAT_ID } from "../commands/chat";
+import { CEREBRO_CHAT_COMMAND_ID } from "../commands/chat";
 import Cerebro from "../main";
 import { MarkdownView, setIcon } from "obsidian";
 
@@ -52,7 +52,7 @@ export default class ChatToolbar {
             const activeView = this._plugin.app.workspace.getActiveViewOfType(MarkdownView);
             if (!activeView) return;
             // @ts-ignore
-            this._plugin.app.commands.executeCommandById(`cerebro:${CEREBRO_CHAT_ID}`);
+            this._plugin.app.commands.executeCommandById(`cerebro:${CEREBRO_CHAT_COMMAND_ID}`);
         });
 
         return toolbarEl;

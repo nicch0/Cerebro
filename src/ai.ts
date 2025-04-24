@@ -1,14 +1,14 @@
-import { generateText, type Provider, streamText } from "ai";
+import { generateText, type LanguageModel, type Provider, streamText } from "ai";
 import ChatInterface from "./chatInterface";
 import { CerebroMessages } from "./constants";
 import { getTextOnlyContent, unfinishedCodeBlock } from "./helpers";
 import { logger } from "./logger";
 import { type CerebroSettings } from "./settings";
-import type { ChatFrontmatter, Message } from "./types";
+import type { ChatFrontmatter, ChatProperties, Message } from "./types";
 
 // Define mapping between ChatFrontmatter properties and their default values in CerebroSettings
 interface DefaultsMapping {
-    frontmatterKey: keyof ChatFrontmatter;
+    frontmatterKey: keyof ChatFrontmatter & keyof ChatProperties;
     settingsKey: keyof CerebroSettings;
 }
 
@@ -96,6 +96,58 @@ export class AI {
         return resolvedFrontmatter;
     }
 
+    private resolveChatParameters_v2(
+        chatProperties: ChatProperties,
+        settings: CerebroSettings,
+    ): ChatProperties {
+        // Create a new ChatFrontmatter object with the original properties
+        const finalChatParams: ChatProperties = {
+            ...chatProperties,
+        };
+
+        // Apply all defaults from the settings object
+        PROPERTY_MAPPINGS.forEach((mapping) => {
+            const { frontmatterKey, settingsKey } = mapping;
+
+            // Only apply default if the property is undefined in the frontmatter
+            if (
+                finalChatParams[frontmatterKey] === undefined &&
+                settings[settingsKey] !== undefined
+            ) {
+                // This cast is necessary because TypeScript can't infer the relationship
+                // between the two different key types
+                (finalChatParams as any)[frontmatterKey] = settings[settingsKey];
+            }
+        });
+
+        return finalChatParams;
+    }
+
+    public async chat_v2(
+        messages: Message[],
+        properties: ChatProperties,
+        settings: CerebroSettings,
+        onChunk?: (chunk: string) => void
+    ): Promise<Message> {
+        console.log(messages, properties, settings);
+        const formattedMessages = this.formatMessagesForProvider(messages);
+        let responseStr: string;
+        const callSettings = this.resolveChatParameters_v2(properties, settings);
+
+        const { fullResponse, finishReason } = await this.streamResponse_v2(
+            formattedMessages,
+            callSettings,
+            onChunk
+        );
+        responseStr = fullResponse;
+        logger.info("[Cerebro] Model finished streaming", { finish_reason: finishReason });
+
+        return {
+            role: "assistant",
+            content: responseStr,
+        };
+    }
+
     public async chat(
         messages: Message[],
         frontmatter: ChatFrontmatter,
@@ -117,14 +169,6 @@ export class AI {
             responseStr = fullResponse;
             logger.info("[Cerebro] Model finished streaming", { finish_reason: finishReason });
         } else {
-            const response = await this.generateNonStreaming(formattedMessages, callSettings);
-            responseStr = response;
-
-            // Commenting as unsure if still required today
-            // if (unfinishedCodeBlock(responseStr)) {
-            //     responseStr = responseStr + "\n```";
-            // }
-            chatInterface.appendNonStreamingMessage(responseStr);
         }
 
         return {
@@ -180,6 +224,68 @@ export class AI {
             fullResponse,
             finishReason,
         };
+    }
+
+
+    private async streamResponse_v2(
+        messages: any[],
+        callSettings: ChatProperties,
+        onChunk?: (chunk: string) => void
+    ): Promise<{
+        fullResponse: string;
+        finishReason: string | null | undefined;
+    }> {
+        console.log(messages, callSettings, onChunk);
+        if (!callSettings.model) {
+            throw new Error("Model not found");
+        }
+
+        let fullResponse = "";
+        const finishReason: string | null | undefined = null;
+
+        try {
+            const model = this.providerRegistry.languageModel(callSettings.model);
+
+            const { textStream } = streamText({
+                model,
+                messages,
+                temperature: callSettings.temperature,
+                maxTokens: callSettings.maxTokens,
+                system: callSettings.system?.join(""),
+            });
+
+            const reader = textStream.getReader();
+
+            while (true) {
+                const { done, value: chunkText } = await reader.read();
+                if (done) {
+                    break;
+                }
+                fullResponse += chunkText;
+
+                // Call the onChunk callback if provided
+                if (onChunk) {
+                    onChunk(chunkText);
+                }
+            }
+
+            // // Clean up unfinished code blocks
+            // if (unfinishedCodeBlock(fullResponse)) {
+            //     fullResponse += "\n```";
+            //     // Also send this final cleanup to the callback
+            //     if (onChunk) {
+            //         onChunk("\n```");
+            //     }
+            // }
+
+            return {
+                fullResponse,
+                finishReason,
+            };
+        } catch(error) {
+            console.error("Error in streamResponse_v2:", error);
+            throw error;
+        }
     }
 
     private async generateNonStreaming(

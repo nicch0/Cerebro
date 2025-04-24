@@ -1,12 +1,12 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import { mount, unmount } from "svelte";
-import CerebroChat from "@/components/CerebroChat.svelte";
+import Chat from "@/components/Chat.svelte";
 import type Cerebro from "@/main";
 
 export const CEREBRO_CHAT_VIEW = "cerebro-chat-view";
 
 export class ChatView extends ItemView {
-    component: ReturnType<typeof CerebroChat> | undefined;
+    component: ReturnType<typeof Chat> | undefined;
     private _plugin: Cerebro;
 
     constructor(leaf: WorkspaceLeaf, plugin: Cerebro) {
@@ -23,9 +23,13 @@ export class ChatView extends ItemView {
     }
 
     async onOpen() {
-        this.component = mount(CerebroChat, {
+        this.component = mount(Chat, {
             target: this.contentEl,
-            props: {},
+            props: {
+                ai: this._plugin.ai,
+                // TODO: Abstract this to Svelte shared state so that its REACTIVE!
+                settings: this._plugin.settings,
+            },
         });
     }
 
