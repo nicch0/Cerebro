@@ -64,7 +64,7 @@
     };
 </script>
 
-<div id="cerebro-chat-view" class="flex flex-nowrap flex-col">
-    <MessageDisplay {incomingMessage} {isStreaming} />
-    <Toolbar {sendMessage} {isStreaming} />
+<div id="cerebro-chat-view" class="flex flex-col size-full overflow-hidden">
+    <MessageDisplay {incomingMessage} {isStreaming}/>
+    <Toolbar {sendMessage} {isStreaming}/>
 </div>
