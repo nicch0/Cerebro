@@ -70,33 +70,6 @@ export class AI {
     }
 
     private resolveChatParameters(
-        frontmatter: ChatFrontmatter,
-        settings: CerebroSettings,
-    ): ChatFrontmatter {
-        // Create a new ChatFrontmatter object with the original properties
-        const resolvedFrontmatter: ChatFrontmatter = {
-            ...frontmatter,
-        };
-
-        // Apply all defaults from the settings object
-        PROPERTY_MAPPINGS.forEach((mapping) => {
-            const { frontmatterKey, settingsKey } = mapping;
-
-            // Only apply default if the property is undefined in the frontmatter
-            if (
-                resolvedFrontmatter[frontmatterKey] === undefined &&
-                settings[settingsKey] !== undefined
-            ) {
-                // This cast is necessary because TypeScript can't infer the relationship
-                // between the two different key types
-                (resolvedFrontmatter as any)[frontmatterKey] = settings[settingsKey];
-            }
-        });
-
-        return resolvedFrontmatter;
-    }
-
-    private resolveChatParameters_v2(
         chatProperties: ChatProperty,
         settings: CerebroSettings,
     ): ChatProperty {
@@ -123,18 +96,17 @@ export class AI {
         return finalChatParams;
     }
 
-    public async chat_v2(
+    public async chat(
         messages: Message[],
         properties: ChatProperty,
         settings: CerebroSettings,
         onChunk?: (chunk: string) => void,
     ): Promise<Message> {
-        console.log(messages, properties, settings);
         const formattedMessages = this.formatMessagesForProvider(messages);
         let responseStr: string;
-        const callSettings = this.resolveChatParameters_v2(properties, settings);
+        const callSettings = this.resolveChatParameters(properties, settings);
 
-        const { fullResponse, finishReason } = await this.streamResponse_v2(
+        const { fullResponse, finishReason } = await this.streamResponse(
             formattedMessages,
             callSettings,
             onChunk,
@@ -148,85 +120,7 @@ export class AI {
         };
     }
 
-    public async chat(
-        messages: Message[],
-        frontmatter: ChatFrontmatter,
-        settings: CerebroSettings,
-        chatInterface: ChatInterface,
-    ): Promise<Message> {
-        const formattedMessages = this.formatMessagesForProvider(messages);
-        let responseStr: string;
-        // Find call settings, prioritising frontmatter over settings
-        const callSettings = this.resolveChatParameters(frontmatter, settings);
-
-        // Handle streaming vs non-streaming
-        if (callSettings.stream) {
-            const { fullResponse, finishReason } = await this.streamResponse(
-                formattedMessages,
-                callSettings,
-                chatInterface,
-            );
-            responseStr = fullResponse;
-            logger.info("[Cerebro] Model finished streaming", { finish_reason: finishReason });
-        } else {
-        }
-
-        return {
-            role: "assistant",
-            content: responseStr,
-        };
-    }
-
     private async streamResponse(
-        messages: any[],
-        callSettings: ChatFrontmatter,
-        chatInterface: ChatInterface,
-    ): Promise<{
-        fullResponse: string;
-        finishReason: string | null | undefined;
-    }> {
-        if (!callSettings.model) {
-            throw new Error("Model not found");
-        }
-        let fullResponse = "";
-        const finishReason: string | null | undefined = null;
-
-        // Save initial cursor position
-        const initialCursor = chatInterface.editorPosition;
-        const model = this.providerRegistry.languageModel(callSettings.model);
-
-        const result = streamText({
-            model,
-            messages,
-            temperature: callSettings.temperature,
-            maxTokens: callSettings.maxTokens,
-            system: callSettings.system?.join(""),
-        });
-
-        const reader = result.textStream.getReader();
-        while (true) {
-            const { done, value: chunkText } = await reader.read();
-            if (done) {
-                break;
-            }
-            fullResponse += chunkText;
-            chatInterface.addStreamedChunk(chunkText);
-        }
-
-        // Clean up unfinished code blocks
-        if (unfinishedCodeBlock(fullResponse)) {
-            fullResponse += "\n```";
-        }
-
-        chatInterface.finalizeStreamedResponse(fullResponse, initialCursor);
-
-        return {
-            fullResponse,
-            finishReason,
-        };
-    }
-
-    private async streamResponse_v2(
         messages: any[],
         callSettings: ChatProperty,
         onChunk?: (chunk: string) => void,
@@ -277,28 +171,10 @@ export class AI {
         }
     }
 
-    private async generateNonStreaming(
-        messages: any[],
-        callSettings: ChatFrontmatter,
-    ): Promise<string> {
-        if (!callSettings.model) {
-            throw new Error("Model not found");
-        }
-        const model = this.providerRegistry.languageModel(callSettings.model);
-        const response = await generateText({
-            model,
-            messages,
-            temperature: callSettings.temperature,
-            maxTokens: callSettings.maxTokens,
-        });
-
-        return response.text;
-    }
-
     public async inferTitle(
         messages: Message[],
         inferTitleLanguage: string,
-        frontmatter: ChatFrontmatter,
+        chatProperties: ChatProperty,
         settings: CerebroSettings,
     ): Promise<string> {
         const sanitizeTitle = (title: string): string => {
@@ -309,7 +185,7 @@ export class AI {
                 .trim();
         };
 
-        const callSettings = this.resolveChatParameters(frontmatter, settings);
+        const callSettings = this.resolveChatParameters(chatProperties, settings);
 
         if (!callSettings.model) {
             throw new Error("Model not found");

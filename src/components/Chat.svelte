@@ -36,7 +36,7 @@
             };
 
             // Make call to LLM with streaming callback
-            const fullResponse = await ai.chat_v2(
+            const fullResponse = await ai.chat(
                 messageStore.messages,
                 chatProperties,
                 settings,
