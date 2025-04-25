@@ -14,31 +14,27 @@
     let messages = getMessages();
 </script>
 
+{#snippet chatBubble(variant, layout, message)}
+    <ChatBubble {variant} {layout}>
+      <ChatBubbleMessage {variant}>
+          {message.content}
+      </ChatBubbleMessage>
+    </ChatBubble>
+{/snippet}
+
 <ChatMessageList>
     {#each messages as message}
         {#if message.role === "user"}
-            <ChatBubble variant='sent'>
-              <ChatBubbleMessage variant='sent'>
-                  {message.content}
-              </ChatBubbleMessage>
-            </ChatBubble>
+            {@render chatBubble("sent", "default", message)}
         {:else}
-            <ChatBubble variant='received'>
-            <ChatBubbleMessage variant='received'>
-                {message.content}
-            </ChatBubbleMessage>
-            </ChatBubble>
+            {@render chatBubble("received", "ai", message)}
         {/if}
     {/each}
     {#if isStreaming && incomingMessage.content.length > 0}
-        <ChatBubble variant='received'>
-        <ChatBubbleMessage variant='received'>
-            {incomingMessage.content}
-        </ChatBubbleMessage>
-        </ChatBubble>
-    {:else if incomingMessage.content.length === 0}
-        <ChatBubble variant='received'>
-            <ChatBubbleMessage isLoading/>
+        {@render chatBubble("received", "ai", incomingMessage)}
+    {:else if isStreaming && incomingMessage.content.length === 0}
+        <ChatBubble variant='received' layout="ai">
+            <ChatBubbleMessage isLoading variant="received" layout="ai"/>
         </ChatBubble>
     {/if}
 </ChatMessageList>
