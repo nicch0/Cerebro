@@ -19,7 +19,7 @@ export class ChatView extends ItemView {
     }
 
     getDisplayText() {
-        return "Cerebro: New Chat";
+        return "Cerebro";
     }
 
     async onOpen() {
