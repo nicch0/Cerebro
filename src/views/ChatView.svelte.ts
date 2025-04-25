@@ -1,9 +1,9 @@
+import { type IconName, ItemView, WorkspaceLeaf } from "obsidian";
+import { mount, unmount } from "svelte";
 import Chat from "@/components/Chat.svelte";
 import { createMessageStore, type MessageStore } from "@/components/messages.svelte";
 import type Cerebro from "@/main";
 import type { ChatProperty } from "@/types";
-import { ItemView, WorkspaceLeaf, type IconName } from "obsidian";
-import { mount, unmount } from "svelte";
 
 export const CEREBRO_CHAT_VIEW = "cerebro-chat-view";
 
@@ -12,34 +12,35 @@ export class ChatView extends ItemView {
     private plugin: Cerebro;
     private chatProperties: ChatProperty;
     private messageStore: MessageStore;
+    private selectedText: string | undefined;
 
-    constructor(leaf: WorkspaceLeaf, plugin: Cerebro) {
+    constructor(leaf: WorkspaceLeaf, plugin: Cerebro, selectedText?: string) {
         super(leaf);
         this.plugin = plugin;
         const chatProperties = $state({
-            title: "Test title",
+            title: "",
             model: "openai:gpt-4",
-            stream: true,
             system: ["You are a helpful assistant"],
         });
         this.chatProperties = chatProperties;
         const messageStore = createMessageStore();
         this.messageStore = messageStore;
+        this.selectedText = selectedText;
     }
 
-    getViewType() {
+    public getViewType(): string {
         return CEREBRO_CHAT_VIEW;
     }
 
-    getDisplayText() {
-        return `Cerebro: ${this.chatProperties.title}`;
+    public getDisplayText(): string {
+        return this.chatProperties.title ? `Cerebro: ${this.chatProperties.title}` : "Cerebro";
     }
 
-    getIcon(): IconName {
+    public getIcon(): IconName {
         return "brain-circuit";
     }
 
-    async onOpen() {
+    public async onOpen(): Promise<void> {
         this.component = mount(Chat, {
             target: this.contentEl,
             props: {
@@ -48,11 +49,12 @@ export class ChatView extends ItemView {
                 settings: this.plugin.settings,
                 chatProperties: this.chatProperties,
                 messageStore: this.messageStore,
+                selectedText: this.selectedText,
             },
         });
     }
 
-    async onClose() {
+    public async onClose(): Promise<void> {
         if (this.component) {
             unmount(this.component);
         }

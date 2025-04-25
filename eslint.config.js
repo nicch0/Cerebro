@@ -165,8 +165,8 @@ export default [
                 projectService: true,
                 extraFileExtensions: [".svelte"],
                 parser: {
-                  ts: ts.parser,
-                  typescript: ts.parser
+                    ts: ts.parser,
+                    typescript: ts.parser,
                 },
                 svelteConfig,
             },
