@@ -15,9 +15,9 @@
 
 {#snippet chatBubble(variant, layout, message)}
     <ChatBubble {variant} {layout}>
-      <ChatBubbleMessage {variant}>
-          {message.content}
-      </ChatBubbleMessage>
+        <ChatBubbleMessage {variant}>
+            {message.content}
+        </ChatBubbleMessage>
     </ChatBubble>
 {/snippet}
 
@@ -32,8 +32,8 @@
     {#if isStreaming && incomingMessage.content.length > 0}
         {@render chatBubble("received", "ai", incomingMessage)}
     {:else if isStreaming && incomingMessage.content.length === 0}
-        <ChatBubble variant='received' layout="ai">
-            <ChatBubbleMessage isLoading variant="received" layout="ai"/>
+        <ChatBubble variant="received" layout="ai">
+            <ChatBubbleMessage isLoading variant="received" layout="ai" />
         </ChatBubble>
     {/if}
 </ChatMessageList>

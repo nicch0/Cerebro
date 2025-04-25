@@ -1,4 +1,5 @@
-import { MarkdownView, Notice, TFile } from "obsidian";
+import { MarkdownView, Notice, TFile, WorkspaceLeaf } from "obsidian";
+import { CEREBRO_CHAT_VIEW, ChatView } from "@/views/ChatView.svelte";
 import { createFolderModal, getDate } from "../helpers";
 import Cerebro from "../main";
 import { generateChatFrontmatter } from "../settings";
@@ -83,4 +84,22 @@ export const openInSidebar = async (plugin: Cerebro, newFile: TFile): Promise<vo
         const chat = plugin.chatInterfaceManager.getChatInView(sidebarView);
         chat.moveCursorToEndOfFile();
     }
+};
+
+export const openView = async (
+    plugin: Cerebro,
+    inMainEditor: boolean,
+    selectedText?: string,
+): Promise<void> => {
+    const { workspace } = plugin.app;
+
+    const leaf: WorkspaceLeaf | null = inMainEditor
+        ? workspace.getLeaf(true)
+        : workspace.getRightLeaf(false);
+    if (!leaf) {
+        return;
+    }
+    const newView = new ChatView(leaf, plugin, selectedText);
+    leaf.open(newView);
+    workspace.revealLeaf(leaf);
 };

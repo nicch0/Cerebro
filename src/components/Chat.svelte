@@ -11,9 +11,10 @@
         settings: CerebroSettings;
         chatProperties: ChatProperty;
         messageStore: MessageStore;
+        selectedText: string | undefined;
     }
 
-    let { ai, settings, chatProperties, messageStore }: ChatProps = $props();
+    let { ai, settings, chatProperties, messageStore, selectedText }: ChatProps = $props();
 
     let incomingMessage: Message = $state({
         role: "assistant",
@@ -59,6 +60,6 @@
 </script>
 
 <div id="cerebro-chat-view" class="flex flex-col size-full overflow-hidden">
-    <MessageDisplay {incomingMessage} {isStreaming} messages={messageStore.messages}/>
-    <Toolbar {sendMessage} {isStreaming} messages={messageStore.messages}/>
+    <MessageDisplay {incomingMessage} {isStreaming} messages={messageStore.messages} />
+    <Toolbar {sendMessage} {isStreaming} messages={messageStore.messages} {selectedText} />
 </div>

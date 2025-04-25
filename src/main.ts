@@ -7,7 +7,6 @@ import { createProviderRegistry } from "ai";
 import { MarkdownView, Notice, Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import { AI } from "./ai";
 import ChatInterfaceManager from "./chatInterfaceManager";
-import { chatOverlayExtension } from "./chatOverlayPlugin";
 import { getCommands } from "./commands";
 import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "./constants";
 import { fileIsChat, isTitleTimestampFormat, writeInferredTitleToEditor } from "./helpers";
@@ -18,10 +17,10 @@ import { CEREBRO_CHAT_VIEW, ChatView } from "./views/ChatView.svelte";
 import { SettingsTab } from "./views/settingsTab";
 
 export default class Cerebro extends Plugin {
-    public chatInterfaceManager: ChatInterfaceManager;
-    public settings: CerebroSettings;
-    public statusBar: HTMLElement;
-    public ai: AI;
+    public chatInterfaceManager!: ChatInterfaceManager;
+    public settings!: CerebroSettings;
+    public statusBar!: HTMLElement;
+    public ai!: AI;
 
     public async onload(): Promise<void> {
         logger.debug("[Cerebro] Adding status bar");
@@ -32,8 +31,7 @@ export default class Cerebro extends Plugin {
         this.addSettingTab(new SettingsTab(this.app, this));
 
         this.chatInterfaceManager = ChatInterfaceManager.initialize(this);
-
-        this.initializeAI();
+        this.ai = this.initializeAI();
 
         this.app.workspace.onLayoutReady(() => {
             this.chatInterfaceManager.createChatInOpenViews();
@@ -58,17 +56,13 @@ export default class Cerebro extends Plugin {
         // Register all commands
         const commands = getCommands(this);
         commands.forEach((command) => this.addCommand(command));
-
-        this.registerEditorExtension(chatOverlayExtension(this));
-
         this.registerView(CEREBRO_CHAT_VIEW, (leaf) => new ChatView(leaf, this));
-
         this.addRibbonIcon("brain-circuit", "Open Cerebro", () => {
             this.activateView();
         });
     }
 
-    public async activateView() {
+    public async activateView(): Promise<void> {
         const { workspace } = this.app;
 
         let leaf: WorkspaceLeaf | null = null;
@@ -91,7 +85,7 @@ export default class Cerebro extends Plugin {
         workspace.revealLeaf(leaf);
     }
 
-    private initializeAI(): void {
+    private initializeAI(): AI {
         type ProviderConfigs = Parameters<typeof createProviderRegistry>[0];
 
         const providerConfig: ProviderConfigs = {};
@@ -128,7 +122,8 @@ export default class Cerebro extends Plugin {
         }
 
         const llmProvider = createProviderRegistry(providerConfig);
-        this.ai = new AI(llmProvider);
+
+        return new AI(llmProvider);
     }
 
     public async handleTitleInference(

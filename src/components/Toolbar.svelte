@@ -10,11 +10,16 @@
         sendMessage: (message: Message) => void;
         isStreaming: boolean;
         messages: Message[];
+        selectedText: string;
     }
 
-    let { sendMessage, isStreaming, messages }: ToolbarProps = $props();
+    let { sendMessage, isStreaming, messages, selectedText }: ToolbarProps = $props();
 
     let prompt: string = $state("");
+
+    if (selectedText) {
+        prompt = selectedText;
+    }
     let searchEnabled: boolean = $state(false);
     let thinkEnabled: boolean = $state(false);
     let selectedModel: string = $state("");
@@ -56,7 +61,10 @@
     }
 </script>
 
-<div id="cerebro-toolbar" class="bg-background border-solid rounded-lg border-border border px-2 drop-shadow-lg bottom-0 w-full overflow-visible">
+<div
+    id="cerebro-toolbar"
+    class="bg-background border-solid rounded-lg border-border border px-2 drop-shadow-lg bottom-0 w-full overflow-visible"
+>
     <Textarea
         bind:value={prompt}
         placeholder={toolbarPlaceholder}
@@ -81,34 +89,34 @@
             </DropdownMenu.Root>
         </div>
 
-      <Button variant="ghost" size="icon">
-        <Paperclip class="size-4" />
-        <span class="sr-only">Attach file</span>
-      </Button>
+        <Button variant="ghost" size="icon">
+            <Paperclip class="size-4" />
+            <span class="sr-only">Attach file</span>
+        </Button>
 
-      <Button variant="ghost" size="icon">
-        <Mic class="size-4" />
-        <span class="sr-only">Use Microphone</span>
-      </Button>
+        <Button variant="ghost" size="icon">
+            <Mic class="size-4" />
+            <span class="sr-only">Use Microphone</span>
+        </Button>
 
-      <Button variant="ghost" size="icon" onclick={toggleSearch}>
-          <Globe class="size-4" />
-          <span class="sr-only">Search</span>
-      </Button>
+        <Button variant="ghost" size="icon" onclick={toggleSearch}>
+            <Globe class="size-4" />
+            <span class="sr-only">Search</span>
+        </Button>
 
-      <Button variant="ghost" size="icon" onclick={toggleThink}>
-          <Brain class="size-4" />
-          <span class="sr-only">Think</span>
-      </Button>
+        <Button variant="ghost" size="icon" onclick={toggleThink}>
+            <Brain class="size-4" />
+            <span class="sr-only">Think</span>
+        </Button>
 
-      <Button
-          class="ml-auto gap-1.5"
-          variant="default"
-          size="icon"
-          onclick={completeUserResponse}
-          disabled={isStreaming || prompt.trim().length === 0}
-      >
-          <ArrowUp />
-      </Button>
+        <Button
+            class="ml-auto gap-1.5"
+            variant="default"
+            size="icon"
+            onclick={completeUserResponse}
+            disabled={isStreaming || prompt.trim().length === 0}
+        >
+            <ArrowUp />
+        </Button>
     </div>
 </div>
