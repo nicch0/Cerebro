@@ -4,11 +4,11 @@ import { CerebroMessages } from "./constants";
 import { getTextOnlyContent, unfinishedCodeBlock } from "./helpers";
 import { logger } from "./logger";
 import { type CerebroSettings } from "./settings";
-import type { ChatFrontmatter, ChatProperties, Message } from "./types";
+import type { ChatFrontmatter, ChatProperty, Message } from "./types";
 
 // Define mapping between ChatFrontmatter properties and their default values in CerebroSettings
 interface DefaultsMapping {
-    frontmatterKey: keyof ChatFrontmatter & keyof ChatProperties;
+    frontmatterKey: keyof ChatFrontmatter & keyof ChatProperty;
     settingsKey: keyof CerebroSettings;
 }
 
@@ -97,11 +97,11 @@ export class AI {
     }
 
     private resolveChatParameters_v2(
-        chatProperties: ChatProperties,
+        chatProperties: ChatProperty,
         settings: CerebroSettings,
-    ): ChatProperties {
+    ): ChatProperty {
         // Create a new ChatFrontmatter object with the original properties
-        const finalChatParams: ChatProperties = {
+        const finalChatParams: ChatProperty = {
             ...chatProperties,
         };
 
@@ -125,7 +125,7 @@ export class AI {
 
     public async chat_v2(
         messages: Message[],
-        properties: ChatProperties,
+        properties: ChatProperty,
         settings: CerebroSettings,
         onChunk?: (chunk: string) => void,
     ): Promise<Message> {
@@ -228,13 +228,12 @@ export class AI {
 
     private async streamResponse_v2(
         messages: any[],
-        callSettings: ChatProperties,
+        callSettings: ChatProperty,
         onChunk?: (chunk: string) => void,
     ): Promise<{
         fullResponse: string;
         finishReason: string | null | undefined;
     }> {
-        console.log(messages, callSettings, onChunk);
         if (!callSettings.model) {
             throw new Error("Model not found");
         }
@@ -267,15 +266,6 @@ export class AI {
                     onChunk(chunkText);
                 }
             }
-
-            // // Clean up unfinished code blocks
-            // if (unfinishedCodeBlock(fullResponse)) {
-            //     fullResponse += "\n```";
-            //     // Also send this final cleanup to the callback
-            //     if (onChunk) {
-            //         onChunk("\n```");
-            //     }
-            // }
 
             return {
                 fullResponse,

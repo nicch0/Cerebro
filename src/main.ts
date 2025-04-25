@@ -14,7 +14,7 @@ import { fileIsChat, isTitleTimestampFormat, writeInferredTitleToEditor } from "
 import { logger } from "./logger";
 import { type CerebroSettings, DEFAULT_SETTINGS } from "./settings";
 import type { ChatFrontmatter, Message } from "./types";
-import { CEREBRO_CHAT_VIEW, ChatView } from "./views/ChatView";
+import { CEREBRO_CHAT_VIEW, ChatView } from "./views/ChatView.svelte";
 import { SettingsTab } from "./views/settingsTab";
 
 export default class Cerebro extends Plugin {
@@ -63,12 +63,12 @@ export default class Cerebro extends Plugin {
 
         this.registerView(CEREBRO_CHAT_VIEW, (leaf) => new ChatView(leaf, this));
 
-        this.addRibbonIcon("brain", "Open Cerebro", () => {
+        this.addRibbonIcon("brain-circuit", "Open Cerebro", () => {
             this.activateView();
         });
     }
 
-    async activateView() {
+    public async activateView() {
         const { workspace } = this.app;
 
         let leaf: WorkspaceLeaf | null = null;

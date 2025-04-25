@@ -3,19 +3,17 @@
     import { Textarea } from "@/components/ui/textarea";
     import * as DropdownMenu from "@/components/ui/dropdown-menu";
     import { Paperclip, ArrowUp, Globe, Brain, ChevronDown, Mic } from "@lucide/svelte";
-    import { getMessages } from "@/components/messages.svelte";
     import type { Message } from "@/types";
     import { Platform } from "obsidian";
-    import ChatInput from "@/components/ui/chat/chat-input.svelte";
 
     interface ToolbarProps {
         sendMessage: (message: Message) => void;
         isStreaming: boolean;
+        messages: Message[];
     }
 
-    let { sendMessage, isStreaming }: ToolbarProps = $props();
+    let { sendMessage, isStreaming, messages }: ToolbarProps = $props();
 
-    const messages = getMessages();
     let prompt: string = $state("");
     let searchEnabled: boolean = $state(false);
     let thinkEnabled: boolean = $state(false);

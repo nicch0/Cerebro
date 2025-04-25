@@ -1,35 +1,29 @@
 <script lang="ts">
     import Toolbar from "@/components/Toolbar.svelte";
     import MessageDisplay from "@/components/MessageDisplay.svelte";
-    import { getMessages, pushMessage } from "./messages.svelte";
-    import type { ChatProperties, Message } from "@/types";
+    import { type MessageStore } from "./messages.svelte";
+    import type { ChatProperty, Message } from "@/types";
     import type { AI } from "@/ai";
     import type { CerebroSettings } from "@/settings";
 
     interface ChatProps {
         ai: AI;
         settings: CerebroSettings;
+        chatProperties: ChatProperty;
+        messageStore: MessageStore;
     }
 
-    let { ai, settings }: ChatProps = $props();
+    let { ai, settings, chatProperties, messageStore }: ChatProps = $props();
 
-    const messages = getMessages();
     let incomingMessage: Message = $state({
         role: "assistant",
         content: "",
     });
     let isStreaming = $state(false);
 
-    let chatProperties: ChatProperties = $state({
-        title: "Test title",
-        model: "openai:gpt-4o-mini",
-        stream: true,
-        system: ["You are a sarcastic but helpful assistant"],
-    });
-
     const sendMessage = async (message: Message) => {
         // Update messages store with user message
-        pushMessage(message);
+        messageStore.push(message);
 
         // Reset incoming message and mark as streaming
         incomingMessage.content = "";
@@ -43,7 +37,7 @@
 
             // Make call to LLM with streaming callback
             const fullResponse = await ai.chat_v2(
-                messages,
+                messageStore.messages,
                 chatProperties,
                 settings,
                 streamCallback,
@@ -54,7 +48,7 @@
 
             // Add the final message to the messages store
             // Use the fullResponse instead of incomingMessage
-            pushMessage(fullResponse);
+            messageStore.push(fullResponse);
 
             // Clear the incoming message after pushing to the messages store
             incomingMessage.content = "";
@@ -65,6 +59,6 @@
 </script>
 
 <div id="cerebro-chat-view" class="flex flex-col size-full overflow-hidden">
-    <MessageDisplay {incomingMessage} {isStreaming}/>
-    <Toolbar {sendMessage} {isStreaming}/>
+    <MessageDisplay {incomingMessage} {isStreaming} messages={messageStore.messages}/>
+    <Toolbar {sendMessage} {isStreaming} messages={messageStore.messages}/>
 </div>
