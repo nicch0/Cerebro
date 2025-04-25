@@ -26,7 +26,7 @@ export type ChatFrontmatter = CallSettings & {
     system?: string[];
 };
 
-export type ChatProperties = CallSettings & {
+export type ChatProperty = CallSettings & {
     title: string;
     model?: string;
     system?: string[];

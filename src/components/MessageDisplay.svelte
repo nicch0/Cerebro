@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { Message } from "@/types";
-    import { getMessages } from "@/components/messages.svelte";
     import ChatMessageList from "@/components/ui/chat/chat-message-list.svelte";
     import { ChatBubble } from "@/components/ui/chat/chat-bubble";
     import { ChatBubbleMessage } from "./ui/chat/chat-bubble";
@@ -8,10 +7,10 @@
     interface MessageDisplayProps {
         incomingMessage: Message;
         isStreaming: boolean;
+        messages: Message[];
     }
 
-    let { incomingMessage, isStreaming }: MessageDisplayProps = $props();
-    let messages = getMessages();
+    let { incomingMessage, isStreaming, messages }: MessageDisplayProps = $props();
 </script>
 
 {#snippet chatBubble(variant, layout, message)}
