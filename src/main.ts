@@ -1,15 +1,9 @@
-import * as anthropic from "@ai-sdk/anthropic";
-import * as deepseek from "@ai-sdk/deepseek";
-import * as google from "@ai-sdk/google";
-import * as openai from "@ai-sdk/openai";
-import * as xai from "@ai-sdk/xai";
-import { createProviderRegistry } from "ai";
+
 import { MarkdownView, Notice, Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import { AI } from "./ai";
-import ChatInterfaceManager from "./chatInterfaceManager";
 import { getCommands } from "./commands";
 import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "./constants";
-import { fileIsChat, isTitleTimestampFormat, writeInferredTitleToEditor } from "./helpers";
+import { isTitleTimestampFormat, writeInferredTitleToEditor } from "./helpers";
 import { logger } from "./logger";
 import { type CerebroSettings, DEFAULT_SETTINGS } from "./settings";
 import type { ChatFrontmatter, Message } from "./types";
@@ -17,7 +11,6 @@ import { CEREBRO_CHAT_VIEW, ChatView } from "./views/ChatView.svelte";
 import { SettingsTab } from "./views/settingsTab";
 
 export default class Cerebro extends Plugin {
-    public chatInterfaceManager!: ChatInterfaceManager;
     public settings!: CerebroSettings;
     public statusBar!: HTMLElement;
     public ai!: AI;
@@ -30,7 +23,7 @@ export default class Cerebro extends Plugin {
         await this.loadSettings();
         this.addSettingTab(new SettingsTab(this.app, this));
 
-        this.ai = this.initializeAI();
+        this.ai = new AI(this.settings);
 
         // Register all commands
         const commands = getCommands(this);
@@ -62,47 +55,6 @@ export default class Cerebro extends Plugin {
 
         // "Reveal" the leaf in case it is in a collapsed sidebar
         workspace.revealLeaf(leaf);
-    }
-
-    private initializeAI(): AI {
-        type ProviderConfigs = Parameters<typeof createProviderRegistry>[0];
-
-        const providerConfig: ProviderConfigs = {};
-
-        if (this.settings.providerSettings.OpenAI.apiKey) {
-            providerConfig.openai = openai.createOpenAI({
-                apiKey: this.settings.providerSettings.OpenAI.apiKey,
-            });
-        }
-
-        if (this.settings.providerSettings.Anthropic.apiKey) {
-            providerConfig.anthropic = anthropic.createAnthropic({
-                apiKey: this.settings.providerSettings?.Anthropic?.apiKey,
-                headers: { "anthropic-dangerous-direct-browser-access": "true" },
-            });
-        }
-
-        if (this.settings.providerSettings.Google.apiKey) {
-            providerConfig.google = google.createGoogleGenerativeAI({
-                apiKey: this.settings.providerSettings?.Google?.apiKey,
-            });
-        }
-
-        if (this.settings.providerSettings.DeepSeek.apiKey) {
-            providerConfig.deepseek = deepseek.createDeepSeek({
-                apiKey: this.settings.providerSettings.DeepSeek.apiKey,
-            });
-        }
-
-        if (this.settings.providerSettings.XAI.apiKey) {
-            providerConfig.xai = xai.createXai({
-                apiKey: this.settings.providerSettings.XAI.apiKey,
-            });
-        }
-
-        const llmProvider = createProviderRegistry(providerConfig);
-
-        return new AI(llmProvider);
     }
 
     public async handleTitleInference(
@@ -156,11 +108,10 @@ export default class Cerebro extends Plugin {
     public async saveSettings(): Promise<void> {
         logger.info("[Cerebro] Saving settings");
         await this.saveData(this.settings);
-        this.initializeAI();
+        this.ai = new AI(this.settings);
     }
 
     public async onunload(): Promise<void> {
         // TODO: Ensure all HTML elements are removed from the DOM
-        this.chatInterfaceManager.removeAll();
     }
 }
