@@ -30,28 +30,7 @@ export default class Cerebro extends Plugin {
         await this.loadSettings();
         this.addSettingTab(new SettingsTab(this.app, this));
 
-        this.chatInterfaceManager = ChatInterfaceManager.initialize(this);
         this.ai = this.initializeAI();
-
-        this.app.workspace.onLayoutReady(() => {
-            this.chatInterfaceManager.createChatInOpenViews();
-        });
-
-        // When active leaf changes, it adds the ChatInterface
-        // This only applies to valid Cerebro chat files, not other md files
-        this.registerEvent(
-            this.app.workspace.on("active-leaf-change", (leaf: WorkspaceLeaf | null) => {
-                if (!(leaf?.view instanceof MarkdownView)) {
-                    return;
-                }
-                const view: MarkdownView = leaf.view as MarkdownView;
-                if (view.file && fileIsChat(this.app, view?.file)) {
-                    this.chatInterfaceManager.updateViewForChat(view);
-                    this.chatInterfaceManager.handleActiveLeafChange(view);
-                }
-                // Let the ChatInterfaceManager handle the non-chat case in its event listener
-            }),
-        );
 
         // Register all commands
         const commands = getCommands(this);
