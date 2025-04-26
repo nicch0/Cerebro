@@ -1,7 +1,6 @@
-import { generateText, type LanguageModel, type Provider, streamText } from "ai";
-import ChatInterface from "./chatInterface";
+import { generateText, type Provider, streamText } from "ai";
 import { CerebroMessages } from "./constants";
-import { getTextOnlyContent, unfinishedCodeBlock } from "./helpers";
+import { getTextOnlyContent } from "./helpers";
 import { logger } from "./logger";
 import { type CerebroSettings } from "./settings";
 import type { ChatFrontmatter, ChatProperty, Message } from "./types";
@@ -16,7 +15,6 @@ export const MODEL_PROPERTY_NAME = "model";
 
 export const PROPERTY_MAPPINGS: DefaultsMapping[] = [
     { frontmatterKey: MODEL_PROPERTY_NAME, settingsKey: "defaultModel" },
-    { frontmatterKey: "stream", settingsKey: "defaultStream" },
     { frontmatterKey: "maxTokens", settingsKey: "defaultMaxTokens" },
     { frontmatterKey: "temperature", settingsKey: "defaultTemperature" },
     { frontmatterKey: "system", settingsKey: "defaultSystemPrompt" },
