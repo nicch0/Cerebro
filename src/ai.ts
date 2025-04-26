@@ -1,4 +1,9 @@
-import { generateText, type Provider, streamText } from "ai";
+import * as anthropic from "@ai-sdk/anthropic";
+import * as deepseek from "@ai-sdk/deepseek";
+import * as google from "@ai-sdk/google";
+import * as openai from "@ai-sdk/openai";
+import * as xai from "@ai-sdk/xai";
+import { createProviderRegistry, generateText, type Provider, type ProviderRegistryProvider, streamText } from "ai";
 import { CerebroMessages } from "./constants";
 import { getTextOnlyContent } from "./helpers";
 import { logger } from "./logger";
@@ -23,9 +28,48 @@ export const PROPERTY_MAPPINGS: DefaultsMapping[] = [
 export class AI {
     private providerRegistry: Provider;
 
-    constructor(providerRegistry: Provider) {
-        this.providerRegistry = providerRegistry;
+    constructor(settings: CerebroSettings) {
+        this.providerRegistry = this.initialiseProviderRegistry(settings);
     }
+
+    private initialiseProviderRegistry(settings: CerebroSettings): Provider {
+        type ProviderConfigs = Parameters<typeof createProviderRegistry>[0];
+
+        const providerConfig: ProviderConfigs = {};
+
+        if (settings.providerSettings.OpenAI.apiKey) {
+            providerConfig.openai = openai.createOpenAI({
+                apiKey: settings.providerSettings.OpenAI.apiKey,
+            });
+        }
+
+        if (settings.providerSettings.Anthropic.apiKey) {
+            providerConfig.anthropic = anthropic.createAnthropic({
+                apiKey: settings.providerSettings?.Anthropic?.apiKey,
+                headers: { "anthropic-dangerous-direct-browser-access": "true" },
+            });
+        }
+
+        if (settings.providerSettings.Google.apiKey) {
+            providerConfig.google = google.createGoogleGenerativeAI({
+                apiKey: settings.providerSettings?.Google?.apiKey,
+            });
+        }
+
+        if (settings.providerSettings.DeepSeek.apiKey) {
+            providerConfig.deepseek = deepseek.createDeepSeek({
+                apiKey: settings.providerSettings.DeepSeek.apiKey,
+            });
+        }
+
+        if (settings.providerSettings.XAI.apiKey) {
+            providerConfig.xai = xai.createXai({
+                apiKey: settings.providerSettings.XAI.apiKey,
+            });
+        }
+
+        return createProviderRegistry(providerConfig);
+    };
 
     private formatMessagesForProvider(messages: Message[]): any[] {
         return messages.map((msg) => {
