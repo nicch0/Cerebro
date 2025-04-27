@@ -1,5 +1,5 @@
 import { MODEL_PROPERTY_NAME, PROPERTY_MAPPINGS } from "./ai";
-import type { Provider } from "./types";
+import type { ModelConfig, Provider } from "./types";
 
 export interface ProviderSettings {
     apiKey: string;
@@ -16,11 +16,11 @@ export interface CerebroSettings {
     headingLevel: number;
     inferTitleLanguage: string;
 
-    defaultModel: string;
+    defaultModel: ModelConfig;
     defaultStream: boolean;
     defaultTemperature: number;
     defaultMaxTokens: number;
-    defaultSystemPrompt: string;
+    defaultSystemPrompt: string[];
     advancedMode: boolean;
 }
 
@@ -51,11 +51,11 @@ export const DEFAULT_SETTINGS: CerebroSettings = {
     headingLevel: 3,
     inferTitleLanguage: "English",
 
-    defaultModel: "openai:gpt-4o-mini",
+    defaultModel: { alias: "claude-3-5-sonnet", name: "claude-3-5-sonnet-20241022", provider: "anthropic" } satisfies ModelConfig,
     defaultStream: true,
     defaultTemperature: 0.7,
     defaultMaxTokens: 1024,
-    defaultSystemPrompt: "I am a helpful assistant.",
+    defaultSystemPrompt: ["I am a helpful assistant."],
     advancedMode: false,
 };
 

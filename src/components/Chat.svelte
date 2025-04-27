@@ -61,5 +61,5 @@
 
 <div id="cerebro-chat-view" class="flex flex-col size-full overflow-hidden">
     <MessageDisplay {incomingMessage} {isStreaming} messages={messageStore.messages} />
-    <Toolbar {sendMessage} {isStreaming} messages={messageStore.messages} {selectedText} />
+    <Toolbar {sendMessage} {isStreaming} {chatProperties} messages={messageStore.messages} {selectedText} />
 </div>

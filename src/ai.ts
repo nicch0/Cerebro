@@ -3,18 +3,30 @@ import * as deepseek from "@ai-sdk/deepseek";
 import * as google from "@ai-sdk/google";
 import * as openai from "@ai-sdk/openai";
 import * as xai from "@ai-sdk/xai";
-import { createProviderRegistry, generateText, type Provider, type ProviderRegistryProvider, streamText } from "ai";
+import { createProviderRegistry, generateText, type Provider, streamText } from "ai";
 import { CerebroMessages } from "./constants";
-import { getTextOnlyContent } from "./helpers";
+import { getTextOnlyContent, modelToKey } from "./helpers";
 import { logger } from "./logger";
 import { type CerebroSettings } from "./settings";
-import type { ChatFrontmatter, ChatProperty, Message } from "./types";
+import type { ChatFrontmatter, ChatProperty, Message, ModelConfig } from "./types";
 
 // Define mapping between ChatFrontmatter properties and their default values in CerebroSettings
 interface DefaultsMapping {
     frontmatterKey: keyof ChatFrontmatter & keyof ChatProperty;
     settingsKey: keyof CerebroSettings;
 }
+
+export const AVAILABLE_MODELS: ModelConfig[] = [
+    { name: "gpt-4o-mini", provider: "openai" },
+    { name: "gpt-4o", provider: "openai" },
+    { name: "o1", provider: "openai" },
+    { name: "o1-mini", provider: "openai" },
+    { name: "o3-mini", provider: "openai" },
+    { alias: "claude-3-7", name: "claude-3-7-sonnet-20250219", provider: "anthropic" },
+    { alias: "claude-3-5-sonnet", name: "claude-3-5-sonnet-20241022", provider: "anthropic" },
+    { alias: "claude-3-5-haiku", name: "claude-3-5-haiku-20241022", provider: "anthropic" },
+];
+
 
 export const MODEL_PROPERTY_NAME = "model";
 
@@ -178,7 +190,7 @@ export class AI {
         const finishReason: string | null | undefined = null;
 
         try {
-            const model = this.providerRegistry.languageModel(callSettings.model);
+            const model = this.providerRegistry.languageModel(modelToKey(callSettings.model));
 
             const { textStream } = streamText({
                 model,
@@ -233,7 +245,7 @@ export class AI {
             throw new Error("Model not found");
         }
 
-        const model = this.providerRegistry.languageModel(callSettings.model);
+        const model = this.providerRegistry.languageModel(modelToKey(callSettings.model));
         const textMessages = getTextOnlyContent(messages);
         const textJson = JSON.stringify(textMessages);
         const INFER_TITLE_PROMPT = `Infer title from the summary of the content of these messages. The title **cannot** contain any of the following characters: colon, back slash or forward slash. Just return the title. Write the title in ${inferTitleLanguage}. \nMessages:\n\n${textJson}`;
@@ -255,4 +267,7 @@ export class AI {
         }
         return sanitizeTitle(title);
     }
+}
+function originalAnthropic(arg0: string): any {
+    throw new Error("Function not implemented.");
 }

@@ -19,8 +19,10 @@ export class ChatView extends ItemView {
         this.plugin = plugin;
         const chatProperties = $state({
             title: "",
-            model: "openai:gpt-4",
-            system: ["You are a helpful assistant"],
+            model: this.plugin.settings.defaultModel,
+            system: this.plugin.settings.defaultSystemPrompt,
+            temperature: this.plugin.settings.defaultTemperature,
+            maxTokens: this.plugin.settings.defaultMaxTokens,
         });
         this.chatProperties = chatProperties;
         const messageStore = createMessageStore();
