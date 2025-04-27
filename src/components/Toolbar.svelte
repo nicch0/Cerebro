@@ -63,12 +63,12 @@
 
 <div
     id="cerebro-toolbar"
-    class="bg-background border-solid rounded-lg border-border border px-2 drop-shadow-lg bottom-0 w-full overflow-visible"
+    class="bg-background border-solid rounded-lg border-border border p-2 drop-shadow-lg bottom-0 w-full overflow-visible"
 >
     <Textarea
         bind:value={prompt}
         placeholder={toolbarPlaceholder}
-        class="flex-1 h-20 bg-background border-none shadow-none text-base leading-6 resize-none outline-none focus-visible:ring-0 placeholder:text-small placeholder:text-muted"
+        class="flex-1 h-20 bg-background border-none shadow-none text-base leading-6 resize-none outline-none hover:bg-transparent focus-visible:outline-none focus-visible:ring-0 placeholder:text-small placeholder:text-muted"
         onkeydown={handleKeydown}
     />
 
@@ -89,16 +89,6 @@
             </DropdownMenu.Root>
         </div>
 
-        <Button variant="ghost" size="icon">
-            <Paperclip class="size-4" />
-            <span class="sr-only">Attach file</span>
-        </Button>
-
-        <Button variant="ghost" size="icon">
-            <Mic class="size-4" />
-            <span class="sr-only">Use Microphone</span>
-        </Button>
-
         <Button variant="ghost" size="icon" onclick={toggleSearch}>
             <Globe class="size-4" />
             <span class="sr-only">Search</span>
@@ -109,8 +99,18 @@
             <span class="sr-only">Think</span>
         </Button>
 
+        <div class="ml-auto gap-1.5 flex flex-row">
+        <Button variant="ghost" size="icon">
+            <Paperclip class="size-4" />
+            <span class="sr-only">Attach file</span>
+        </Button>
+
+        <Button variant="ghost" size="icon">
+            <Mic class="size-4" />
+            <span class="sr-only">Use Microphone</span>
+        </Button>
+
         <Button
-            class="ml-auto gap-1.5"
             variant="default"
             size="icon"
             onclick={completeUserResponse}
@@ -118,5 +118,7 @@
         >
             <ArrowUp />
         </Button>
+
+        </div>
     </div>
 </div>

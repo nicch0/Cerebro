@@ -9,7 +9,7 @@
             variant: {
                 default:
                     "bg-interactive-accent text-on-accent hover:bg-opacity-100 hover:bg-interactive-accent-hover hover:text-on-accent shadow",
-                ghost: "bg-transparent text-faint clickable-icon hover:bg-opacity-100 hover:text-normal hover:bg-transparent outline-none focus-visible:outline-none focus-visible:text-normal focus-visible:ring-0",
+                ghost: "bg-transparent border-none text-faint clickable-icon hover:bg-opacity-100 hover:text-normal hover:bg-transparent outline-none focus-visible:outline-none focus-visible:text-normal focus-visible:ring-0",
                 secondary: "bg-secondary text-muted shadow-sm hover:bg-interactive-hover shadow",
                 outline:
                     "border-input bg-background hover:bg-accent hover:text-accent-foreground border",
