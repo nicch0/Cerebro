@@ -142,16 +142,6 @@ export class SettingsTab extends PluginSettingTab {
                     });
             });
 
-        // stream toggle
-        new Setting(containerEl)
-            .setName("Stream")
-            .setDesc("Stream responses from Cerebro")
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.defaultStream).onChange(async (value) => {
-                    this.plugin.settings.defaultStream = value;
-                    await this.plugin.saveSettings();
-                }),
-            );
 
         // Temperature slider
         new Setting(containerEl)

@@ -66,7 +66,7 @@
 
 <div
     id="cerebro-toolbar"
-    class="bg-background border-solid rounded-lg border-border border p-2 drop-shadow-lg bottom-0 w-full overflow-visible"
+    class="bg-background border-solid rounded-lg border-border border py-2 px-1 drop-shadow-lg bottom-0 w-full overflow-visible"
 >
     <Textarea
         bind:value={prompt}
