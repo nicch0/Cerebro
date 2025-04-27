@@ -1,4 +1,5 @@
 <script lang="ts">
+   	import { marked } from "marked";
     import type { Message } from "@/types";
     import ChatMessageList from "@/components/ui/chat/chat-message-list.svelte";
     import { ChatBubble } from "@/components/ui/chat/chat-bubble";
@@ -16,7 +17,7 @@
 {#snippet chatBubble(variant, layout, message)}
     <ChatBubble {variant} {layout}>
         <ChatBubbleMessage {variant}>
-            {message.content}
+            {@html marked(message.content)}
         </ChatBubbleMessage>
     </ChatBubble>
 {/snippet}
