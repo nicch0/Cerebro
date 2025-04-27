@@ -7,8 +7,7 @@ import {
     TFile,
     Vault,
 } from "obsidian";
-import { MODEL_PROPERTY_NAME } from "./ai";
-import { AVAILABLE_MODELS } from "./constants";
+import { AVAILABLE_MODELS, MODEL_PROPERTY_NAME } from "./ai";
 import { logger } from "./logger";
 import type { CerebroSettings } from "./settings";
 import {
@@ -17,6 +16,7 @@ import {
     ImageExtensionToMimeType,
     type ImageMessageContent,
     type Message,
+    type ModelConfig,
     PDFFileExtension,
     TextFileExtension,
     type TextMessageContent,
@@ -203,19 +203,24 @@ export const getTextOnlyContent = (messages: Message[]): Message[] => {
 };
 
 // Helper function to create dropdown options from available models
-export const getModelOptions = () => {
+export const getModelOptions = (): Record<string, string> => {
     const options: Record<string, string> = {};
 
-    Object.entries(AVAILABLE_MODELS).forEach(([provider, models]) => {
-        models.forEach((model) => {
-            const key = `${provider.toLowerCase()}:${model}`;
-            // Format the display text to be more readable
-            const displayText = `${provider} - ${model}`;
-            options[key] = displayText;
-        });
+    AVAILABLE_MODELS.forEach(({provider, alias, name}) => {
+        const key = `${provider}:${name}`;
+        const displayText = `${provider}:${alias || name}`;
+        options[key] = displayText;
     });
 
     return options;
+};
+
+export const findModelByKey = (key: string): ModelConfig | undefined => {
+    return AVAILABLE_MODELS.find((model) => `${model.provider}:${model.name}` === key);
+};
+
+export const modelToKey = (model: ModelConfig): string => {
+    return `${model.provider}:${model.name}`;
 };
 
 export const getMetaMatter = (app: App, file: TFile): FrontMatterCache | undefined => {

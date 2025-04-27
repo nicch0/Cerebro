@@ -1,6 +1,7 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
-import { getModelOptions } from "../helpers";
+import { findModelByKey, getModelOptions } from "../helpers";
 import Cerebro from "../main";
+import type { ModelConfig } from "@/types";
 
 export class SettingsTab extends PluginSettingTab {
     private plugin: Cerebro;
@@ -126,15 +127,17 @@ export class SettingsTab extends PluginSettingTab {
             text: "Model Settings",
         });
 
+        const { provider: defaultProvider, name: defaultModelName } = this.plugin.settings.defaultModel;
         new Setting(containerEl)
             .setName("Default model")
             .setDesc("Default model to use for new chats")
             .addDropdown((dropdown) => {
                 dropdown
                     .addOptions(getModelOptions())
-                    .setValue(this.plugin.settings.defaultModel)
-                    .onChange(async (value) => {
-                        this.plugin.settings.defaultModel = value;
+                    .setValue(`${defaultProvider}:${defaultModelName}`)
+                    .onChange(async (key: string) => {
+                        const model = findModelByKey(key) as ModelConfig;
+                        this.plugin.settings.defaultModel = model;
                         await this.plugin.saveSettings();
                     });
             });
@@ -189,27 +192,27 @@ export class SettingsTab extends PluginSettingTab {
             .setDesc("Default instructions given to the model for all new chats.")
             .addTextArea((textArea) =>
                 textArea
-                    .setValue(this.plugin.settings.defaultSystemPrompt || "")
+                    .setValue(this.plugin.settings.defaultSystemPrompt.join("\n") || "")
                     .onChange(async (value) => {
-                        this.plugin.settings.defaultSystemPrompt = value;
+                        this.plugin.settings.defaultSystemPrompt = value.split("\n");
                         await this.plugin.saveSettings();
                     }),
             );
 
-        // Advanced mode toggle
-        new Setting(containerEl)
-            .setName("Advanced Mode")
-            .setDesc(
-                "When enabled, all model parameters will be exposed in the properties of new notes",
-            )
-            .addToggle((toggle) =>
-                toggle
-                    .setValue(this.plugin.settings.advancedMode || false)
-                    .onChange(async (value) => {
-                        this.plugin.settings.advancedMode = value;
-                        await this.plugin.saveSettings();
-                    }),
-            );
+        // // Advanced mode toggle
+        // new Setting(containerEl)
+        //     .setName("Advanced Mode")
+        //     .setDesc(
+        //         "When enabled, all model parameters will be exposed in the properties of new notes",
+        //     )
+        //     .addToggle((toggle) =>
+        //         toggle
+        //             .setValue(this.plugin.settings.advancedMode || false)
+        //             .onChange(async (value) => {
+        //                 this.plugin.settings.advancedMode = value;
+        //                 await this.plugin.saveSettings();
+        //             }),
+        //     );
 
         containerEl.createEl("h2", {
             text: "API Keys",
