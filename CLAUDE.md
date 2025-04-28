@@ -73,11 +73,50 @@
 - Pass streaming state to all components that need it
 - Use the `$state()` and `$derived()` for reactive state management
 
-## Testing Strategy
+### State Management
 
-### UI Changes
+- Create stores using factory functions that return an object with state and methods
+- Use getters for read-only access to state
+- Use explicit update methods for modifying state
+- Pass store objects down through props, not individual pieces of state
+- Use `$derived()` to create computed values from store state
 
+## TypeScript Best Practices
+
+### Factory Functions and Type Safety
+
+- Use factory functions to create stores with encapsulated state
+- Export types using `ReturnType<typeof factoryFunction>` for automatic type syncing
+- Define interfaces explicitly when you want a stable contract
+- Use `ReturnType` when you want types to automatically update with implementation
+
+### Method Binding and Callbacks
+
+- Use arrow functions for callbacks to preserve `this` context
+- When passing object methods as callbacks, use `() => this.method()` to preserve context
+- Alternative: Use `.bind(this)` on methods to explicitly bind context
+- For async callbacks, ensure you maintain the Promise chain
+
+### Typing Best Practices
+
+- Use `!` (definite assignment assertion) when you know a property will be initialized
+- Use getters to control access to internal state
+- Add explicit return types to functions for better documentation
+- Use type inference where appropriate to reduce redundancy
+- Use `readonly` properties to prevent accidental mutation
+
+### Svelte Component Patterns
+
+- Props are read-only, never modify them directly
+- Use stores for shared state that needs to be modified
+- Pass store objects, not just individual properties
+- Use callbacks for communication up the component tree
+- Use `$derived()` for computed values to avoid redundant calculations
+
+## UI Changes
 - Don't run the dev command, alert the user to verify the changes
+
+## Testing Strategy
 
 ### Unit Tests
 
