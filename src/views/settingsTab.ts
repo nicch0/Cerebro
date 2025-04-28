@@ -73,8 +73,8 @@ export class SettingsTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
-            .setName("Infer title language")
-            .setDesc("Language to use for title inference.")
+            .setName("Title Language")
+            .setDesc("Language to use when Cerebro creates title")
             .addDropdown((dropdown) => {
                 dropdown.addOptions({
                     English: "English",
@@ -93,21 +93,6 @@ export class SettingsTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 });
             });
-
-        // heading level
-        new Setting(containerEl)
-            .setName("Heading Level")
-            .setDesc(
-                "Heading level for messages (example for heading level 2: '## role::user'). Valid heading levels are 0, 1, 2, 3, 4, 5, 6",
-            )
-            .addText((text) =>
-                text
-                    .setValue(this.plugin.settings.headingLevel.toString())
-                    .onChange(async (value) => {
-                        this.plugin.settings.headingLevel = parseInt(value);
-                        await this.plugin.saveSettings();
-                    }),
-            );
 
         // date format for chat files
         new Setting(containerEl)
@@ -151,8 +136,8 @@ export class SettingsTab extends PluginSettingTab {
             )
             .addSlider((slider) =>
                 slider
-                    .setLimits(0, 2, 0.1)
-                    .setValue(this.plugin.settings.defaultTemperature || 0.7)
+                    .setLimits(0, 1.0, 0.1)
+                    .setValue(this.plugin.settings.defaultTemperature)
                     .setDynamicTooltip()
                     .onChange(async (value) => {
                         this.plugin.settings.defaultTemperature = value;
