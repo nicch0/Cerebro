@@ -32,7 +32,6 @@ export type ModelConfig = {
     alias?: string;
 };
 
-
 export type ChatProperty = CallSettings & {
     title: string;
     model?: ModelConfig;
@@ -91,7 +90,11 @@ export type MessageContent =
     | string
     | Array<TextMessageContent | ImageMessageContent | DocumentMessageContent>;
 
-export type Message = { role: string; content: MessageContent };
+export type Message = {
+    id?: number;
+    role: string;
+    content: MessageContent;
+};
 
 // Interface for CM6 editor view
 export interface EditorWithCM6 extends Editor {

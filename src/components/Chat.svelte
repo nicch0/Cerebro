@@ -22,9 +22,9 @@
     });
     let isStreaming = $state(false);
 
-    const sendMessage = async (message: Message) => {
+    const sendMessage = async ({ role, content }: { role: string; content: string }) => {
         // Update messages store with user message
-        messageStore.push(message);
+        messageStore.push(role, content);
 
         // Reset incoming message and mark as streaming
         incomingMessage.content = "";
@@ -49,11 +49,11 @@
 
             // Add the final message to the messages store
             // Use the fullResponse instead of incomingMessage
-            messageStore.push(fullResponse);
+            messageStore.push(fullResponse.role, fullResponse.content);
 
             // Clear the incoming message after pushing to the messages store
             incomingMessage.content = "";
-        } catch (error) {
+        } catch (   error) {
             console.error("Error in chat:", error);
         }
     };
@@ -61,5 +61,11 @@
 
 <div id="cerebro-chat-view" class="flex flex-col size-full overflow-hidden">
     <MessageDisplay {incomingMessage} {isStreaming} messages={messageStore.messages} />
-    <Toolbar {sendMessage} {isStreaming} {chatProperties} messages={messageStore.messages} {selectedText} />
+    <Toolbar
+        {sendMessage}
+        {isStreaming}
+        {chatProperties}
+        messages={messageStore.messages}
+        {selectedText}
+    />
 </div>

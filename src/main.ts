@@ -1,4 +1,3 @@
-
 import { MarkdownView, Notice, Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import { AI } from "./ai";
 import { getCommands } from "./commands";

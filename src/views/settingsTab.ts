@@ -1,7 +1,7 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
+import type { ModelConfig } from "@/types";
 import { findModelByKey, getModelOptions } from "../helpers";
 import Cerebro from "../main";
-import type { ModelConfig } from "@/types";
 
 export class SettingsTab extends PluginSettingTab {
     private plugin: Cerebro;
@@ -127,7 +127,8 @@ export class SettingsTab extends PluginSettingTab {
             text: "Model Settings",
         });
 
-        const { provider: defaultProvider, name: defaultModelName } = this.plugin.settings.defaultModel;
+        const { provider: defaultProvider, name: defaultModelName } =
+            this.plugin.settings.defaultModel;
         new Setting(containerEl)
             .setName("Default model")
             .setDesc("Default model to use for new chats")
@@ -141,7 +142,6 @@ export class SettingsTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     });
             });
-
 
         // Temperature slider
         new Setting(containerEl)
