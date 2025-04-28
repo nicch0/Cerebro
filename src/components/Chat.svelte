@@ -53,7 +53,7 @@
 
             // Clear the incoming message after pushing to the messages store
             incomingMessage.content = "";
-        } catch (   error) {
+        } catch (error) {
             console.error("Error in chat:", error);
         }
     };

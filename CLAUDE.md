@@ -76,6 +76,7 @@
 ## Testing Strategy
 
 ### UI Changes
+
 - Don't run the dev command, alert the user to verify the changes
 
 ### Unit Tests

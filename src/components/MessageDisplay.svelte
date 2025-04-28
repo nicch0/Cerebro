@@ -17,6 +17,7 @@
 {#snippet chatBubble(variant: string, layout: string, message: Message)}
     <ChatBubble {variant} {layout}>
         <ChatBubbleMessage {variant}>
+            <!-- TODO: Maybe only render the assistant's output? -->
             {@html marked(message.content)}
         </ChatBubbleMessage>
     </ChatBubble>
