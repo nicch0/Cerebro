@@ -59,13 +59,17 @@
     };
 </script>
 
-<div id="cerebro-chat-view" class="flex flex-col size-full overflow-hidden">
-    <MessageDisplay {incomingMessage} {isStreaming} messages={messageStore.messages} />
-    <Toolbar
-        {sendMessage}
-        {isStreaming}
-        {chatProperties}
-        messages={messageStore.messages}
-        {selectedText}
-    />
+<div id="cerebro-chat-view" class="flex flex-col size-full overflow-hidden relative">
+    <div class="overflow-auto flex-1">
+        <MessageDisplay {incomingMessage} {isStreaming} messages={messageStore.messages} />
+    </div>
+    <div class="sticky bottom-0 w-full">
+        <Toolbar
+            {sendMessage}
+            {isStreaming}
+            {chatProperties}
+            messages={messageStore.messages}
+            {selectedText}
+        />
+    </div>
 </div>
