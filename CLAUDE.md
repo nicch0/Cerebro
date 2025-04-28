@@ -114,6 +114,7 @@
 - Use `$derived()` for computed values to avoid redundant calculations
 
 ## UI Changes
+
 - Don't run the dev command, alert the user to verify the changes
 
 ## Testing Strategy

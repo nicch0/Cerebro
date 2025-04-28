@@ -71,8 +71,8 @@ export const DEFAULT_SETTINGS: CerebroSettings = {
         },
         temperature: 0.7,
         maxTokens: 1024,
-        system: ["I am a helpful assistant."]
-    }
+        system: ["I am a helpful assistant."],
+    },
 };
 
 export const generateChatFrontmatter = (settings: CerebroSettings): string => {
