@@ -123,12 +123,12 @@ export class AI {
     }
 
     private resolveChatParameters(
-        chatProperties: ConversationParameters,
+        convoParams: ConversationParameters,
         settings: CerebroSettings,
     ): ConversationParameters {
         // Create a new ChatFrontmatter object with the original properties
         const finalChatParams: ConversationParameters = {
-            ...chatProperties,
+            ...convoParams,
         };
 
         // Apply all defaults from the settings object
@@ -175,7 +175,7 @@ export class AI {
 
     private async streamResponse(
         messages: any[],
-        {temperature, maxTokens, system, model: modelConfig}: ConversationParameters,
+        { temperature, maxTokens, system, model: modelConfig }: ConversationParameters,
         onChunk?: (chunk: string) => void,
     ): Promise<{
         fullResponse: string;
@@ -227,7 +227,7 @@ export class AI {
     public async inferTitle(
         messages: Message[],
         inferTitleLanguage: string,
-        chatProperties: ConversationParameters,
+        convoParams: ConversationParameters,
         settings: CerebroSettings,
     ): Promise<string> {
         const sanitizeTitle = (title: string): string => {
@@ -238,7 +238,7 @@ export class AI {
                 .trim();
         };
 
-        const callSettings = this.resolveChatParameters(chatProperties, settings);
+        const callSettings = this.resolveChatParameters(convoParams, settings);
 
         if (!callSettings.model) {
             throw new Error("Model not found");

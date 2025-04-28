@@ -1,19 +1,18 @@
-import { type IconName, ItemView, TFile, WorkspaceLeaf } from "obsidian";
-import { mount, unmount } from "svelte";
 import Chat from "@/components/Chat.svelte";
-import { createMessageStore, type MessageStore } from "@/components/messages.svelte";
-import type Cerebro from "@/main";
-import type { ConversationParameters } from "@/types";
-import { validateAndCreateChatFolder } from "@/utils/chatCreation";
 import { getDate, modelToKey } from "@/helpers";
-import { generateChatFrontmatter } from "@/settings";
+import type Cerebro from "@/main";
+import { createConversationStore, type ConversationStore } from "@/stores/convoParams.svelte";
+import { createMessageStore, type MessageStore } from "@/stores/messages.svelte";
+import { validateAndCreateChatFolder } from "@/utils/chatCreation";
+import { ItemView, TFile, WorkspaceLeaf, type IconName } from "obsidian";
+import { mount, unmount } from "svelte";
 
 export const CEREBRO_CHAT_VIEW = "cerebro-chat-view";
 
 export class ChatView extends ItemView {
     public component: ReturnType<typeof Chat> | undefined;
     private plugin: Cerebro;
-    private conversationParams: ConversationParameters;
+    private convoStore: ConversationStore;
     private messageStore: MessageStore;
     private selectedText: string | undefined;
     private file!: TFile;
@@ -40,7 +39,7 @@ export class ChatView extends ItemView {
             view.file = file;
         } else {
             view.file = await view.createNewChatFile();
-            view.saveFrontmatter(view.conversationParams);
+            view.saveFrontmatter();
         }
 
         return view;
@@ -54,18 +53,16 @@ export class ChatView extends ItemView {
         super(leaf);
         this.plugin = plugin;
 
-        const conversationParams = $state({
+        // Create conversation store with initial values and save callback
+        this.convoStore = createConversationStore({
             title: "",
             model: this.plugin.settings.defaults.model,
             system: this.plugin.settings.defaults.system,
             temperature: this.plugin.settings.defaults.temperature,
             maxTokens: this.plugin.settings.defaults.maxTokens,
         });
-        this.conversationParams = conversationParams;
 
-        const messageStore = createMessageStore();
-        this.messageStore = messageStore;
-
+        this.messageStore = createMessageStore();
         this.selectedText = selectedText;
     }
 
@@ -89,6 +86,7 @@ export class ChatView extends ItemView {
         if (!file) {
             throw new Error("Failed to create chat file");
         }
+
         return file;
     }
 
@@ -97,8 +95,8 @@ export class ChatView extends ItemView {
     }
 
     public getDisplayText(): string {
-        return this.conversationParams.title
-            ? `Cerebro: ${this.conversationParams.title}`
+        return this.convoStore.params.title
+            ? `Cerebro: ${this.convoStore.params.title}`
             : "Cerebro";
     }
 
@@ -107,27 +105,31 @@ export class ChatView extends ItemView {
     }
 
     public async onOpen(): Promise<void> {
+        const { ai, settings } = this.plugin;
+        const { convoStore, messageStore, selectedText } = this;
+
         this.component = mount(Chat, {
             target: this.contentEl,
             props: {
-                ai: this.plugin.ai,
-                // TODO: Abstract this to Svelte shared state so that its REACTIVE!
-                settings: this.plugin.settings,
-                chatProperties: this.conversationParams,
-                messageStore: this.messageStore,
-                selectedText: this.selectedText,
+                ai,
+                settings,
+                convoStore,
+                messageStore,
+                selectedText,
             },
         });
     }
 
     public async onClose(): Promise<void> {
-        // TODO: Save to file before closing
+        // Save frontmatter before closing
+        await this.saveFrontmatter();
         if (this.component) {
             unmount(this.component);
         }
     }
 
-    public async saveFrontmatter(params: ConversationParameters) {
+    private async saveFrontmatter(): Promise<void> {
+        const params = this.convoStore.params;
         await this.plugin.app.fileManager.processFrontMatter(this.file, (frontmatter) => {
             frontmatter["system"] = params.system;
             frontmatter["temperature"] = params.temperature;
