@@ -3,21 +3,21 @@
     import { Textarea } from "@/components/ui/textarea";
     import * as DropdownMenu from "@/components/ui/dropdown-menu";
     import { Paperclip, ArrowUp, Globe, Brain, ChevronDown, Mic } from "@lucide/svelte";
-    import type { ConversationParameters, Message, ModelConfig } from "@/types";
+    import type { Message, ModelConfig } from "@/types";
     import { Platform } from "obsidian";
     import { AVAILABLE_MODELS } from "@/ai";
     import { modelToKey } from "@/helpers";
+    import type { ConversationStore } from "@/stores/convoParams.svelte";
 
     interface ToolbarProps {
         sendMessage: (message: { role: string; content: string }) => void;
         isStreaming: boolean;
         messages: Message[];
         selectedText: string | undefined;
-        chatProperties: ConversationParameters;
+        convoStore: ConversationStore;
     }
 
-    let { sendMessage, isStreaming, messages, selectedText, chatProperties }: ToolbarProps =
-        $props();
+    let { sendMessage, isStreaming, messages, selectedText, convoStore }: ToolbarProps = $props();
 
     let prompt: string = $state("");
 
@@ -26,13 +26,17 @@
     }
     let searchEnabled: boolean = $state(false);
     let thinkEnabled: boolean = $state(false);
-    let selectedModel: ModelConfig = $state(chatProperties.model);
+    
+    // Using derived to get the current model from the store
+    const selectedModel = $derived(convoStore.params.model);
+    
     const toolbarPlaceholder = $derived(
         messages.length === 0 ? "How can I help you today?" : "Type your message here...",
     );
 
     const changeSelectedModel = (model: ModelConfig) => {
-        selectedModel = model;
+        // Call the store's update method
+        convoStore.updateModel(model);
     };
 
     const toggleSearch = () => {

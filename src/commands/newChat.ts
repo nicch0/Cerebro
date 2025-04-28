@@ -18,7 +18,7 @@ const createChat = async (plugin: Cerebro, chatInMainEditor: boolean) => {
         }
         await openView(plugin, chatInMainEditor, selectedText);
     } catch (e) {
-        logger.error(`[Cerebro] Error when creating new chat`, e);
+        logger.error(`[Cerebro] Error when creating new chat`, e.message);
         new Notice(
             `[Cerebro] Error while creating new chat. See console for more details. ${e.message}`,
             ERROR_NOTICE_TIMEOUT_MILLISECONDS,

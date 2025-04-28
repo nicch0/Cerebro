@@ -1,11 +1,6 @@
 import type { Message, MessageContent } from "@/types";
 
-export type MessageStore = {
-    messages: Message[];
-    push: (role: string, content: MessageContent) => Message;
-};
-
-export function createMessageStore(): MessageStore {
+export const createMessageStore = () => {
     const messages: Message[] = $state([]);
     let nextId: number = $state(0);
 
@@ -20,4 +15,6 @@ export function createMessageStore(): MessageStore {
             return msg;
         },
     };
-}
+};
+
+export type MessageStore = ReturnType<typeof createMessageStore>;
