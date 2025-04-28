@@ -26,10 +26,10 @@
     }
     let searchEnabled: boolean = $state(false);
     let thinkEnabled: boolean = $state(false);
-    
+
     // Using derived to get the current model from the store
     const selectedModel = $derived(convoStore.params.model);
-    
+
     const toolbarPlaceholder = $derived(
         messages.length === 0 ? "How can I help you today?" : "Type your message here...",
     );

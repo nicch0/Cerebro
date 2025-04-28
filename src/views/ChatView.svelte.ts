@@ -1,11 +1,11 @@
+import { type IconName,ItemView, TFile, WorkspaceLeaf } from "obsidian";
+import { mount, unmount } from "svelte";
 import Chat from "@/components/Chat.svelte";
 import { getDate, modelToKey } from "@/helpers";
 import type Cerebro from "@/main";
-import { createConversationStore, type ConversationStore } from "@/stores/convoParams.svelte";
+import { type ConversationStore,createConversationStore } from "@/stores/convoParams.svelte";
 import { createMessageStore, type MessageStore } from "@/stores/messages.svelte";
 import { validateAndCreateChatFolder } from "@/utils/chatCreation";
-import { ItemView, TFile, WorkspaceLeaf, type IconName } from "obsidian";
-import { mount, unmount } from "svelte";
 
 export const CEREBRO_CHAT_VIEW = "cerebro-chat-view";
 
@@ -131,10 +131,10 @@ export class ChatView extends ItemView {
     private async saveFrontmatter(): Promise<void> {
         const params = this.convoStore.params;
         await this.plugin.app.fileManager.processFrontMatter(this.file, (frontmatter) => {
-            frontmatter["system"] = params.system;
-            frontmatter["temperature"] = params.temperature;
-            frontmatter["maxTokens"] = params.maxTokens;
-            frontmatter["model"] = modelToKey(params.model);
+            frontmatter.system = params.system;
+            frontmatter.temperature = params.temperature;
+            frontmatter.maxTokens = params.maxTokens;
+            frontmatter.model = modelToKey(params.model);
         });
     }
 }
