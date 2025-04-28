@@ -1,12 +1,11 @@
 <script lang="ts" module>
     import type { WithElementRef } from "bits-ui";
-    import type { Snippet } from "svelte";
     import type { SvelteHTMLElements } from "svelte/elements";
     import { type VariantProps, tv } from "tailwind-variants";
     import MessageLoading from "../message-loading.svelte";
 
     export const chatBubbleMessageVariants = tv({
-        base: "p-4",
+        base: "p-4 select-text",
         variants: {
             variant: {
                 received: "bg-secondary text-secondary-foreground rounded-r-lg rounded-tl-lg",
