@@ -8,11 +8,11 @@ import { CerebroMessages } from "./constants";
 import { getTextOnlyContent, modelToKey } from "./helpers";
 import { logger } from "./logger";
 import { type CerebroSettings } from "./settings";
-import type { ChatFrontmatter, ChatProperty, Message, ModelConfig } from "./types";
+import type { ChatFrontmatter, ConversationParameters, Message, ModelConfig } from "./types";
 
 // Define mapping between ChatFrontmatter properties and their default values in CerebroSettings
 interface DefaultsMapping {
-    frontmatterKey: keyof ChatFrontmatter & keyof ChatProperty;
+    frontmatterKey: keyof ChatFrontmatter & keyof ConversationParameters;
     settingsKey: keyof CerebroSettings;
 }
 
@@ -123,11 +123,11 @@ export class AI {
     }
 
     private resolveChatParameters(
-        chatProperties: ChatProperty,
+        chatProperties: ConversationParameters,
         settings: CerebroSettings,
-    ): ChatProperty {
+    ): ConversationParameters {
         // Create a new ChatFrontmatter object with the original properties
-        const finalChatParams: ChatProperty = {
+        const finalChatParams: ConversationParameters = {
             ...chatProperties,
         };
 
@@ -151,7 +151,7 @@ export class AI {
 
     public async chat(
         messages: Message[],
-        properties: ChatProperty,
+        properties: ConversationParameters,
         settings: CerebroSettings,
         onChunk?: (chunk: string) => void,
     ): Promise<Message> {
@@ -175,13 +175,13 @@ export class AI {
 
     private async streamResponse(
         messages: any[],
-        callSettings: ChatProperty,
+        {temperature, maxTokens, system, model: modelConfig}: ConversationParameters,
         onChunk?: (chunk: string) => void,
     ): Promise<{
         fullResponse: string;
         finishReason: string | null | undefined;
     }> {
-        if (!callSettings.model) {
+        if (!modelConfig) {
             throw new Error("Model not found");
         }
 
@@ -189,14 +189,14 @@ export class AI {
         const finishReason: string | null | undefined = null;
 
         try {
-            const model = this.providerRegistry.languageModel(modelToKey(callSettings.model));
+            const model = this.providerRegistry.languageModel(modelToKey(modelConfig));
 
             const { textStream } = streamText({
                 model,
                 messages,
-                temperature: callSettings.temperature,
-                maxTokens: callSettings.maxTokens,
-                system: callSettings.system?.join(""),
+                temperature,
+                maxTokens,
+                system: system?.join(""),
             });
 
             const reader = textStream.getReader();
@@ -227,7 +227,7 @@ export class AI {
     public async inferTitle(
         messages: Message[],
         inferTitleLanguage: string,
-        chatProperties: ChatProperty,
+        chatProperties: ConversationParameters,
         settings: CerebroSettings,
     ): Promise<string> {
         const sanitizeTitle = (title: string): string => {
@@ -266,7 +266,4 @@ export class AI {
         }
         return sanitizeTitle(title);
     }
-}
-function originalAnthropic(arg0: string): any {
-    throw new Error("Function not implemented.");
 }

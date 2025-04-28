@@ -7,7 +7,15 @@ import { openView } from "../utils/chatCreation";
 const createChat = async (plugin: Cerebro, chatInMainEditor: boolean) => {
     try {
         const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
+
+        // Optionally include user's current text if selected
         const selectedText = activeView?.editor?.getSelection() || "";
+
+        // Create a new file if chat folder exists
+        if (!plugin.settings.chatFolder) {
+            new Notice("No chat folder is set. Creating a new chat without a file.");
+            return;
+        }
         await openView(plugin, chatInMainEditor, selectedText);
     } catch (e) {
         logger.error(`[Cerebro] Error when creating new chat`, e);

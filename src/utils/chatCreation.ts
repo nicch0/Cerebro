@@ -6,7 +6,7 @@ import { generateChatFrontmatter } from "../settings";
 
 export const validateAndCreateChatFolder = async (plugin: Cerebro): Promise<boolean> => {
     if (!plugin.settings.chatFolder || plugin.settings.chatFolder.trim() === "") {
-        new Notice("No chat folder value found. Please set one in settings.");
+        new Notice("No chat folder specified. Please set one in settings.");
         return false;
     }
 
@@ -18,9 +18,7 @@ export const validateAndCreateChatFolder = async (plugin: Cerebro): Promise<bool
             plugin.settings.chatFolder,
         );
         if (!result) {
-            new Notice(
-                "[Cerebro] No chat folder found. One must be created to use plugin. Set one in settings and make sure it exists.",
-            );
+            new Notice("No chat folder found. Please set one in settings.");
             return false;
         }
     }
@@ -43,6 +41,7 @@ export const createNewChatFile = async (
 
     const frontmatter = generateChatFrontmatter(plugin.settings);
     const fileContent = `${frontmatter}${selectedText}\n`;
+
     return plugin.app.vault.create(filePath, fileContent);
 };
 
@@ -59,7 +58,8 @@ export const openView = async (
     if (!leaf) {
         return;
     }
-    const newView = new ChatView(leaf, plugin, selectedText);
+
+    const newView = await ChatView.create(leaf, plugin, selectedText);
     leaf.open(newView);
     workspace.revealLeaf(leaf);
 };

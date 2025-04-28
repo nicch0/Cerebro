@@ -3,7 +3,7 @@
     import { Textarea } from "@/components/ui/textarea";
     import * as DropdownMenu from "@/components/ui/dropdown-menu";
     import { Paperclip, ArrowUp, Globe, Brain, ChevronDown, Mic } from "@lucide/svelte";
-    import type { ChatProperty, Message, ModelConfig } from "@/types";
+    import type { ConversationParameters, Message, ModelConfig } from "@/types";
     import { Platform } from "obsidian";
     import { AVAILABLE_MODELS } from "@/ai";
     import { modelToKey } from "@/helpers";
@@ -13,7 +13,7 @@
         isStreaming: boolean;
         messages: Message[];
         selectedText: string | undefined;
-        chatProperties: ChatProperty;
+        chatProperties: ConversationParameters;
     }
 
     let { sendMessage, isStreaming, messages, selectedText, chatProperties }: ToolbarProps =
