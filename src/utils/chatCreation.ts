@@ -1,12 +1,12 @@
-import { MarkdownView, Notice, TFile, WorkspaceLeaf } from "obsidian";
-import { CEREBRO_CHAT_VIEW, ChatView } from "@/views/ChatView.svelte";
+import { Notice, TFile, WorkspaceLeaf } from "obsidian";
+import { ChatView } from "@/views/ChatView.svelte";
 import { createFolderModal, getDate } from "../helpers";
 import Cerebro from "../main";
 import { generateChatFrontmatter } from "../settings";
 
 export const validateAndCreateChatFolder = async (plugin: Cerebro): Promise<boolean> => {
     if (!plugin.settings.chatFolder || plugin.settings.chatFolder.trim() === "") {
-        new Notice("[Cerebro] No chat folder value found. Please set one in settings.");
+        new Notice("No chat folder value found. Please set one in settings.");
         return false;
     }
 
@@ -44,46 +44,6 @@ export const createNewChatFile = async (
     const frontmatter = generateChatFrontmatter(plugin.settings);
     const fileContent = `${frontmatter}${selectedText}\n`;
     return plugin.app.vault.create(filePath, fileContent);
-};
-
-export const openInMainEditor = async (plugin: Cerebro, newFile: TFile): Promise<void> => {
-    await plugin.app.workspace.openLinkText(newFile.basename, "", true, {
-        state: { mode: "source" },
-    });
-
-    const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
-    if (!activeView) {
-        new Notice("No active markdown editor found.");
-        return;
-    }
-
-    activeView.editor.focus();
-    const chat = plugin.chatInterfaceManager.getChatInView(activeView);
-    chat.moveCursorToEndOfFile();
-};
-
-export const openInSidebar = async (plugin: Cerebro, newFile: TFile): Promise<void> => {
-    const leaf = plugin.app.workspace.getRightLeaf(false);
-    if (!leaf) {
-        return;
-    }
-
-    await leaf.setViewState({
-        type: "markdown",
-        state: {
-            file: newFile.path,
-            mode: "source",
-        },
-    });
-
-    plugin.app.workspace.revealLeaf(leaf);
-
-    const sidebarView = leaf.view as MarkdownView;
-    if (sidebarView && sidebarView.editor) {
-        sidebarView.editor.focus();
-        const chat = plugin.chatInterfaceManager.getChatInView(sidebarView);
-        chat.moveCursorToEndOfFile();
-    }
 };
 
 export const openView = async (
