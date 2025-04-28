@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { DivableProps } from "../../../types.js";
     import { ArrowDown } from "@lucide/svelte";
-    import autoscroll from "./hooks/use_autoscroll.svelte.js";
+    import autoscroll from "./hooks/use_autoscroll.svelte";
     type ChatMessageListProps = DivableProps & {
         smooth?: boolean;
     };
@@ -17,7 +17,7 @@
 <div class="relative h-full w-full">
     <div
         bind:this={ref}
-        use:autoscroll
+        use:autoscroll={{ pauseOnUserScroll: true, behavior: smooth ? "smooth" : "auto" }}
         class={["flex h-full w-full flex-col overflow-y-auto p-4", className]}
         {...restProps}
     >

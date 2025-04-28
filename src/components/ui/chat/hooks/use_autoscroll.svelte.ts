@@ -1,9 +1,16 @@
+type AutoscrollOptions = {
+    pauseOnUserScroll?: boolean;
+};
+
 export default function autoscroll(
-    node,
-    options = {
+    node: HTMLElement,
+    options: AutoscrollOptions & ScrollOptions = {
         behavior: "smooth",
     },
-) {
+): {
+    update({ pauseOnUserScroll, behavior }: AutoscrollOptions & ScrollOptions): void;
+    destroy(): void;
+} {
     const forbiddenOverflows = ["visible", "hidden"];
     if (
         forbiddenOverflows.includes(getComputedStyle(node).overflowX) &&
@@ -17,19 +24,25 @@ export default function autoscroll(
         behavior: "smooth",
         ...options,
     };
-    const scroll = () => {
+    const scroll = (): void => {
         node.scrollTo({
             top: node.scrollHeight,
             left: node.scrollWidth,
             ...scrollOptions,
-        });
+        } as ScrollToOptions);
     };
     // for when children change sizes
     const resizeObserver = new ResizeObserver(() => {
-        scroll();
+        // Only auto-scroll if we're already at the bottom (within a small threshold)
+        const isAtBottom = node.scrollTop + node.clientHeight >= node.scrollHeight - 10;
+        if (isAtBottom) {
+            scroll();
+        }
     });
     // for when children are added or removed/subtree changes
     const mutationObserver = new MutationObserver(() => {
+        // Always scroll when messages are added - this is for new messages
+        // For chat applications, we usually want scrolling when content is added
         scroll();
     });
     const observeAll = () => {
@@ -52,7 +65,7 @@ export default function autoscroll(
         node.addEventListener("scroll", handleScroll);
     }
     return {
-        update({ pauseOnUserScroll, behavior }) {
+        update({ pauseOnUserScroll, behaviour }): void {
             if (pauseOnUserScroll) {
                 node.addEventListener("scroll", handleScroll);
                 mutationObserver.disconnect();
@@ -62,7 +75,7 @@ export default function autoscroll(
                 observeAll();
             }
         },
-        destroy() {
+        destroy(): void {
             if (mutationObserver) {
                 mutationObserver.disconnect();
             }
