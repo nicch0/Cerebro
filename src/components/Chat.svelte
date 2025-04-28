@@ -2,14 +2,14 @@
     import Toolbar from "@/components/Toolbar.svelte";
     import MessageDisplay from "@/components/MessageDisplay.svelte";
     import { type MessageStore } from "./messages.svelte";
-    import type { ChatProperty, Message } from "@/types";
+    import type { ConversationParameters, Message } from "@/types";
     import type { AI } from "@/ai";
     import type { CerebroSettings } from "@/settings";
 
     interface ChatProps {
         ai: AI;
         settings: CerebroSettings;
-        chatProperties: ChatProperty;
+        chatProperties: ConversationParameters;
         messageStore: MessageStore;
         selectedText: string | undefined;
     }

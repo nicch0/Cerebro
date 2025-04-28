@@ -1,5 +1,4 @@
 import { App, Editor, type EditorPosition, MarkdownView, TFile } from "obsidian";
-import ChatToolbar from "./components/toolbar";
 import {
     assistantHeader,
     CSSAssets,
@@ -157,7 +156,6 @@ export default class ChatInterface {
     private _plugin: Cerebro;
     private _editor: Editor;
     public view: MarkdownView;
-    public toolbar: ChatToolbar;
     public stopStreaming = false;
     public userScrolling = false;
 
@@ -166,24 +164,9 @@ export default class ChatInterface {
     constructor(plugin: Cerebro, view: MarkdownView) {
         this._plugin = plugin;
         this.view = view;
-        this.toolbar = new ChatToolbar(this._plugin, this);
         this._editor = view.editor;
         this.initScrollTracking();
         this.moveCursorToEndOfFile();
-    }
-
-    get isToolbarVisible(): boolean {
-        return this.toolbar.visible;
-    }
-
-    set isToolbarVisible(value: boolean) {
-        this.toolbar.visible = value;
-    }
-
-    public showToolbar() {
-        if (!this.isToolbarVisible) {
-            this.toolbar.show();
-        }
     }
 
     private initScrollTracking(): void {

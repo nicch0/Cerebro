@@ -32,10 +32,10 @@ export type ModelConfig = {
     alias?: string;
 };
 
-export type ChatProperty = CallSettings & {
+export type ConversationParameters = CallSettings & {
     title: string;
-    model?: ModelConfig;
-    system?: string[];
+    model: ModelConfig;
+    system: string[];
 };
 
 export enum TextFileExtension {

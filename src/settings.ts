@@ -1,4 +1,4 @@
-import { MODEL_PROPERTY_NAME, PROPERTY_MAPPINGS } from "./ai";
+import { modelToKey } from "./helpers";
 import type { ModelConfig, Provider } from "./types";
 
 export interface ProviderSettings {
@@ -14,13 +14,17 @@ export interface CerebroSettings {
     autoInferTitle: boolean;
     dateFormat: string;
     inferTitleLanguage: string;
-
+    defaults: {
+        model: ModelConfig;
+        temperature: number;
+        maxTokens: number;
+        system: string[];
+    };
     defaultModel: ModelConfig;
     defaultStream: boolean;
     defaultTemperature: number;
     defaultMaxTokens: number;
     defaultSystemPrompt: string[];
-    advancedMode: boolean;
 }
 
 export const DEFAULT_SETTINGS: CerebroSettings = {
@@ -58,26 +62,24 @@ export const DEFAULT_SETTINGS: CerebroSettings = {
     defaultTemperature: 0.7,
     defaultMaxTokens: 1024,
     defaultSystemPrompt: ["I am a helpful assistant."],
-    advancedMode: false,
+
+    defaults: {
+        model: {
+            alias: "claude-3-5-sonnet",
+            name: "claude-3-5-sonnet-20241022",
+            provider: "anthropic",
+        },
+        temperature: 0.7,
+        maxTokens: 1024,
+        system: ["I am a helpful assistant."]
+    }
 };
 
 export const generateChatFrontmatter = (settings: CerebroSettings): string => {
-    if (!settings.advancedMode) {
-        // Original simple behavior
-        return `---${MODEL_PROPERTY_NAME}: ${settings.defaultModel}\n---\n`;
-    }
-
-    // Advanced mode: include all parameters from property mappings
-    const yamlLines = PROPERTY_MAPPINGS.map((mapping) => {
-        const value = settings[mapping.settingsKey];
-
-        // Handle different types of values
-        const formattedValue = typeof value === "string" ? `"${value}"` : value;
-        return `${mapping.frontmatterKey}: ${formattedValue}`;
-    });
-
-    // Add other settings not part of the regular mappings
-    yamlLines.push(`system_prompt: "${settings.defaultSystemPrompt}"`);
-
+    const yamlLines = [];
+    yamlLines.push(`temperature: ${settings.defaults.temperature}`);
+    yamlLines.push(`maxTokens: ${settings.defaults.maxTokens}`);
+    yamlLines.push(`system: ${settings.defaults.system}`);
+    yamlLines.push(`model: ${modelToKey(settings.defaults.model)}`);
     return `---\n${yamlLines.join("\n")}\n---\n`;
 };
