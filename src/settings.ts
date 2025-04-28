@@ -13,7 +13,6 @@ export interface CerebroSettings {
     chatFolder: string;
     autoInferTitle: boolean;
     dateFormat: string;
-    headingLevel: number;
     inferTitleLanguage: string;
 
     defaultModel: ModelConfig;
@@ -48,7 +47,6 @@ export const DEFAULT_SETTINGS: CerebroSettings = {
     chatFolder: "Cerebro/Chats",
     autoInferTitle: true,
     dateFormat: "YYYY-MM-DD-hhmmss",
-    headingLevel: 3,
     inferTitleLanguage: "English",
 
     defaultModel: {
