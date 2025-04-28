@@ -206,7 +206,7 @@ export const getTextOnlyContent = (messages: Message[]): Message[] => {
 export const getModelOptions = (): Record<string, string> => {
     const options: Record<string, string> = {};
 
-    AVAILABLE_MODELS.forEach(({provider, alias, name}) => {
+    AVAILABLE_MODELS.forEach(({ provider, alias, name }) => {
         const key = `${provider}:${name}`;
         const displayText = `${provider}:${alias || name}`;
         options[key] = displayText;

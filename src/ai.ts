@@ -27,7 +27,6 @@ export const AVAILABLE_MODELS: ModelConfig[] = [
     { alias: "claude-3-5-haiku", name: "claude-3-5-haiku-20241022", provider: "anthropic" },
 ];
 
-
 export const MODEL_PROPERTY_NAME = "model";
 
 export const PROPERTY_MAPPINGS: DefaultsMapping[] = [
@@ -81,7 +80,7 @@ export class AI {
         }
 
         return createProviderRegistry(providerConfig);
-    };
+    }
 
     private formatMessagesForProvider(messages: Message[]): any[] {
         return messages.map((msg) => {

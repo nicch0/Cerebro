@@ -1,5 +1,5 @@
 <script lang="ts">
-   	import { marked } from "marked";
+    import { marked } from "marked";
     import type { Message } from "@/types";
     import ChatMessageList from "@/components/ui/chat/chat-message-list.svelte";
     import { ChatBubble } from "@/components/ui/chat/chat-bubble";
@@ -14,7 +14,7 @@
     let { incomingMessage, isStreaming, messages }: MessageDisplayProps = $props();
 </script>
 
-{#snippet chatBubble(variant, layout, message)}
+{#snippet chatBubble(variant: string, layout: string, message: Message)}
     <ChatBubble {variant} {layout}>
         <ChatBubbleMessage {variant}>
             {@html marked(message.content)}
@@ -23,7 +23,7 @@
 {/snippet}
 
 <ChatMessageList>
-    {#each messages as message}
+    {#each messages as message (message?.id)}
         {#if message.role === "user"}
             {@render chatBubble("sent", "default", message)}
         {:else}

@@ -9,14 +9,15 @@
     import { modelToKey } from "@/helpers";
 
     interface ToolbarProps {
-        sendMessage: (message: Message) => void;
+        sendMessage: (message: { role: string; content: string }) => void;
         isStreaming: boolean;
         messages: Message[];
-        selectedText: string;
+        selectedText: string | undefined;
         chatProperties: ChatProperty;
     }
 
-    let { sendMessage, isStreaming, messages, selectedText, chatProperties }: ToolbarProps = $props();
+    let { sendMessage, isStreaming, messages, selectedText, chatProperties }: ToolbarProps =
+        $props();
 
     let prompt: string = $state("");
 
@@ -32,7 +33,7 @@
 
     const changeSelectedModel = (model: ModelConfig) => {
         selectedModel = model;
-    }
+    };
 
     const toggleSearch = () => {
         searchEnabled = !searchEnabled;
@@ -79,14 +80,20 @@
         <div class="flex flex-wrap justify-start items-center">
             <DropdownMenu.Root>
                 <DropdownMenu.Trigger>
-                    <span>{selectedModel.provider}: {selectedModel.alias || selectedModel.name}</span>
+                    <span
+                        >{selectedModel.provider}: {selectedModel.alias || selectedModel.name}</span
+                    >
                     <ChevronDown />
                 </DropdownMenu.Trigger>
                 <!-- TODO: Split model providers into groups -->
                 <DropdownMenu.Content class="bg-dropdown">
                     <DropdownMenu.Group>
                         {#each AVAILABLE_MODELS as model (modelToKey(model))}
-                            <DropdownMenu.Item textValue={modelToKey(model)} onSelect={() => changeSelectedModel(model)}>{model.provider}: {model.alias || model.name}</DropdownMenu.Item>
+                            <DropdownMenu.Item
+                                textValue={modelToKey(model)}
+                                onSelect={() => changeSelectedModel(model)}
+                                >{model.provider}: {model.alias || model.name}</DropdownMenu.Item
+                            >
                         {/each}
                     </DropdownMenu.Group>
                 </DropdownMenu.Content>
@@ -104,25 +111,24 @@
         </Button>
 
         <div class="ml-auto gap-1.5 flex flex-row">
-        <Button variant="ghost" size="icon">
-            <Paperclip class="size-4" />
-            <span class="sr-only">Attach file</span>
-        </Button>
+            <Button variant="ghost" size="icon">
+                <Paperclip class="size-4" />
+                <span class="sr-only">Attach file</span>
+            </Button>
 
-        <Button variant="ghost" size="icon">
-            <Mic class="size-4" />
-            <span class="sr-only">Use Microphone</span>
-        </Button>
+            <Button variant="ghost" size="icon">
+                <Mic class="size-4" />
+                <span class="sr-only">Use Microphone</span>
+            </Button>
 
-        <Button
-            variant="default"
-            size="icon"
-            onclick={completeUserResponse}
-            disabled={isStreaming || prompt.trim().length === 0}
-        >
-            <ArrowUp />
-        </Button>
-
+            <Button
+                variant="default"
+                size="icon"
+                onclick={completeUserResponse}
+                disabled={isStreaming || prompt.trim().length === 0}
+            >
+                <ArrowUp />
+            </Button>
         </div>
     </div>
 </div>

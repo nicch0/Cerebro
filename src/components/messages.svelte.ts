@@ -1,27 +1,23 @@
-import type { Message } from "@/types";
+import type { Message, MessageContent } from "@/types";
 
-// const messages: Message[] = $state([]);
-
-// export const pushMessage = (newMessage: Message): void => {
-//     messages.push(newMessage);
-// };
-
-// export const getMessages = (): Message[] => {
-//     return messages;
-// };
-//
 export type MessageStore = {
     messages: Message[];
-    push: (newMessage: Message) => number;
+    push: (role: string, content: MessageContent) => Message;
 };
 
 export function createMessageStore(): MessageStore {
     const messages: Message[] = $state([]);
+    let nextId: number = $state(0);
 
     return {
         get messages(): Message[] {
             return messages;
         },
-        push: (newMessage: Message): number => messages.push(newMessage),
+        push: (role: string, content: MessageContent): Message => {
+            const msg = { id: nextId, role, content } satisfies Message;
+            messages.push(msg);
+            nextId += 1;
+            return msg;
+        },
     };
 }

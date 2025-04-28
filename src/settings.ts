@@ -51,7 +51,11 @@ export const DEFAULT_SETTINGS: CerebroSettings = {
     headingLevel: 3,
     inferTitleLanguage: "English",
 
-    defaultModel: { alias: "claude-3-5-sonnet", name: "claude-3-5-sonnet-20241022", provider: "anthropic" } satisfies ModelConfig,
+    defaultModel: {
+        alias: "claude-3-5-sonnet",
+        name: "claude-3-5-sonnet-20241022",
+        provider: "anthropic",
+    } satisfies ModelConfig,
     defaultStream: true,
     defaultTemperature: 0.7,
     defaultMaxTokens: 1024,
