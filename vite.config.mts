@@ -1,7 +1,7 @@
-import { type UserConfig, defineConfig } from "vite";
-import path from "path";
-import builtins from "builtin-modules";
 import { svelte, vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+import builtins from "builtin-modules";
+import path from "path";
+import { type UserConfig, defineConfig } from "vite";
 
 export default defineConfig(async ({ mode }) => {
     const { resolve } = path;

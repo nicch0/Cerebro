@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { readFileSync, writeFileSync } from "fs";
 import { execSync } from "child_process";
+import { readFileSync, writeFileSync } from "fs";
 
 // Get command line arguments
 const newVersion = process.argv[2];
