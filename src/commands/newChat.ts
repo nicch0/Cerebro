@@ -1,41 +1,17 @@
-import { type Command, MarkdownView, Notice } from "obsidian";
-import { ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "../constants";
-import { logger } from "../logger";
+import { type Command } from "obsidian";
+import { openChat } from "../chat";
 import Cerebro from "../main";
-import { openView } from "../utils/chatCreation";
-
-export const createChat = async (plugin: Cerebro, chatInMainEditor: boolean) => {
-    try {
-        const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
-
-        // Optionally include user's current text if selected
-        const selectedText = activeView?.editor?.getSelection() || "";
-
-        // Create a new file if chat folder exists
-        if (!plugin.settings.chatFolder) {
-            new Notice("No chat folder is set. Creating a new chat without a file.");
-            return;
-        }
-        await openView(plugin, chatInMainEditor, selectedText);
-    } catch (e) {
-        logger.error(`[Cerebro] Error when creating new chat`, e.message);
-        new Notice(
-            `[Cerebro] Error while creating new chat. See console for more details. ${e.message}`,
-            ERROR_NOTICE_TIMEOUT_MILLISECONDS,
-        );
-    }
-};
 
 export const createNewChatCommand = (plugin: Cerebro): Command => ({
     id: "cerebro-create-new-chat",
     name: "New Chat",
     icon: "message-square-plus",
-    callback: async () => createChat(plugin, true),
+    callback: async () => openChat(plugin, true),
 });
 
 export const createNewChatInSidebarCommand = (plugin: Cerebro): Command => ({
     id: "cerebro-create-new-chat-in-sidebar",
     name: "New Chat in Sidebar",
     icon: "panel-right",
-    callback: async () => createChat(plugin, false),
+    callback: async () => openChat(plugin, false),
 });

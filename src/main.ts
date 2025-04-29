@@ -1,7 +1,7 @@
 import { MarkdownView, Notice, Platform, Plugin } from "obsidian";
 import { AI } from "./ai";
+import { openChat } from "./chat";
 import { getCommands } from "./commands";
-import { createChat } from "./commands/newChat";
 import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "./constants";
 import { isTitleTimestampFormat, writeInferredTitleToEditor } from "./helpers";
 import { logger } from "./logger";
@@ -31,7 +31,7 @@ export default class Cerebro extends Plugin {
         this.registerView(CEREBRO_CHAT_VIEW, (leaf) => new ChatView(leaf, this));
 
         this.addRibbonIcon("brain-circuit", "Open Cerebro", () => {
-            createChat(this, true);
+            openChat(this, true);
         });
     }
 

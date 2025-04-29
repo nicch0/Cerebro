@@ -9,6 +9,7 @@ import {
 } from "obsidian";
 import { AVAILABLE_MODELS, MODEL_PROPERTY_NAME } from "./ai";
 import { logger } from "./logger";
+import type Cerebro from "./main";
 import type { CerebroSettings } from "./settings";
 import {
     type DocumentMessageContent,
@@ -21,7 +22,45 @@ import {
     TextFileExtension,
     type TextMessageContent,
 } from "./types";
-import { FolderCreationModal } from "./views/folderCreation";
+import { FolderCreationModal } from "./views/folderCreationModal";
+
+export const checkForChatFolderCreation = async (plugin: Cerebro) => {
+    if (!plugin.settings.chatFolder || plugin.settings.chatFolder.trim() === "") {
+        new Notice("No chat folder value found. Please set one in settings.");
+        return;
+    }
+
+    if (!(await plugin.app.vault.adapter.exists(plugin.settings.chatFolder))) {
+        const result = await createFolderModal(
+            plugin.app,
+            plugin.app.vault,
+            "chat folder",
+            plugin.settings.chatFolder,
+        );
+        if (!result) {
+            new Notice("No chat folder found. Please set one in settings.");
+            return;
+        }
+    }
+
+    if (!plugin.settings.chatTemplateFolder || plugin.settings.chatTemplateFolder.trim() === "") {
+        new Notice("No chat template folder found. Please set one in settings.");
+        return;
+    }
+
+    if (!(await plugin.app.vault.adapter.exists(plugin.settings.chatTemplateFolder))) {
+        const result = await createFolderModal(
+            plugin.app,
+            plugin.app.vault,
+            "template folder",
+            plugin.settings.chatTemplateFolder,
+        );
+        if (!result) {
+            new Notice("No chat template folder found. Please set one in settings.");
+            return;
+        }
+    }
+};
 
 export const unfinishedCodeBlock = (txt: string): boolean => {
     /**
@@ -72,10 +111,10 @@ export const writeInferredTitleToEditor = async (
 export const createFolderModal = async (
     app: App,
     vault: Vault,
-    folderName: string,
+    folderDisplayName: string,
     folderPath: string,
 ): Promise<boolean> => {
-    const folderCreationModal = new FolderCreationModal(app, folderName, folderPath);
+    const folderCreationModal = new FolderCreationModal(app, folderDisplayName, folderPath);
 
     folderCreationModal.open();
     const result = await folderCreationModal.waitForModalValue();
