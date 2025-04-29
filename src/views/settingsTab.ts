@@ -1,5 +1,5 @@
-import type { ModelConfig } from "@/types";
 import { App, PluginSettingTab, Setting } from "obsidian";
+import type { ModelConfig } from "@/types";
 import { findModelByKey, getModelOptions } from "../helpers";
 import Cerebro from "../main";
 

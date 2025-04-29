@@ -1,7 +1,7 @@
+import { type Command, Notice } from "obsidian";
 import { ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "@/constants";
 import { logger } from "@/logger";
 import type Cerebro from "@/main";
-import { type Command, Notice } from "obsidian";
 
 export const loadExistingChatCommand = (plugin: Cerebro): Command => ({
     id: "cerebro-load-chat",

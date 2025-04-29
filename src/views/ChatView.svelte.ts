@@ -4,6 +4,7 @@ import { logger } from "@/logger";
 import type Cerebro from "@/main";
 import { type ConversationStore, createConversationStore } from "@/stores/convoParams.svelte";
 import { createMessageStore, type MessageStore } from "@/stores/messages.svelte";
+import { createNewChatFile } from "@/utils/chatCreation";
 import { type IconName, ItemView, TFile, WorkspaceLeaf } from "obsidian";
 import { mount, unmount } from "svelte";
 
@@ -70,14 +71,66 @@ export class ChatView extends ItemView {
     }
 
     public async onClose(): Promise<void> {
-        if (this.file) {
-            // Save frontmatter before closing
-            await this.saveFrontmatter(this.file);
+        let file = this.file;
+        if (!file) {
+            const newFile = await createNewChatFile(this.plugin);
+            if (!newFile) {
+                return;
+            }
+            file = newFile;
         }
+
+        // Save contents to file
+        this.saveToFile(file);
+
         if (this.component) {
             unmount(this.component);
         }
         logger.debug("[Cerebro] Conversation saved successfully!");
+    }
+
+    private async saveToFile(file: TFile): Promise<void> {
+        await this.writeMessagesToFile(file);
+        await this.saveFrontmatter(file);
+    }
+
+    private async writeMessagesToFile(file: TFile): Promise<void> {
+        const messages = this.messageStore.messages;
+        if (messages.length === 0) {
+            return;
+        }
+
+        const content = messages
+            .map((message) => {
+                const role = message.role;
+
+                const prefix = role === "user" ? "###### cerebro:user" : "###### cerebro:assistant";
+
+                // Convert message content to markdown text
+                let messageText = "";
+                if (typeof message.content === "string") {
+                    messageText = message.content;
+                } else if (Array.isArray(message.content)) {
+                    // Handle content arrays (text, images, documents)
+                    for (const part of message.content) {
+                        if (part.type === "text") {
+                            messageText += part.text;
+                        } else if (part.type === "image") {
+                            // Add a reference to the image
+                            messageText += `\n![Image](${part.originalPath || "image"})\n`;
+                        } else if (part.type === "document") {
+                            // Add a reference to the document
+                            messageText += `\n[Document](${part.originalPath || "document"})\n`;
+                        }
+                    }
+                }
+
+                return `${prefix}\n${messageText}\n`;
+            })
+            .join("");
+
+        // Directly write the content to the file - frontmatter will be added/updated after
+        await this.plugin.app.vault.modify(file, content);
     }
 
     private async saveFrontmatter(file: TFile): Promise<void> {
