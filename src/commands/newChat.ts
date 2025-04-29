@@ -2,9 +2,9 @@ import { type Command, MarkdownView, Notice } from "obsidian";
 import { ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "../constants";
 import { logger } from "../logger";
 import Cerebro from "../main";
-import { openView } from "../utils/chatCreation";
+import { createNewChatFile, openView } from "../utils/chatCreation";
 
-const createChat = async (plugin: Cerebro, chatInMainEditor: boolean) => {
+export const createChat = async (plugin: Cerebro, chatInMainEditor: boolean) => {
     try {
         const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
 
@@ -16,7 +16,11 @@ const createChat = async (plugin: Cerebro, chatInMainEditor: boolean) => {
             new Notice("No chat folder is set. Creating a new chat without a file.");
             return;
         }
-        await openView(plugin, chatInMainEditor, selectedText);
+        const file = await createNewChatFile(plugin);
+        if (!file) {
+            return;
+        }
+        await openView(plugin, chatInMainEditor, selectedText, file);
     } catch (e) {
         logger.error(`[Cerebro] Error when creating new chat`, e.message);
         new Notice(

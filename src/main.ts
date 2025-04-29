@@ -1,6 +1,7 @@
-import { MarkdownView, Notice, Platform, Plugin, WorkspaceLeaf } from "obsidian";
+import { MarkdownView, Notice, Platform, Plugin } from "obsidian";
 import { AI } from "./ai";
 import { getCommands } from "./commands";
+import { createChat } from "./commands/newChat";
 import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "./constants";
 import { isTitleTimestampFormat, writeInferredTitleToEditor } from "./helpers";
 import { logger } from "./logger";
@@ -28,32 +29,10 @@ export default class Cerebro extends Plugin {
         const commands = getCommands(this);
         commands.forEach((command) => this.addCommand(command));
         this.registerView(CEREBRO_CHAT_VIEW, (leaf) => new ChatView(leaf, this));
+
         this.addRibbonIcon("brain-circuit", "Open Cerebro", () => {
-            this.activateView();
+            createChat(this, true);
         });
-    }
-
-    public async activateView(): Promise<void> {
-        const { workspace } = this.app;
-
-        let leaf: WorkspaceLeaf | null = null;
-        const leaves = workspace.getLeavesOfType(CEREBRO_CHAT_VIEW);
-
-        if (leaves.length > 0) {
-            // A leaf with our view already exists, use that
-            leaf = leaves[0];
-        } else {
-            // Our view could not be found in the workspace, create a new leaf
-            // in the right sidebar for it
-            leaf = workspace.getRightLeaf(false);
-            if (!leaf) {
-                return;
-            }
-            await leaf.setViewState({ type: CEREBRO_CHAT_VIEW, active: true });
-        }
-
-        // "Reveal" the leaf in case it is in a collapsed sidebar
-        workspace.revealLeaf(leaf);
     }
 
     public async handleTitleInference(
