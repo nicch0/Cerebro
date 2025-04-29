@@ -1,3 +1,5 @@
+import { type IconName, ItemView, TFile, WorkspaceLeaf } from "obsidian";
+import { mount, unmount } from "svelte";
 import Chat from "@/components/Chat.svelte";
 import { modelToKey } from "@/helpers";
 import { logger } from "@/logger";
@@ -5,8 +7,6 @@ import type Cerebro from "@/main";
 import { type ConversationStore, createConversationStore } from "@/stores/convoParams.svelte";
 import { createMessageStore, type MessageStore } from "@/stores/messages.svelte";
 import { createNewChatFile } from "@/utils/chatCreation";
-import { type IconName, ItemView, TFile, WorkspaceLeaf } from "obsidian";
-import { mount, unmount } from "svelte";
 
 export const CEREBRO_CHAT_VIEW = "cerebro-chat-view";
 
