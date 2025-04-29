@@ -25,7 +25,7 @@
 
     const sendMessage = async ({ role, content }: { role: string; content: string }) => {
         // Update messages store with user message
-        messageStore.push(role, content);
+        messageStore.addMessage(role, content);
 
         // Reset incoming message and mark as streaming
         incomingMessage.content = "";
@@ -50,7 +50,7 @@
 
             // Add the final message to the messages store
             // Use the fullResponse instead of incomingMessage
-            messageStore.push(fullResponse.role, fullResponse.content);
+            messageStore.addMessage(fullResponse.role, fullResponse.content);
 
             // Clear the incoming message after pushing to the messages store
             incomingMessage.content = "";

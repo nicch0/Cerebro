@@ -1,8 +1,7 @@
-import { Notice, TFile, WorkspaceLeaf } from "obsidian";
 import { ChatView } from "@/views/ChatView.svelte";
+import { Notice, TFile, WorkspaceLeaf } from "obsidian";
 import { createFolderModal, getDate } from "../helpers";
 import Cerebro from "../main";
-import { generateChatFrontmatter } from "../settings";
 
 export const validateAndCreateChatFolder = async (plugin: Cerebro): Promise<boolean> => {
     if (!plugin.settings.chatFolder || plugin.settings.chatFolder.trim() === "") {
@@ -25,13 +24,14 @@ export const validateAndCreateChatFolder = async (plugin: Cerebro): Promise<bool
     return true;
 };
 
-export const createNewChatFile = async (
-    plugin: Cerebro,
-    selectedText: string,
-): Promise<TFile | null> => {
+/**
+ * Create a new chat file with frontmatter
+ * @returns
+ */
+export const createNewChatFile = async (plugin: Cerebro): Promise<TFile | null> => {
     const folderValid = await validateAndCreateChatFolder(plugin);
     if (!folderValid) {
-        return null;
+        throw new Error("Failed to create chat folder");
     }
 
     const filePath = `${plugin.settings.chatFolder}/${getDate(
@@ -39,16 +39,20 @@ export const createNewChatFile = async (
         plugin.settings.dateFormat,
     )}.md`;
 
-    const frontmatter = generateChatFrontmatter(plugin.settings);
-    const fileContent = `${frontmatter}${selectedText}\n`;
+    const file = plugin.app.vault.create(filePath, "");
 
-    return plugin.app.vault.create(filePath, fileContent);
+    if (!file) {
+        throw new Error("Failed to create chat file");
+    }
+
+    return file;
 };
 
 export const openView = async (
     plugin: Cerebro,
     inMainEditor: boolean,
     selectedText?: string,
+    file?: TFile,
 ): Promise<void> => {
     const { workspace } = plugin.app;
 
@@ -59,7 +63,7 @@ export const openView = async (
         return;
     }
 
-    const newView = await ChatView.create(leaf, plugin, selectedText);
+    const newView = new ChatView(leaf, plugin, selectedText, file);
     leaf.open(newView);
     workspace.revealLeaf(leaf);
 };
