@@ -1,6 +1,6 @@
+import { marked } from "marked";
 import { logger } from "@/logger";
 import type { Message, MessageContent } from "@/types";
-import { marked } from "marked";
 
 // Centralized message format configuration
 export const MESSAGE_FORMAT = {
@@ -8,25 +8,27 @@ export const MESSAGE_FORMAT = {
     PREFIX: "cerebro:",
     USER_ROLE: "user",
     ASSISTANT_ROLE: "assistant",
-    
+
     // Helper functions to generate consistent formats
-    getUserHeader: (): string => 
+    getUserHeader: (): string =>
         `${"#".repeat(MESSAGE_FORMAT.HEADING_LEVEL)} ${MESSAGE_FORMAT.PREFIX}${MESSAGE_FORMAT.USER_ROLE}`,
-    
-    getAssistantHeader: (): string => 
+
+    getAssistantHeader: (): string =>
         `${"#".repeat(MESSAGE_FORMAT.HEADING_LEVEL)} ${MESSAGE_FORMAT.PREFIX}${MESSAGE_FORMAT.ASSISTANT_ROLE}`,
-    
-    getHeaderForRole: (role: string): string => 
-        role === MESSAGE_FORMAT.USER_ROLE 
-            ? MESSAGE_FORMAT.getUserHeader() 
+
+    getHeaderForRole: (role: string): string =>
+        role === MESSAGE_FORMAT.USER_ROLE
+            ? MESSAGE_FORMAT.getUserHeader()
             : MESSAGE_FORMAT.getAssistantHeader(),
-            
+
     getRoleFromHeader: (header: string): string | null => {
         const match = header.match(
-            new RegExp(`${MESSAGE_FORMAT.PREFIX}(${MESSAGE_FORMAT.USER_ROLE}|${MESSAGE_FORMAT.ASSISTANT_ROLE})`)
+            new RegExp(
+                `${MESSAGE_FORMAT.PREFIX}(${MESSAGE_FORMAT.USER_ROLE}|${MESSAGE_FORMAT.ASSISTANT_ROLE})`,
+            ),
         );
         return match ? match[1] : null;
-    }
+    },
 };
 
 interface ParsedMessage {
@@ -96,7 +98,7 @@ export const serializeMessagesToMarkdown = (messages: Message[]): string => {
     return messages
         .map((message) => {
             const headerLine = MESSAGE_FORMAT.getHeaderForRole(message.role);
-            
+
             // Convert message content to markdown text
             let messageText = "";
             if (typeof message.content === "string") {

@@ -2,9 +2,14 @@ import { MarkdownView, Notice, Platform, Plugin } from "obsidian";
 import { AI } from "./ai";
 import { openChat } from "./chat";
 import { getCommands } from "./commands";
-import { CerebroMessages, ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "./constants";
+import {
+    CEREBRO_LUCIDE_ICON,
+    CerebroMessages,
+    ERROR_NOTICE_TIMEOUT_MILLISECONDS,
+} from "./constants";
 import { isTitleTimestampFormat, writeInferredTitleToEditor } from "./helpers";
 import { logger } from "./logger";
+import { OverlayManager } from "./overlayManager";
 import { type CerebroSettings, DEFAULT_SETTINGS } from "./settings";
 import type { ChatFrontmatter, Message } from "./types";
 import { CEREBRO_CHAT_VIEW, ChatView } from "./views/ChatView.svelte";
@@ -14,6 +19,7 @@ export default class Cerebro extends Plugin {
     public settings!: CerebroSettings;
     public statusBar!: HTMLElement;
     public ai!: AI;
+    private overlayManager!: OverlayManager;
 
     public async onload(): Promise<void> {
         logger.debug("[Cerebro] Adding status bar");
@@ -28,10 +34,17 @@ export default class Cerebro extends Plugin {
         // Register all commands
         const commands = getCommands(this);
         commands.forEach((command) => this.addCommand(command));
-        this.registerView(CEREBRO_CHAT_VIEW, (leaf) => new ChatView(leaf, this));
 
-        this.addRibbonIcon("brain-circuit", "Open Cerebro", () => {
+        this.registerView(CEREBRO_CHAT_VIEW, (leaf) => new ChatView(leaf, this));
+        this.addRibbonIcon(CEREBRO_LUCIDE_ICON, "Open Cerebro", () => {
             openChat(this, true);
+        });
+
+        // Set up Cerebro overlay
+        this.overlayManager = new OverlayManager(this);
+
+        this.app.workspace.onLayoutReady(() => {
+            this.overlayManager.createButtonsInOpenViews();
         });
     }
 
@@ -91,5 +104,7 @@ export default class Cerebro extends Plugin {
 
     public async onunload(): Promise<void> {
         // TODO: Ensure all HTML elements are removed from the DOM
+        this.app.workspace.detachLeavesOfType(CEREBRO_CHAT_VIEW);
+        this.overlayManager.removeAll();
     }
 }
