@@ -1,12 +1,13 @@
-import { type IconName, ItemView, TFile, WorkspaceLeaf } from "obsidian";
-import { mount, unmount } from "svelte";
 import Chat from "@/components/Chat.svelte";
 import { modelToKey } from "@/helpers";
 import { logger } from "@/logger";
 import type Cerebro from "@/main";
 import { type ConversationStore, createConversationStore } from "@/stores/convoParams.svelte";
 import { createMessageStore, type MessageStore } from "@/stores/messages.svelte";
+import type { ConversationParameters } from "@/types";
 import { createNewChatFile } from "@/utils/chatCreation";
+import { type IconName, ItemView, TFile, WorkspaceLeaf } from "obsidian";
+import { mount, unmount } from "svelte";
 
 export const CEREBRO_CHAT_VIEW = "cerebro-chat-view";
 
@@ -37,6 +38,7 @@ export class ChatView extends ItemView {
 
         if (file) {
             this.file = file;
+            this.loadFromFile(this.file);
         }
     }
 
@@ -87,6 +89,76 @@ export class ChatView extends ItemView {
             unmount(this.component);
         }
         logger.debug("[Cerebro] Conversation saved successfully!");
+    }
+
+    public async loadFromFile(file: TFile): Promise<void> {
+        // Load frontmatter data
+        const frontmatter = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter;
+
+        if (frontmatter) {
+            // Create params object from frontmatter
+            const newParams: Partial<ConversationParameters> = {
+                system: frontmatter.system,
+                temperature: frontmatter.temperature,
+                maxTokens: frontmatter.maxTokens,
+                title: frontmatter.title || file.basename,
+            };
+
+            // Handle model - for now, use default model if model key is present
+            if (frontmatter.model) {
+                newParams.model = this.plugin.settings.defaults.model;
+                // Log that we found a model but couldn't load it properly
+                logger.debug(
+                    `[Cerebro] Found model ${frontmatter.model} but using default model instead`,
+                );
+            }
+
+            // Update all conversation parameters at once
+            this.convoStore.updateAll(newParams);
+        } else {
+            // No frontmatter, just use the filename as title
+            this.convoStore.updateTitle(file.basename);
+        }
+
+        // Load message content from file
+        try {
+            const fileContent = await this.plugin.app.vault.read(file);
+
+            // Skip frontmatter if it exists
+            let contentWithoutFrontmatter = fileContent;
+            const frontmatterMatch = fileContent.match(/^---\n[\s\S]*?\n---\n/);
+            if (frontmatterMatch) {
+                contentWithoutFrontmatter = fileContent.slice(frontmatterMatch[0].length);
+            }
+
+            // Reset message store to ensure we're starting fresh
+            this.messageStore.clearMessages();
+
+            // Parse the content for messages with the ###### cerebro:user or ###### cerebro:assistant format
+            const userHeaderRegex = /###### cerebro:user\n([\s\S]*?)(?=\n###### cerebro:|$)/g;
+            const assistantHeaderRegex =
+                /###### cerebro:assistant\n([\s\S]*?)(?=\n###### cerebro:|$)/g;
+
+            // Find all user messages
+            let match;
+            while ((match = userHeaderRegex.exec(contentWithoutFrontmatter)) !== null) {
+                const content = match[1].trim();
+                this.messageStore.addMessage("user", content);
+            }
+
+            // Find all assistant messages
+            while ((match = assistantHeaderRegex.exec(contentWithoutFrontmatter)) !== null) {
+                const content = match[1].trim();
+                this.messageStore.addMessage("assistant", content);
+            }
+
+            // Log the number of messages loaded
+            logger.debug(
+                `[Cerebro] Loaded ${this.messageStore.messages.length} messages from file`,
+            );
+        } catch (error) {
+            logger.error(`[Cerebro] Error loading file: ${error}`);
+        }
     }
 
     private async saveToFile(file: TFile): Promise<void> {

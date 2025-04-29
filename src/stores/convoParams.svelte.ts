@@ -8,7 +8,6 @@ export const createConversationStore = (initialParams: ConversationParameters) =
     // Core reactive state using Svelte 5 runes
     const params = $state({ ...initialParams });
 
-    // Methods for updating state as arrow functions
     const updateModel = (model: ModelConfig): void => {
         params.model = model;
     };
@@ -29,6 +28,15 @@ export const createConversationStore = (initialParams: ConversationParameters) =
         params.title = title;
     };
 
+    const updateAll = (newParams: Partial<ConversationParameters>): void => {
+        // Update only the provided parameters
+        if (newParams.model !== undefined) params.model = newParams.model;
+        if (newParams.system !== undefined) params.system = newParams.system;
+        if (newParams.temperature !== undefined) params.temperature = newParams.temperature;
+        if (newParams.maxTokens !== undefined) params.maxTokens = newParams.maxTokens;
+        if (newParams.title !== undefined) params.title = newParams.title;
+    };
+
     return {
         // Read-only access to state
         get params(): ConversationParameters {
@@ -41,6 +49,7 @@ export const createConversationStore = (initialParams: ConversationParameters) =
         updateTemperature,
         updateMaxTokens,
         updateTitle,
+        updateAll,
     };
 };
 
