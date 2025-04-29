@@ -6,6 +6,11 @@ import { type ConversationStore, createConversationStore } from "@/stores/convoP
 import { createMessageStore, type MessageStore } from "@/stores/messages.svelte";
 import type { ConversationParameters } from "@/types";
 import { createNewChatFile } from "@/utils/chatCreation";
+import {
+    convertToMessageContent,
+    parseConversationMarkdown,
+    serializeMessagesToMarkdown,
+} from "@/utils/markdownParser";
 import { type IconName, ItemView, TFile, WorkspaceLeaf } from "obsidian";
 import { mount, unmount } from "svelte";
 
@@ -134,22 +139,12 @@ export class ChatView extends ItemView {
             // Reset message store to ensure we're starting fresh
             this.messageStore.clearMessages();
 
-            // Parse the content for messages with the ###### cerebro:user or ###### cerebro:assistant format
-            const userHeaderRegex = /###### cerebro:user\n([\s\S]*?)(?=\n###### cerebro:|$)/g;
-            const assistantHeaderRegex =
-                /###### cerebro:assistant\n([\s\S]*?)(?=\n###### cerebro:|$)/g;
+            const parsedMessages = parseConversationMarkdown(contentWithoutFrontmatter);
 
-            // Find all user messages
-            let match;
-            while ((match = userHeaderRegex.exec(contentWithoutFrontmatter)) !== null) {
-                const content = match[1].trim();
-                this.messageStore.addMessage("user", content);
-            }
-
-            // Find all assistant messages
-            while ((match = assistantHeaderRegex.exec(contentWithoutFrontmatter)) !== null) {
-                const content = match[1].trim();
-                this.messageStore.addMessage("assistant", content);
+            // Add messages to the store
+            for (const message of parsedMessages) {
+                const messageContent = convertToMessageContent(message.content);
+                this.messageStore.addMessage(message.role, messageContent);
             }
 
             // Log the number of messages loaded
@@ -171,37 +166,7 @@ export class ChatView extends ItemView {
         if (messages.length === 0) {
             return;
         }
-
-        const content = messages
-            .map((message) => {
-                const role = message.role;
-
-                const prefix = role === "user" ? "###### cerebro:user" : "###### cerebro:assistant";
-
-                // Convert message content to markdown text
-                let messageText = "";
-                if (typeof message.content === "string") {
-                    messageText = message.content;
-                } else if (Array.isArray(message.content)) {
-                    // Handle content arrays (text, images, documents)
-                    for (const part of message.content) {
-                        if (part.type === "text") {
-                            messageText += part.text;
-                        } else if (part.type === "image") {
-                            // Add a reference to the image
-                            messageText += `\n![Image](${part.originalPath || "image"})\n`;
-                        } else if (part.type === "document") {
-                            // Add a reference to the document
-                            messageText += `\n[Document](${part.originalPath || "document"})\n`;
-                        }
-                    }
-                }
-
-                return `${prefix}\n${messageText}\n`;
-            })
-            .join("");
-
-        // Directly write the content to the file - frontmatter will be added/updated after
+        const content = serializeMessagesToMarkdown(messages);
         await this.plugin.app.vault.modify(file, content);
     }
 
