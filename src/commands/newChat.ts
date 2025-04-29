@@ -2,7 +2,7 @@ import { type Command, MarkdownView, Notice } from "obsidian";
 import { ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "../constants";
 import { logger } from "../logger";
 import Cerebro from "../main";
-import { createNewChatFile, openView } from "../utils/chatCreation";
+import { openView } from "../utils/chatCreation";
 
 export const createChat = async (plugin: Cerebro, chatInMainEditor: boolean) => {
     try {
@@ -16,11 +16,7 @@ export const createChat = async (plugin: Cerebro, chatInMainEditor: boolean) => 
             new Notice("No chat folder is set. Creating a new chat without a file.");
             return;
         }
-        const file = await createNewChatFile(plugin);
-        if (!file) {
-            return;
-        }
-        await openView(plugin, chatInMainEditor, selectedText, file);
+        await openView(plugin, chatInMainEditor, selectedText);
     } catch (e) {
         logger.error(`[Cerebro] Error when creating new chat`, e.message);
         new Notice(

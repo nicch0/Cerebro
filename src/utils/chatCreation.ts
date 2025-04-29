@@ -63,7 +63,7 @@ export const openView = async (
         return;
     }
 
-    const newView = new ChatView(leaf, plugin, selectedText, file);
+    const newView = new ChatView(leaf, plugin, selectedText);
     leaf.open(newView);
     workspace.revealLeaf(leaf);
 };
