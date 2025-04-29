@@ -1,4 +1,4 @@
-import { MarkdownView, Notice, Platform, Plugin } from "obsidian";
+import { MarkdownView, Notice, Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import { AI } from "./ai";
 import { openChat } from "./chat";
 import { getCommands } from "./commands";
@@ -46,6 +46,15 @@ export default class Cerebro extends Plugin {
         this.app.workspace.onLayoutReady(() => {
             this.overlayManager.createButtonsInOpenViews();
         });
+
+        this.registerEvent(
+            this.app.workspace.on("active-leaf-change", (leaf: WorkspaceLeaf | null) => {
+                if (!(leaf?.view instanceof MarkdownView)) return;
+                const view: MarkdownView = leaf.view as MarkdownView;
+                this.overlayManager.updateViewForOverlay(view);
+                this.overlayManager.handleActiveLeafChange(view);
+            }),
+        );
     }
 
     public async handleTitleInference(

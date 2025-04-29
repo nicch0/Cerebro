@@ -11,6 +11,36 @@ export class OverlayManager {
         this.overlays = new Map();
     }
 
+    public handleActiveLeafChange(view: MarkdownView) {
+        this._updateOverlayVisibility(view);
+    }
+
+    public updateViewForOverlay(view: MarkdownView) {
+        const overlay = this.getOverlayInView(view);
+        overlay.view = view;
+    }
+
+    private _updateOverlayVisibility(view: MarkdownView, isMetadataChange = false): void {
+        const overlay: Overlay = this.getOverlayInView(view);
+
+        // Update button visibility
+        overlay.toggleButton(true);
+    }
+
+    private _getViewId(view: MarkdownView): string {
+        // @ts-ignore:2239
+        return view.leaf.id;
+    }
+
+    private getOverlayInView(view: MarkdownView): Overlay {
+        const viewId: string = this._getViewId(view);
+        if (!this.overlays.has(viewId)) {
+            this.overlays.set(viewId, new Overlay(this.plugin, view));
+        }
+
+        return this.overlays.get(viewId)!;
+    }
+
     getVisibleMDViews(): MarkdownView[] {
         const views: MarkdownView[] = this.plugin.app.workspace
             .getLeavesOfType("markdown")
@@ -21,8 +51,7 @@ export class OverlayManager {
 
     createButtonInView(view: MarkdownView): void {
         const overlay = new Overlay(this.plugin, view);
-        // @ts-ignore:2239
-        this.overlays.set(view.leaf.id, overlay);
+        this.overlays.set(this._getViewId(view), overlay);
         overlay.showButton();
     }
 
