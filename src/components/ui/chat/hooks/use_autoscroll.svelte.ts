@@ -27,7 +27,7 @@ export default function autoscroll(
     const scroll = (): void => {
         node.scrollTo({
             top: node.scrollHeight,
-            left: node.scrollWidth,
+            left: 0,
             ...scrollOptions,
         } as ScrollToOptions);
     };
