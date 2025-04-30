@@ -21,6 +21,7 @@ const config: import("tailwindcss").Config = {
             muted: "var(--text-muted)",
             faint: "var(--text-faint)",
             "on-accent": "var(--text-on-accent)",
+            "on-accent-rgb": "rgba(var(--text-on-accent),<alpha-value>)",
             "on-accent-inverted": "var(--text-on-accent-inverted)",
             success: "var(--text-success)",
             warning: "var(--text-warning)",

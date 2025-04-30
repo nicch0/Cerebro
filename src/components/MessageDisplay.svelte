@@ -14,8 +14,8 @@
     let { incomingMessage, isStreaming, messages }: MessageDisplayProps = $props();
 </script>
 
-{#snippet chatBubble(variant: string, layout: string, message: Message)}
-    <ChatBubble {variant} {layout}>
+{#snippet chatBubble(variant: string, message: Message)}
+    <ChatBubble {variant}>
         <ChatBubbleMessage {variant}>
             <!-- TODO: Maybe only render the assistant's output? -->
             {@html marked(message.content)}
@@ -26,13 +26,13 @@
 <ChatMessageList>
     {#each messages as message (message?.id)}
         {#if message.role === "user"}
-            {@render chatBubble("sent", "default", message)}
+            {@render chatBubble("sent",message)}
         {:else}
-            {@render chatBubble("received", "ai", message)}
+            {@render chatBubble("received",message)}
         {/if}
     {/each}
     {#if isStreaming && incomingMessage.content.length > 0}
-        {@render chatBubble("received", "ai", incomingMessage)}
+        {@render chatBubble("received", incomingMessage)}
     {:else if isStreaming && incomingMessage.content.length === 0}
         <ChatBubble variant="received" layout="ai">
             <ChatBubbleMessage isLoading variant="received" layout="ai" />
