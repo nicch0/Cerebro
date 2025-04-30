@@ -1,5 +1,3 @@
-import { type IconName, ItemView, TFile, WorkspaceLeaf } from "obsidian";
-import { mount, unmount } from "svelte";
 import Chat from "@/components/Chat.svelte";
 import { CEREBRO_LUCIDE_ICON } from "@/constants";
 import { modelToKey } from "@/helpers";
@@ -14,6 +12,8 @@ import {
     parseConversationMarkdown,
     serializeMessagesToMarkdown,
 } from "@/utils/markdownParser";
+import { type IconName, ItemView, TFile, WorkspaceLeaf } from "obsidian";
+import { mount, unmount } from "svelte";
 
 export const CEREBRO_CHAT_VIEW = "cerebro-chat-view";
 
@@ -79,6 +79,9 @@ export class ChatView extends ItemView {
     }
 
     public async onClose(): Promise<void> {
+        if (this.messageStore.messages.length === 0) {
+            return;
+        }
         let file = this.file;
         if (!file) {
             const newFile = await createNewChatFile(this.plugin);
