@@ -5,8 +5,7 @@
     import { Paperclip, ArrowUp, Globe, Brain, ChevronDown, Mic } from "@lucide/svelte";
     import type { Message, ModelConfig } from "@/types";
     import { Platform } from "obsidian";
-    import { AVAILABLE_MODELS } from "@/ai";
-    import { modelToKey } from "@/helpers";
+    import ModelManager from "@/modelManager";
     import type { ConversationStore } from "@/stores/convoParams.svelte";
 
     interface ToolbarProps {
@@ -27,8 +26,11 @@
     let searchEnabled: boolean = $state(false);
     let thinkEnabled: boolean = $state(false);
 
+    const modelManager = ModelManager.getInstance();
+
     // Using derived to get the current model from the store
     const selectedModel = $derived(convoStore.params.model);
+    // const modelHasSearch = selectedModel?.capabilities?.search?.enabled;
 
     const toolbarPlaceholder = $derived(
         messages.length === 0 ? "How can I help you today?" : "Type your message here...",
@@ -84,19 +86,17 @@
         <div class="flex flex-wrap justify-start items-center">
             <DropdownMenu.Root>
                 <DropdownMenu.Trigger>
-                    <span
-                        >{selectedModel.provider}: {selectedModel.alias || selectedModel.name}</span
-                    >
+                    <span>{selectedModel.displayName}</span>
                     <ChevronDown />
                 </DropdownMenu.Trigger>
                 <!-- TODO: Split model providers into groups -->
                 <DropdownMenu.Content class="bg-dropdown">
                     <DropdownMenu.Group>
-                        {#each AVAILABLE_MODELS as model (modelToKey(model))}
+                        {#each modelManager.availableModels as model (model.key)}
                             <DropdownMenu.Item
-                                textValue={modelToKey(model)}
+                                textValue={model.displayName}
                                 onSelect={() => changeSelectedModel(model)}
-                                >{model.provider}: {model.alias || model.name}</DropdownMenu.Item
+                                >{model.displayName}</DropdownMenu.Item
                             >
                         {/each}
                     </DropdownMenu.Group>

@@ -1,8 +1,10 @@
+import { type IconName, ItemView, TFile, WorkspaceLeaf } from "obsidian";
+import { mount, unmount } from "svelte";
 import Chat from "@/components/Chat.svelte";
 import { CEREBRO_LUCIDE_ICON } from "@/constants";
-import { modelToKey } from "@/helpers";
 import { logger } from "@/logger";
 import type Cerebro from "@/main";
+import ModelManager from "@/modelManager";
 import { type ConversationStore, createConversationStore } from "@/stores/convoParams.svelte";
 import { createMessageStore, type MessageStore } from "@/stores/messages.svelte";
 import type { ConversationParameters } from "@/types";
@@ -12,8 +14,6 @@ import {
     parseConversationMarkdown,
     serializeMessagesToMarkdown,
 } from "@/utils/markdownParser";
-import { type IconName, ItemView, TFile, WorkspaceLeaf } from "obsidian";
-import { mount, unmount } from "svelte";
 
 export const CEREBRO_CHAT_VIEW = "cerebro-chat-view";
 
@@ -24,17 +24,19 @@ export class ChatView extends ItemView {
     private messageStore: MessageStore;
     private selectedText?: string;
     private file?: TFile;
+    private modelManager: ModelManager;
 
     constructor(leaf: WorkspaceLeaf, plugin: Cerebro, selectedText?: string, file?: TFile) {
         super(leaf);
         this.plugin = plugin;
+        this.modelManager = ModelManager.getInstance();
 
         this.convoStore = createConversationStore({
             title: "",
-            model: this.plugin.settings.defaults.model,
-            system: this.plugin.settings.defaults.system,
-            temperature: this.plugin.settings.defaults.temperature,
-            maxTokens: this.plugin.settings.defaults.maxTokens,
+            model: this.plugin.settings.modelDefaults.model,
+            system: this.plugin.settings.modelDefaults.system,
+            temperature: this.plugin.settings.modelDefaults.temperature,
+            maxTokens: this.plugin.settings.modelDefaults.maxTokens,
         });
         this.messageStore = createMessageStore();
 
@@ -115,11 +117,9 @@ export class ChatView extends ItemView {
 
             // Handle model - for now, use default model if model key is present
             if (frontmatter.model) {
-                newParams.model = this.plugin.settings.defaults.model;
-                // Log that we found a model but couldn't load it properly
-                logger.debug(
-                    `[Cerebro] Found model ${frontmatter.model} but using default model instead`,
-                );
+                newParams.model = this.modelManager.keyToModel(frontmatter.model);
+            } else {
+                newParams.model = this.plugin.settings.modelDefaults.model;
             }
 
             // Update all conversation parameters at once
@@ -171,7 +171,9 @@ export class ChatView extends ItemView {
             return;
         }
         const content = serializeMessagesToMarkdown(messages);
-        await this.plugin.app.vault.modify(file, content);
+        await this.plugin.app.vault.process(file, (prevData) => {
+            return content;
+        });
     }
 
     private async saveFrontmatter(file: TFile): Promise<void> {
@@ -180,7 +182,7 @@ export class ChatView extends ItemView {
             frontmatter.system = params.system;
             frontmatter.temperature = params.temperature;
             frontmatter.maxTokens = params.maxTokens;
-            frontmatter.model = modelToKey(params.model);
+            frontmatter.model = params.model.key;
         });
     }
 }

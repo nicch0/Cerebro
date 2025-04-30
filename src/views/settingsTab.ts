@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
+import ModelManager from "@/modelManager";
 import type { ModelConfig } from "@/types";
-import { findModelByKey, getModelOptions } from "../helpers";
 import Cerebro from "../main";
 
 export class SettingsTab extends PluginSettingTab {
@@ -16,6 +16,7 @@ export class SettingsTab extends PluginSettingTab {
 
         containerEl.empty();
 
+        const modelManager = ModelManager.getInstance();
         new Setting(containerEl)
             .setName("User's name")
             .setDesc("Your name in the conversation")
@@ -113,17 +114,17 @@ export class SettingsTab extends PluginSettingTab {
         });
 
         const { provider: defaultProvider, name: defaultModelName } =
-            this.plugin.settings.defaultModel;
+            this.plugin.settings.modelDefaults.model;
         new Setting(containerEl)
             .setName("Default model")
             .setDesc("Default model to use for new chats")
             .addDropdown((dropdown) => {
                 dropdown
-                    .addOptions(getModelOptions())
+                    .addOptions(modelManager.getAllModelKeys())
                     .setValue(`${defaultProvider}:${defaultModelName}`)
                     .onChange(async (key: string) => {
-                        const model = findModelByKey(key) as ModelConfig;
-                        this.plugin.settings.defaultModel = model;
+                        const model = modelManager.keyToModel(key) as ModelConfig;
+                        this.plugin.settings.modelDefaults.model = model;
                         await this.plugin.saveSettings();
                     });
             });
@@ -167,9 +168,9 @@ export class SettingsTab extends PluginSettingTab {
             .setDesc("Default instructions given to the model for all new chats.")
             .addTextArea((textArea) =>
                 textArea
-                    .setValue(this.plugin.settings.defaultSystemPrompt.join("\n") || "")
+                    .setValue(this.plugin.settings.modelDefaults.system.join("\n") || "")
                     .onChange(async (value) => {
-                        this.plugin.settings.defaultSystemPrompt = value.split("\n");
+                        this.plugin.settings.modelDefaults.system = value.split("\n");
                         await this.plugin.saveSettings();
                     }),
             );
@@ -199,9 +200,9 @@ export class SettingsTab extends PluginSettingTab {
             .addText((text) =>
                 text
                     .setPlaceholder("some-api-key")
-                    .setValue(this.plugin.settings.providerSettings.OpenAI.apiKey)
+                    .setValue(this.plugin.settings.providers.OpenAI.apiKey)
                     .onChange(async (value) => {
-                        this.plugin.settings.providerSettings.OpenAI.apiKey = value;
+                        this.plugin.settings.providers.OpenAI.apiKey = value;
                         await this.plugin.saveSettings();
                     }),
             );
@@ -212,9 +213,9 @@ export class SettingsTab extends PluginSettingTab {
             .addText((text) =>
                 text
                     .setPlaceholder("some-api-key")
-                    .setValue(this.plugin.settings.providerSettings.Anthropic.apiKey)
+                    .setValue(this.plugin.settings.providers.Anthropic.apiKey)
                     .onChange(async (value) => {
-                        this.plugin.settings.providerSettings.Anthropic.apiKey = value;
+                        this.plugin.settings.providers.Anthropic.apiKey = value;
                         await this.plugin.saveSettings();
                     }),
             );
@@ -225,9 +226,9 @@ export class SettingsTab extends PluginSettingTab {
             .addText((text) =>
                 text
                     .setPlaceholder("some-api-key")
-                    .setValue(this.plugin.settings.providerSettings.Google?.apiKey || "")
+                    .setValue(this.plugin.settings.providers.Google?.apiKey || "")
                     .onChange(async (value) => {
-                        this.plugin.settings.providerSettings.Google.apiKey = value;
+                        this.plugin.settings.providers.Google.apiKey = value;
                         await this.plugin.saveSettings();
                     }),
             );
@@ -237,9 +238,9 @@ export class SettingsTab extends PluginSettingTab {
             .addText((text) =>
                 text
                     .setPlaceholder("some-api-key")
-                    .setValue(this.plugin.settings.providerSettings.DeepSeek?.apiKey || "")
+                    .setValue(this.plugin.settings.providers.DeepSeek?.apiKey || "")
                     .onChange(async (value) => {
-                        this.plugin.settings.providerSettings.DeepSeek.apiKey = value;
+                        this.plugin.settings.providers.DeepSeek.apiKey = value;
                         await this.plugin.saveSettings();
                     }),
             );
@@ -250,9 +251,9 @@ export class SettingsTab extends PluginSettingTab {
             .addText((text) =>
                 text
                     .setPlaceholder("some-api-key")
-                    .setValue(this.plugin.settings.providerSettings.XAI?.apiKey || "")
+                    .setValue(this.plugin.settings.providers.XAI?.apiKey || "")
                     .onChange(async (value) => {
-                        this.plugin.settings.providerSettings.XAI.apiKey = value;
+                        this.plugin.settings.providers.XAI.apiKey = value;
                         await this.plugin.saveSettings();
                     }),
             );

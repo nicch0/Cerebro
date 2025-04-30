@@ -26,10 +26,18 @@ export type ChatFrontmatter = CallSettings & {
     system?: string[];
 };
 
-export type ModelConfig = {
+export type ModelConfigInput = {
     name: string;
+    displayName: string;
     provider: string;
     alias?: string;
+    capabilities?: {
+        search?: {};
+    };
+};
+
+export type ModelConfig = ModelConfigInput & {
+    readonly key: string;
 };
 
 export type ConversationParameters = CallSettings & {
