@@ -1,14 +1,13 @@
 import type { Command } from "obsidian";
 import Cerebro from "../main";
-import { inferTitleCommand } from "./inferTitle";
 import { loadExistingChatCommand } from "./loadChat";
-import { createNewChatCommand, createNewChatInSidebarCommand } from "./newChat";
+import { createNewChatInSidebarCommand, startNewConversationCommand } from "./newChat";
 import { chooseChatTemplateCommand } from "./newChatFromTemplate";
 
 export const getCommands = (plugin: Cerebro): Command[] => [
-    createNewChatCommand(plugin),
+    startNewConversationCommand(plugin),
     createNewChatInSidebarCommand(plugin),
-    inferTitleCommand(plugin),
+    // inferTitleCommand(plugin),
     chooseChatTemplateCommand(plugin),
     loadExistingChatCommand(plugin),
 ];

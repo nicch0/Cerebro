@@ -5,7 +5,7 @@ import { ChatTemplatesHandler } from "../views/chatTemplates";
 
 export const chooseChatTemplateCommand = (plugin: Cerebro): Command => ({
     id: "cerebro-choose-chat-template",
-    name: "Create new chat from template",
+    name: "Start new conversation from template",
     icon: "layout-template",
     callback: async (): Promise<void> => {
         checkForChatFolderCreation(plugin);

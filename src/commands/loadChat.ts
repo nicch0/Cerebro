@@ -1,16 +1,16 @@
-import { type Command, Notice, TFile } from "obsidian";
 import { openChat } from "@/chat";
 import { ERROR_NOTICE_TIMEOUT_MILLISECONDS } from "@/constants";
 import { checkForChatFolderCreation } from "@/helpers";
 import { logger } from "@/logger";
 import type Cerebro from "@/main";
 import { FileSelectionHandler } from "@/views/fileSelectionHandler";
+import { type Command, Notice, TFile } from "obsidian";
 
 // TODO: Refactor into all-in-one area to create new conversation, load from template
 // or load from existing conversation
 export const loadExistingChatCommand = (plugin: Cerebro): Command => ({
     id: "cerebro-load-chat",
-    name: "Load Chat",
+    name: "Load conversation",
     icon: "message-square",
     callback: async () => {
         try {
