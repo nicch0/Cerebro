@@ -8,11 +8,12 @@
         base: "p-4 select-text",
         variants: {
             variant: {
-                received: "bg-secondary text-secondary-foreground rounded-r-lg rounded-tl-lg",
-                sent: "bg-primary text-primary-foreground rounded-l-lg rounded-tr-lg",
+                // TODO: Add fallback values in case bg-primary-alt is not set
+                received: "bg-primary text-primary rounded-xl rounded-bl-none leading-normal",
+                sent: "bg-primary-alt text-primary rounded-xl rounded-tr-none leading-normal",
             },
             layout: {
-                default: "border-t w-full rounded-none bg-transparent",
+                default: "border-t w-full",
                 ai: "border-t w-full rounded-none bg-transparent",
             },
         },
