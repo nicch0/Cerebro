@@ -18,7 +18,7 @@
     <div
         bind:this={ref}
         use:autoscroll={{ pauseOnUserScroll: true, behavior: smooth ? "smooth" : "auto" }}
-        class={["flex h-full w-full flex-col overflow-y-auto p-4", className]}
+        class={["flex h-full w-full flex-col overflow-y-auto overflow-x-hidden p-4", className]}
         {...restProps}
     >
         <div class="flex flex-col gap-6">
