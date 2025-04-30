@@ -24,6 +24,7 @@ export default [
     },
     {
         files: ["**/*.ts"],
+        ignores: ["**/*.svelte.d.ts"],
         languageOptions: {
             ecmaVersion: 2023,
             sourceType: "module",
@@ -159,7 +160,7 @@ export default [
     },
     // Svelte files
     {
-        files: ["**/*.svelte", "**/*.svelte.ts", "**/*.svelte.js"],
+        files: ["**/*.svelte", "**/*.svelte.ts", "**/*.svelte.js", "**/*.svelte.d.ts"],
         languageOptions: {
             parserOptions: {
                 projectService: true,
