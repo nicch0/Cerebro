@@ -21,6 +21,7 @@ export const AVAILABLE_MODELS: ModelConfig[] = [
     { name: "gpt-4o", provider: "openai" },
     { name: "o1", provider: "openai" },
     { name: "o1-mini", provider: "openai" },
+    { name: "o3", provider: "openai" },
     { name: "o3-mini", provider: "openai" },
     { alias: "claude-3-7", name: "claude-3-7-sonnet-20250219", provider: "anthropic" },
     { alias: "claude-3-5-sonnet", name: "claude-3-5-sonnet-20241022", provider: "anthropic" },
