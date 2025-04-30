@@ -31,32 +31,28 @@
         incomingMessage.content = "";
         isStreaming = true;
 
-        try {
-            // Create a streaming callback that updates the incoming message
-            const streamCallback = (chunk: string) => {
-                incomingMessage.content += chunk;
-            };
+        // Create a streaming callback that updates the incoming message
+        const streamCallback = (chunk: string) => {
+            incomingMessage.content += chunk;
+        };
 
-            // Make call to LLM with streaming callback
-            const fullResponse = await ai.chat(
-                messageStore.messages,
-                convoStore.params,
-                settings,
-                streamCallback,
-            );
+        // Make call to LLM with streaming callback
+        const fullResponse = await ai.chat(
+            messageStore.messages,
+            convoStore.params,
+            settings,
+            streamCallback,
+        );
 
-            // Mark streaming as complete
-            isStreaming = false;
+        // Mark streaming as complete
+        isStreaming = false;
 
-            // Add the final message to the messages store
-            // Use the fullResponse instead of incomingMessage
-            messageStore.addMessage(fullResponse.role, fullResponse.content);
+        // Add the final message to the messages store
+        // Use the fullResponse instead of incomingMessage
+        messageStore.addMessage(fullResponse.role, fullResponse.content);
 
-            // Clear the incoming message after pushing to the messages store
-            incomingMessage.content = "";
-        } catch (error) {
-            console.error("Error in chat:", error);
-        }
+        // Clear the incoming message after pushing to the messages store
+        incomingMessage.content = "";
     };
 </script>
 

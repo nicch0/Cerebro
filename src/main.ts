@@ -9,8 +9,9 @@ import {
 } from "./constants";
 import { isTitleTimestampFormat, writeInferredTitleToEditor } from "./helpers";
 import { logger } from "./logger";
+import ModelManager from "./modelManager";
 import { OverlayManager } from "./overlayManager";
-import { type CerebroSettings, DEFAULT_SETTINGS } from "./settings";
+import { type CerebroSettings, getDefaultSettings } from "./settings";
 import type { ChatFrontmatter, Message } from "./types";
 import { CEREBRO_CHAT_VIEW, ChatView } from "./views/ChatView.svelte";
 import { SettingsTab } from "./views/settingsTab";
@@ -29,6 +30,7 @@ export default class Cerebro extends Plugin {
         await this.loadSettings();
         this.addSettingTab(new SettingsTab(this.app, this));
 
+        ModelManager.initialize();
         this.ai = new AI(this.settings);
 
         // Register all commands
@@ -49,7 +51,9 @@ export default class Cerebro extends Plugin {
 
         this.registerEvent(
             this.app.workspace.on("active-leaf-change", (leaf: WorkspaceLeaf | null) => {
-                if (!(leaf?.view instanceof MarkdownView)) return;
+                if (!(leaf?.view instanceof MarkdownView)) {
+                    return;
+                }
                 const view: MarkdownView = leaf.view as MarkdownView;
                 this.overlayManager.updateViewForOverlay(view);
                 this.overlayManager.handleActiveLeafChange(view);
@@ -101,12 +105,13 @@ export default class Cerebro extends Plugin {
     }
 
     private async loadSettings(): Promise<void> {
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+        const modelManager = ModelManager.initialize();
+        this.settings = Object.assign({}, getDefaultSettings(modelManager), await this.loadData());
         logger.debug("[Cerebro] Loaded settings", this.settings);
     }
 
     public async saveSettings(): Promise<void> {
-        logger.info("[Cerebro] Saving settings");
+        logger.debug("[Cerebro] Saving settings");
         await this.saveData(this.settings);
         this.ai = new AI(this.settings);
     }

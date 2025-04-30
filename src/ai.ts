@@ -3,12 +3,14 @@ import * as deepseek from "@ai-sdk/deepseek";
 import * as google from "@ai-sdk/google";
 import * as openai from "@ai-sdk/openai";
 import * as xai from "@ai-sdk/xai";
-import { createProviderRegistry, generateText, type Provider, streamText } from "ai";
+import { APICallError, createProviderRegistry, generateText, type Provider, streamText } from "ai";
+import { Notice } from "obsidian";
 import { CerebroMessages } from "./constants";
-import { getTextOnlyContent, modelToKey } from "./helpers";
+import { getTextOnlyContent } from "./helpers";
 import { logger } from "./logger";
+import ModelManager from "./modelManager";
 import { type CerebroSettings } from "./settings";
-import type { ChatFrontmatter, ConversationParameters, Message, ModelConfig } from "./types";
+import type { ChatFrontmatter, ConversationParameters, Message } from "./types";
 
 // Define mapping between ChatFrontmatter properties and their default values in CerebroSettings
 interface DefaultsMapping {
@@ -16,32 +18,15 @@ interface DefaultsMapping {
     settingsKey: keyof CerebroSettings;
 }
 
-export const AVAILABLE_MODELS: ModelConfig[] = [
-    { name: "gpt-4o-mini", provider: "openai" },
-    { name: "gpt-4o", provider: "openai" },
-    { name: "o1", provider: "openai" },
-    { name: "o1-mini", provider: "openai" },
-    { name: "o3", provider: "openai" },
-    { name: "o3-mini", provider: "openai" },
-    { alias: "claude-3-7", name: "claude-3-7-sonnet-20250219", provider: "anthropic" },
-    { alias: "claude-3-5-sonnet", name: "claude-3-5-sonnet-20241022", provider: "anthropic" },
-    { alias: "claude-3-5-haiku", name: "claude-3-5-haiku-20241022", provider: "anthropic" },
-];
-
 export const MODEL_PROPERTY_NAME = "model";
-
-export const PROPERTY_MAPPINGS: DefaultsMapping[] = [
-    { frontmatterKey: MODEL_PROPERTY_NAME, settingsKey: "defaultModel" },
-    { frontmatterKey: "maxTokens", settingsKey: "defaultMaxTokens" },
-    { frontmatterKey: "temperature", settingsKey: "defaultTemperature" },
-    { frontmatterKey: "system", settingsKey: "defaultSystemPrompt" },
-];
 
 export class AI {
     private providerRegistry: Provider;
+    private modelManager: ModelManager;
 
     constructor(settings: CerebroSettings) {
         this.providerRegistry = this.initialiseProviderRegistry(settings);
+        this.modelManager = ModelManager.getInstance();
     }
 
     private initialiseProviderRegistry(settings: CerebroSettings): Provider {
@@ -49,34 +34,34 @@ export class AI {
 
         const providerConfig: ProviderConfigs = {};
 
-        if (settings.providerSettings.OpenAI.apiKey) {
+        if (settings.providers.OpenAI.apiKey) {
             providerConfig.openai = openai.createOpenAI({
-                apiKey: settings.providerSettings.OpenAI.apiKey,
+                apiKey: settings.providers.OpenAI.apiKey,
             });
         }
 
-        if (settings.providerSettings.Anthropic.apiKey) {
+        if (settings.providers.Anthropic.apiKey) {
             providerConfig.anthropic = anthropic.createAnthropic({
-                apiKey: settings.providerSettings?.Anthropic?.apiKey,
+                apiKey: settings.providers?.Anthropic?.apiKey,
                 headers: { "anthropic-dangerous-direct-browser-access": "true" },
             });
         }
 
-        if (settings.providerSettings.Google.apiKey) {
+        if (settings.providers.Google.apiKey) {
             providerConfig.google = google.createGoogleGenerativeAI({
-                apiKey: settings.providerSettings?.Google?.apiKey,
+                apiKey: settings.providers?.Google?.apiKey,
             });
         }
 
-        if (settings.providerSettings.DeepSeek.apiKey) {
+        if (settings.providers.DeepSeek.apiKey) {
             providerConfig.deepseek = deepseek.createDeepSeek({
-                apiKey: settings.providerSettings.DeepSeek.apiKey,
+                apiKey: settings.providers.DeepSeek.apiKey,
             });
         }
 
-        if (settings.providerSettings.XAI.apiKey) {
+        if (settings.providers.XAI.apiKey) {
             providerConfig.xai = xai.createXai({
-                apiKey: settings.providerSettings.XAI.apiKey,
+                apiKey: settings.providers.XAI.apiKey,
             });
         }
 
@@ -132,33 +117,24 @@ export class AI {
             ...convoParams,
         };
 
-        // Apply all defaults from the settings object
-        PROPERTY_MAPPINGS.forEach((mapping) => {
-            const { frontmatterKey, settingsKey } = mapping;
-
-            // Only apply default if the property is undefined in the frontmatter
-            if (
-                finalChatParams[frontmatterKey] === undefined &&
-                settings[settingsKey] !== undefined
-            ) {
-                // This cast is necessary because TypeScript can't infer the relationship
-                // between the two different key types
-                (finalChatParams as any)[frontmatterKey] = settings[settingsKey];
+        for (const [key, value] of Object.entries(settings.modelDefaults)) {
+            // Only apply default if the property is undefined in the chat parameters
+            if (finalChatParams[key as keyof ConversationParameters] === undefined) {
+                (finalChatParams as Record<string, unknown>)[key] = value;
             }
-        });
-
+        }
         return finalChatParams;
     }
 
     public async chat(
         messages: Message[],
-        properties: ConversationParameters,
+        convoParams: ConversationParameters,
         settings: CerebroSettings,
         onChunk?: (chunk: string) => void,
     ): Promise<Message> {
         const formattedMessages = this.formatMessagesForProvider(messages);
         let responseStr: string;
-        const callSettings = this.resolveChatParameters(properties, settings);
+        const callSettings = this.resolveChatParameters(convoParams, settings);
 
         const { fullResponse, finishReason } = await this.streamResponse(
             formattedMessages,
@@ -189,40 +165,43 @@ export class AI {
         let fullResponse = "";
         const finishReason: string | null | undefined = null;
 
-        try {
-            const model = this.providerRegistry.languageModel(modelToKey(modelConfig));
+        const model = this.providerRegistry.languageModel(modelConfig.key);
 
-            const { textStream } = streamText({
-                model,
-                messages,
-                temperature,
-                maxTokens,
-                system: system?.join(""),
-            });
-
-            const reader = textStream.getReader();
-
-            while (true) {
-                const { done, value: chunkText } = await reader.read();
-                if (done) {
-                    break;
+        const { textStream } = streamText({
+            model,
+            messages,
+            temperature,
+            maxTokens,
+            system: system?.join(""),
+            onError: ({ error }) => {
+                logger.error("Error while streaming", error);
+                if (APICallError.isInstance(error)) {
+                    new Notice(`API call failed. Please check console for more details.`);
+                } else {
+                    new Notice(`Error while streaming: ${error as string}`);
                 }
-                fullResponse += chunkText;
+            },
+        });
 
-                // Call the onChunk callback if provided
-                if (onChunk) {
-                    onChunk(chunkText);
-                }
+        const reader = textStream.getReader();
+
+        while (true) {
+            const { done, value: chunkText } = await reader.read();
+            if (done) {
+                break;
             }
+            fullResponse += chunkText;
 
-            return {
-                fullResponse,
-                finishReason,
-            };
-        } catch (error) {
-            console.error("Error in streamResponse_v2:", error);
-            throw error;
+            // Call the onChunk callback if provided
+            if (onChunk) {
+                onChunk(chunkText);
+            }
         }
+
+        return {
+            fullResponse,
+            finishReason,
+        };
     }
 
     public async inferTitle(
@@ -245,7 +224,7 @@ export class AI {
             throw new Error("Model not found");
         }
 
-        const model = this.providerRegistry.languageModel(modelToKey(callSettings.model));
+        const model = this.providerRegistry.languageModel(callSettings.model.key);
         const textMessages = getTextOnlyContent(messages);
         const textJson = JSON.stringify(textMessages);
         const INFER_TITLE_PROMPT = `Infer title from the summary of the content of these messages. The title **cannot** contain any of the following characters: colon, back slash or forward slash. Just return the title. Write the title in ${inferTitleLanguage}. \nMessages:\n\n${textJson}`;

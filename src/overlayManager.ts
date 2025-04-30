@@ -57,7 +57,9 @@ export class OverlayManager {
 
     public createButtonsInOpenViews(): void {
         const views: MarkdownView[] = this.getVisibleMDViews();
-        if (views.length === 0) return;
+        if (views.length === 0) {
+            return;
+        }
 
         views.map((view) => this.createButtonInView(view));
     }

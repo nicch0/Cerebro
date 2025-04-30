@@ -30,11 +30,21 @@ export const createConversationStore = (initialParams: ConversationParameters) =
 
     const updateAll = (newParams: Partial<ConversationParameters>): void => {
         // Update only the provided parameters
-        if (newParams.model !== undefined) {params.model = newParams.model;}
-        if (newParams.system !== undefined) {params.system = newParams.system;}
-        if (newParams.temperature !== undefined) {params.temperature = newParams.temperature;}
-        if (newParams.maxTokens !== undefined) {params.maxTokens = newParams.maxTokens;}
-        if (newParams.title !== undefined) {params.title = newParams.title;}
+        if (newParams.model !== undefined) {
+            params.model = newParams.model;
+        }
+        if (newParams.system !== undefined) {
+            params.system = newParams.system;
+        }
+        if (newParams.temperature !== undefined) {
+            params.temperature = newParams.temperature;
+        }
+        if (newParams.maxTokens !== undefined) {
+            params.maxTokens = newParams.maxTokens;
+        }
+        if (newParams.title !== undefined) {
+            params.title = newParams.title;
+        }
     };
 
     return {

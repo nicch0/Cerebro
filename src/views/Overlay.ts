@@ -1,6 +1,6 @@
+import { type MarkdownView } from "obsidian";
 import OverlayToggleButton from "@/components/overlay/OverlayToggleButton";
 import type Cerebro from "@/main";
-import { type MarkdownView } from "obsidian";
 
 export const CEREBRO_OVERLAY_VIEW = "cerebro-overlay-view";
 

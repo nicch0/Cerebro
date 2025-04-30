@@ -26,9 +26,9 @@
 <ChatMessageList>
     {#each messages as message (message?.id)}
         {#if message.role === "user"}
-            {@render chatBubble("sent",message)}
+            {@render chatBubble("sent", message)}
         {:else}
-            {@render chatBubble("received",message)}
+            {@render chatBubble("received", message)}
         {/if}
     {/each}
     {#if isStreaming && incomingMessage.content.length > 0}
