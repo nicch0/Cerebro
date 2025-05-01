@@ -1,6 +1,6 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
 import ModelManager from "@/modelManager";
 import type { ModelConfig } from "@/types";
+import { App, PluginSettingTab, Setting } from "obsidian";
 import Cerebro from "../main";
 
 export class SettingsTab extends PluginSettingTab {
@@ -138,10 +138,10 @@ export class SettingsTab extends PluginSettingTab {
             .addSlider((slider) =>
                 slider
                     .setLimits(0, 1.0, 0.1)
-                    .setValue(this.plugin.settings.defaultTemperature)
+                    .setValue(this.plugin.settings.modelDefaults.temperature)
                     .setDynamicTooltip()
                     .onChange(async (value) => {
-                        this.plugin.settings.defaultTemperature = value;
+                        this.plugin.settings.modelDefaults.temperature = value;
                         await this.plugin.saveSettings();
                     }),
             );
@@ -152,11 +152,11 @@ export class SettingsTab extends PluginSettingTab {
             .setDesc("The maximum number of tokens to generate in the response.")
             .addText((text) =>
                 text
-                    .setValue((this.plugin.settings.defaultMaxTokens || 1024).toString())
+                    .setValue(this.plugin.settings.modelDefaults.maxTokens.toString())
                     .onChange(async (value) => {
                         const numValue = parseInt(value);
                         if (!isNaN(numValue) && numValue > 0) {
-                            this.plugin.settings.defaultMaxTokens = numValue;
+                            this.plugin.settings.modelDefaults.maxTokens = numValue;
                             await this.plugin.saveSettings();
                         }
                     }),
