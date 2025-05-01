@@ -1,5 +1,5 @@
+import { CEREBRO_CHAT_VIEW, ChatView } from "@/views/ChatView.svelte";
 import { Notice, TFile, WorkspaceLeaf } from "obsidian";
-import { ChatView } from "@/views/ChatView.svelte";
 import { createFolderModal, getDate } from "../helpers";
 import Cerebro from "../main";
 
@@ -65,5 +65,10 @@ export const openView = async (
 
     const newView = new ChatView(leaf, plugin, selectedText, file);
     leaf.open(newView);
+    leaf.setViewState({
+        type: CEREBRO_CHAT_VIEW,
+        active: true,
+        state: { viewTitle: newView.getDisplayText() },
+    });
     workspace.revealLeaf(leaf);
 };
