@@ -1,6 +1,12 @@
 import type { MarkdownView } from "obsidian";
 import type Cerebro from "./main";
-import Overlay from "./views/Overlay";
+import Overlay from "./views/Overlay.svelte";
+
+// Type definition for selection range
+export interface SelectionRange {
+    from: number;
+    to: number;
+}
 
 export class OverlayManager {
     private plugin: Cerebro;
@@ -69,5 +75,42 @@ export class OverlayManager {
             overlay.button.destroy();
         });
         this.overlays.clear();
+    }
+    
+    /**
+     * Show the inline chat button for text selection
+     * 
+     * @param view The active markdown view
+     * @param selectedText The selected text
+     * @param range The range of the selection in the editor
+     */
+    public showInlineChatButtonForSelection(
+        view: MarkdownView,
+        selectedText: string,
+        range: SelectionRange
+    ): void {
+        if (!selectedText || selectedText.trim().length === 0) {
+            return;
+        }
+        
+        // Get the overlay for the current view
+        const overlay = this.getOverlayInView(view);
+        
+        // Show the inline chat button and position it near the selection
+        overlay.showInlineChatButton(selectedText, range);
+    }
+    
+    /**
+     * Hide the inline chat button
+     * 
+     * @param view The markdown view where the button should be hidden
+     */
+    public hideInlineChatButton(view: MarkdownView): void {
+        // Check if we have an overlay for this view
+        const viewId = this._getViewId(view);
+        if (this.overlays.has(viewId)) {
+            const overlay = this.overlays.get(viewId)!;
+            overlay.hideInlineChatButton();
+        }
     }
 }
