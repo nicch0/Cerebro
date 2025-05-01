@@ -8,6 +8,7 @@ import {
     ERROR_NOTICE_TIMEOUT_MILLISECONDS,
 } from "./constants";
 import { isTitleTimestampFormat, writeInferredTitleToEditor } from "./helpers";
+import { CerebroInlineChatField, initInlineChatStateField } from "./inlineChatStateField";
 import { logger } from "./logger";
 import ModelManager from "./modelManager";
 import { OverlayManager } from "./overlayManager";
@@ -20,7 +21,7 @@ export default class Cerebro extends Plugin {
     public settings!: CerebroSettings;
     public statusBar!: HTMLElement;
     public ai!: AI;
-    private overlayManager!: OverlayManager;
+    public overlayManager!: OverlayManager;
 
     public async onload(): Promise<void> {
         logger.debug("[Cerebro] Adding status bar");
@@ -59,6 +60,10 @@ export default class Cerebro extends Plugin {
                 this.overlayManager.handleActiveLeafChange(view);
             }),
         );
+
+        // Initialize the state field with a reference to this plugin instance
+        initInlineChatStateField(this);
+        this.registerEditorExtension([CerebroInlineChatField]);
     }
 
     public async handleTitleInference(

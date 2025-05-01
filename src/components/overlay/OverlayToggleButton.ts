@@ -1,7 +1,7 @@
-import { Notice, setIcon } from "obsidian";
 import { CEREBRO_LUCIDE_ICON } from "@/constants";
 import type Cerebro from "@/main";
-import type Overlay from "@/views/Overlay";
+import type Overlay from "@/views/Overlay.svelte";
+import { setIcon } from "obsidian";
 
 export const BUTTON_CLASS = "cerebro-overlay-button";
 
@@ -33,11 +33,11 @@ export default class OverlayToggleButton {
     }
 
     public get active(): boolean {
-        return this.containerEl.classList.contains("cerebro-overlay-button-active");
+        return this.containerEl.classList.contains("button-active");
     }
 
     public set active(value: boolean) {
-        this.containerEl.classList.toggle("cerebro-overlay-button-active", value);
+        this.containerEl.classList.toggle("button-active", value);
     }
 
     public set pinned(value: boolean) {
@@ -60,32 +60,19 @@ export default class OverlayToggleButton {
             },
         });
         setIcon(button, CEREBRO_LUCIDE_ICON);
-
         this.connectToDOM(button);
-
         return button;
     }
 
     private connectToDOM(button: HTMLButtonElement): void {
-        // if (this.plugin.settings.outlinePosition === "right") {
-        //     const viewActions: HTMLElement | null =
-        //         this.overlay.view.containerEl.querySelector(".view-actions");
-        //     viewActions?.insertBefore(button, viewActions?.firstChild);
-        // } else if (this.plugin.settings.outlinePosition === "left") {
-        //     const viewHeaderLeft: HTMLElement | null = this.overlay.view.containerEl.querySelector(
-        //         ".view-header-left .view-header-nav-buttons",
-        //     );
-        //     viewHeaderLeft?.appendChild(button);
-        // } else {
-        //     console.error("Invalid window location: ", this.plugin.settings.outlinePosition);
-        // }
+        // TODO: Support LHS
         const viewActions: HTMLElement | null =
             this.overlay.view.containerEl.querySelector(".view-actions");
         viewActions?.insertBefore(button, viewActions?.firstChild);
     }
 
     private handleClick(): void {
-        new Notice("Button clicked");
+        this.overlay.toggle();
     }
 
     public show(): void {
