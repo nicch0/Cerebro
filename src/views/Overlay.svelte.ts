@@ -1,6 +1,6 @@
-import { type MarkdownView } from "obsidian";
 import OverlayToggleButton from "@/components/overlay/OverlayToggleButton";
 import type Cerebro from "@/main";
+import { type MarkdownView } from "obsidian";
 
 export const CEREBRO_OVERLAY_VIEW = "cerebro-overlay-view";
 
@@ -11,6 +11,7 @@ export default class Overlay {
     private overlayActive: boolean;
 
     constructor(plugin: Cerebro, view: MarkdownView) {
+        console.log(`Overlay created for ${view.file?.basename}`);
         this.plugin = plugin;
         this.view = view;
         this.toggleOverlayButton = new OverlayToggleButton(this.plugin, this);
@@ -33,7 +34,7 @@ export default class Overlay {
         return "Cerebro Overlay";
     }
 
-    destroy() {
+    public destroy(): void {
         this.button.destroy();
     }
 
