@@ -1,5 +1,5 @@
-import { CEREBRO_CHAT_VIEW, ChatView } from "@/views/ChatView.svelte";
 import { Notice, TFile, WorkspaceLeaf } from "obsidian";
+import { CEREBRO_CHAT_VIEW, ChatView } from "@/views/ChatView.svelte";
 import { createFolderModal, getDate } from "../helpers";
 import Cerebro from "../main";
 
