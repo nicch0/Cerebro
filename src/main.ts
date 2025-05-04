@@ -10,7 +10,7 @@ import {
 import { isTitleTimestampFormat, writeInferredTitleToEditor } from "./helpers";
 import { logger } from "./logger";
 import ModelManager from "./modelManager";
-import { OverlayManager } from "./overlayManager";
+import { OverlayManager } from "./OverlayManager.svelte";
 import { initOverlayTooltipStateField, overlayTooltipField } from "./overlayTooltip";
 import { type CerebroSettings, getDefaultSettings } from "./settings";
 import type { ChatFrontmatter, Message } from "./types";
@@ -46,10 +46,6 @@ export default class Cerebro extends Plugin {
         // Set up Cerebro overlay
         this.overlayManager = new OverlayManager(this);
 
-        this.overlayManager.loadOverlayData().catch((e) => {
-            logger.error(`[Cerebro] Failed to load overlay data: ${e}`);
-        });
-
         this.app.workspace.onLayoutReady(() => {
             this.overlayManager.setUpViews();
         });
@@ -61,11 +57,7 @@ export default class Cerebro extends Plugin {
                 }
                 const view: MarkdownView = leaf.view as MarkdownView;
 
-                // Only update if view has a file
-                if (view.file) {
-                    this.overlayManager.updateViewForOverlay(view);
-                    this.overlayManager.handleActiveLeafChange(view);
-                }
+                this.overlayManager.updateViewForOverlay(view);
             }),
         );
 
@@ -130,10 +122,7 @@ export default class Cerebro extends Plugin {
     }
 
     public async onunload(): Promise<void> {
-        // Save overlay data before unloading
-        await this.overlayManager.saveOverlayData().catch((e) => {
-            logger.error(`[Cerebro] Failed to save overlay data: ${e}`);
-        });
+        // // Save overlay data before unloading
 
         // Clean up
         this.app.workspace.detachLeavesOfType(CEREBRO_CHAT_VIEW);
