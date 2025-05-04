@@ -8,10 +8,10 @@ import {
     ERROR_NOTICE_TIMEOUT_MILLISECONDS,
 } from "./constants";
 import { isTitleTimestampFormat, writeInferredTitleToEditor } from "./helpers";
-import { CerebroInlineChatField, initInlineChatStateField } from "./inlineChatStateField";
 import { logger } from "./logger";
 import ModelManager from "./modelManager";
 import { OverlayManager } from "./overlayManager";
+import { initOverlayTooltipStateField, overlayTooltipField } from "./overlayTooltip";
 import { type CerebroSettings, getDefaultSettings } from "./settings";
 import type { ChatFrontmatter, Message } from "./types";
 import { CEREBRO_CHAT_VIEW, ChatView } from "./views/ChatView.svelte";
@@ -62,8 +62,8 @@ export default class Cerebro extends Plugin {
         );
 
         // Initialize the state field with a reference to this plugin instance
-        initInlineChatStateField(this);
-        this.registerEditorExtension([CerebroInlineChatField]);
+        initOverlayTooltipStateField(this);
+        this.registerEditorExtension([overlayTooltipField]);
     }
 
     public async handleTitleInference(

@@ -1,6 +1,6 @@
+import { App, PluginSettingTab, Setting } from "obsidian";
 import ModelManager from "@/modelManager";
 import type { ModelConfig } from "@/types";
-import { App, PluginSettingTab, Setting } from "obsidian";
 import Cerebro from "../main";
 
 export class SettingsTab extends PluginSettingTab {

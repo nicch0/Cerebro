@@ -8,51 +8,23 @@
 
 /* Toggle Overlay Button */
 .cerebro-overlay-button.button-active {
-	box-shadow: none;
-	opacity: var(--icon-opacity-hover);
-	color: var(--icon-color-hover);
-	background-color: var(--background-modifier-hover);
+    box-shadow: none;
+    opacity: var(--icon-opacity-hover);
+    color: var(--icon-color-hover);
+    background-color: var(--background-modifier-hover);
 }
 
 .cerebro-overlay-button.pinned {
-	color: var(--text-normal);
+    color: var(--text-normal);
 }
 
 .cerebro-overlay-button.hidden,
 .hide-button-from-toolbar .cerebro-overlay-button {
-	display: none;
+    display: none;
 }
 
 /* Inline Chat Button */
-.cerebro-inline-chat-button {
-	/* Button appearance */
-	background-color: var(--interactive-accent);
-	color: var(--text-on-accent);
-	border: none;
-	
-	/* Position and layout */
-	position: absolute;
-	z-index: 999;
-	border-radius: 50%;
-	width: 24px;
-	height: 24px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	
-	/* Google Docs style - half visible, half over the edge */
-	transform: translateX(50%);
-	
-	/* Visual effects */
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-	cursor: pointer;
+.cm-tooltip.cerebro-overlay-tooltip {
+    border: none;
+    background: none;
 }
-
-.cerebro-inline-chat-button:hover {
-	transform: translateX(50%) scale(1.1);
-}
-
-.cerebro-inline-chat-button.hidden {
-	display: none;
-}
-

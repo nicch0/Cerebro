@@ -47,7 +47,7 @@ export class OverlayManager {
         return this.overlays.get(viewId)!;
     }
 
-    getVisibleMDViews(): MarkdownView[] {
+    public getVisibleMDViews(): MarkdownView[] {
         const views: MarkdownView[] = this.plugin.app.workspace
             .getLeavesOfType("markdown")
             .map((leaf) => leaf.view as MarkdownView)
@@ -55,7 +55,7 @@ export class OverlayManager {
         return views;
     }
 
-    createButtonInView(view: MarkdownView): void {
+    public createButtonInView(view: MarkdownView): void {
         const overlay = new Overlay(this.plugin, view);
         this.overlays.set(this._getViewId(view), overlay);
         overlay.showButton();
@@ -72,45 +72,8 @@ export class OverlayManager {
 
     public removeAll(): void {
         this.overlays.forEach((overlay: Overlay) => {
-            overlay.button.destroy();
+            overlay.destroy();
         });
         this.overlays.clear();
-    }
-    
-    /**
-     * Show the inline chat button for text selection
-     * 
-     * @param view The active markdown view
-     * @param selectedText The selected text
-     * @param range The range of the selection in the editor
-     */
-    public showInlineChatButtonForSelection(
-        view: MarkdownView,
-        selectedText: string,
-        range: SelectionRange
-    ): void {
-        if (!selectedText || selectedText.trim().length === 0) {
-            return;
-        }
-        
-        // Get the overlay for the current view
-        const overlay = this.getOverlayInView(view);
-        
-        // Show the inline chat button and position it near the selection
-        overlay.showInlineChatButton(selectedText, range);
-    }
-    
-    /**
-     * Hide the inline chat button
-     * 
-     * @param view The markdown view where the button should be hidden
-     */
-    public hideInlineChatButton(view: MarkdownView): void {
-        // Check if we have an overlay for this view
-        const viewId = this._getViewId(view);
-        if (this.overlays.has(viewId)) {
-            const overlay = this.overlays.get(viewId)!;
-            overlay.hideInlineChatButton();
-        }
     }
 }
