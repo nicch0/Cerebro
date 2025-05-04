@@ -11,7 +11,6 @@ export default class Overlay {
     private overlayActive: boolean;
 
     constructor(plugin: Cerebro, view: MarkdownView) {
-        console.log(`Overlay created for ${view.file?.basename}`);
         this.plugin = plugin;
         this.view = view;
         this.toggleOverlayButton = new OverlayToggleButton(this.plugin, this);
@@ -24,6 +23,10 @@ export default class Overlay {
 
     public setupEventListeners(): void {
         // this.plugin.registerDomEvent(this.containerEl, "click", () => this.handleClick());
+    }
+
+    public get active(): boolean {
+        return this.overlayActive;
     }
 
     public getViewType(): string {

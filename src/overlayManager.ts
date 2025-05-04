@@ -77,4 +77,9 @@ export class OverlayManager {
         });
         this.overlays.clear();
     }
+
+    public isOverlayActiveForView(view: MarkdownView) {
+        const overlay = this.getOverlayInView(view);
+        return overlay.active;
+    }
 }
