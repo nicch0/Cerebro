@@ -37,6 +37,10 @@ const getOverlayTooltips = (state: EditorState): readonly Tooltip[] => {
             if (!activeView) {
                 throw new Error("activeView not found");
             }
+            if (!pluginInstance.overlayManager.isOverlayActiveForView(activeView)) {
+                console.log("overlay is not active");
+                return;
+            }
             return {
                 pos: range.head,
                 create: () => {
