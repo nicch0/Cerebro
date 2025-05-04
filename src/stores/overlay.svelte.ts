@@ -1,10 +1,5 @@
 import { SvelteMap } from "svelte/reactivity";
 
-// export type FileOverlayData = {
-//     active: boolean;
-//     commentThreads: CommentThread[];
-// };
-
 export type FilePath = string;
 
 const createOverlayData = () => {
@@ -19,23 +14,23 @@ const createOverlayData = () => {
     };
 };
 
-export type FileOverlayData = ReturnType<typeof createOverlayData>;
+export type OverlayData = ReturnType<typeof createOverlayData>;
 
 /**
  * Creates a file overlay store with reactive state for managing
  * overlay data across multiple views of the same file
  */
 export const createFileOverlayStore = () => {
-    const fileData: SvelteMap<FilePath, FileOverlayData> = new SvelteMap();
+    const overlayData: SvelteMap<FilePath, OverlayData> = new SvelteMap();
 
     return {
         // Read methods using get bindings for reactivity
-        getFileData: (filePath: FilePath): FileOverlayData => {
-            if (!fileData.has(filePath)) {
+        getOverlayData: (filePath: FilePath): OverlayData => {
+            if (!overlayData.has(filePath)) {
                 const data = createOverlayData();
-                fileData.set(filePath, data);
+                overlayData.set(filePath, data);
             }
-            return fileData.get(filePath)!;
+            return overlayData.get(filePath)!;
         },
     };
 };
