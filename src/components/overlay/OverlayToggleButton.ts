@@ -1,7 +1,7 @@
-import { setIcon } from "obsidian";
 import { CEREBRO_LUCIDE_ICON } from "@/constants";
 import type Cerebro from "@/main";
 import type Overlay from "@/views/Overlay.svelte";
+import { setIcon } from "obsidian";
 
 export const BUTTON_CLASS = "cerebro-overlay-button";
 
