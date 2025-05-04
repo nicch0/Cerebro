@@ -46,8 +46,12 @@ export default class Cerebro extends Plugin {
         // Set up Cerebro overlay
         this.overlayManager = new OverlayManager(this);
 
+        this.overlayManager.loadOverlayData().catch((e) => {
+            logger.error(`[Cerebro] Failed to load overlay data: ${e}`);
+        });
+
         this.app.workspace.onLayoutReady(() => {
-            this.overlayManager.createButtonsInOpenViews();
+            this.overlayManager.setUpViews();
         });
 
         this.registerEvent(
@@ -56,8 +60,12 @@ export default class Cerebro extends Plugin {
                     return;
                 }
                 const view: MarkdownView = leaf.view as MarkdownView;
-                this.overlayManager.updateViewForOverlay(view);
-                this.overlayManager.handleActiveLeafChange(view);
+
+                // Only update if view has a file
+                if (view.file) {
+                    this.overlayManager.updateViewForOverlay(view);
+                    this.overlayManager.handleActiveLeafChange(view);
+                }
             }),
         );
 
@@ -122,7 +130,12 @@ export default class Cerebro extends Plugin {
     }
 
     public async onunload(): Promise<void> {
-        // TODO: Ensure all HTML elements are removed from the DOM
+        // Save overlay data before unloading
+        await this.overlayManager.saveOverlayData().catch((e) => {
+            logger.error(`[Cerebro] Failed to save overlay data: ${e}`);
+        });
+
+        // Clean up
         this.app.workspace.detachLeavesOfType(CEREBRO_CHAT_VIEW);
         this.overlayManager.removeAll();
     }
