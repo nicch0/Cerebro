@@ -8,9 +8,8 @@
     type Props = {
         ai: AI;
         settings: CerebroSettings;
-        convoStore: ModelSettingsStore;
+        modelSettings: ModelSettingsStore;
         overlayData: OverlayDataStore;
-        selectedText: string | undefined;
     };
 
     let { overlayData, ...rest }: Props = $props();
@@ -21,6 +20,10 @@
     class="hidden lg:flex flex-col items-stretch justify-center absolute right-0 top-0 xl:w-1/5 2xl:w-1/4 h-full pointer-events-auto"
 >
     {#each overlayData.data.conversations as conversation}
-        <InlineChat messageStore={conversation.messageStore} {...rest} />
+        <InlineChat
+            messageStore={conversation.messageStore}
+            selectedText={conversation.selectedText}
+            {...rest}
+        />
     {/each}
 </div>

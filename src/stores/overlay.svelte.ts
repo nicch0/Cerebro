@@ -7,6 +7,7 @@ export type FilePath = string;
 export type InlineConversation = {
     editorRange: EditorRange;
     messageStore: MessageStore;
+    selectedText: string;
 };
 const createOverlayDataStore = () => {
     const data = $state({
@@ -17,10 +18,11 @@ const createOverlayDataStore = () => {
         get data() {
             return data;
         },
-        addInlineConversation: (editorRange: EditorRange): void => {
+        addInlineConversation: (editorRange: EditorRange, selectedText: string): void => {
             data.conversations.push({
                 editorRange,
                 messageStore: createMessageStore(),
+                selectedText,
             });
         },
         toggleActive: (): void => {
