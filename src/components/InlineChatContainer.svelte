@@ -19,9 +19,10 @@
     id="cerebro-overlay-container"
     class="hidden lg:flex flex-col items-stretch justify-center absolute right-0 top-0 xl:w-1/5 2xl:w-1/4 h-full pointer-events-auto"
 >
-    {#each overlayData.data.conversations as conversation}
+    {#each overlayData.data.conversations as conversation (conversation.id)}
         <InlineChat
             messageStore={conversation.messageStore}
+            removeConversation={() => overlayData.removeConversation(conversation.id)}
             selectedText={conversation.selectedText}
             {...rest}
         />

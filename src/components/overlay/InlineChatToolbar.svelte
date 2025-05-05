@@ -3,7 +3,6 @@
     import { Textarea } from "@/components/ui/textarea";
     import { Platform } from "obsidian";
     import ModelManager from "@/modelManager";
-    import type { ModelSettingsStore } from "@/stores/convoParams.svelte";
     import type { MessageStore } from "@/stores/messages.svelte";
 
     interface ToolbarProps {
@@ -13,6 +12,7 @@
         selectedText: string | undefined;
         variant?: string;
         size?: string;
+        removeConversation: () => void;
     }
 
     let {
@@ -22,6 +22,7 @@
         selectedText,
         variant = "default",
         size = "default",
+        removeConversation,
     }: ToolbarProps = $props();
 
     let prompt: string = $state("");
@@ -72,12 +73,7 @@
     />
 
     <div class="ml-auto gap-1.5 flex flex-row justify-end">
-        <Button
-            variant="ghost"
-            size="default"
-            onclick={completeUserResponse}
-            disabled={isStreaming || prompt.trim().length === 0}>Cancel</Button
-        >
+        <Button variant="ghost" size="default" onclick={removeConversation}>Cancel</Button>
         <Button
             variant="default"
             size="default"

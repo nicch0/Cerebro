@@ -5,6 +5,7 @@ import { createMessageStore, type MessageStore } from "./messages.svelte";
 export type FilePath = string;
 
 export type InlineConversation = {
+    id: number;
     editorRange: EditorRange;
     messageStore: MessageStore;
     selectedText: string;
@@ -14,16 +15,24 @@ const createOverlayDataStore = () => {
         active: true,
         conversations: [] as InlineConversation[],
     });
+    let currentId = 0;
     return {
         get data() {
             return data;
         },
         addInlineConversation: (editorRange: EditorRange, selectedText: string): void => {
             data.conversations.push({
+                id: currentId,
                 editorRange,
                 messageStore: createMessageStore(),
                 selectedText,
             });
+            currentId += 1;
+        },
+        removeConversation: (id: number): void => {
+            data.conversations = data.conversations.filter(
+                (conversation) => conversation.id !== id,
+            );
         },
         toggleActive: (): void => {
             data.active = !data.active;
