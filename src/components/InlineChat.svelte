@@ -13,9 +13,11 @@
         modelSettings: ModelSettingsStore;
         messageStore: MessageStore;
         selectedText: string | undefined;
+        removeConversation: () => void;
     }
 
-    let { ai, settings, modelSettings, messageStore, selectedText }: ChatProps = $props();
+    let { ai, settings, modelSettings, messageStore, selectedText, removeConversation }: ChatProps =
+        $props();
 
     let incomingMessage: Message = $state({
         role: "assistant",
@@ -68,6 +70,7 @@
             {isStreaming}
             {messageStore}
             {selectedText}
+            {removeConversation}
         />
     </div>
 </div>
