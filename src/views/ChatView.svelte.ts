@@ -1,11 +1,9 @@
-import { type IconName, ItemView, TFile, WorkspaceLeaf } from "obsidian";
-import { mount, unmount } from "svelte";
 import Chat from "@/components/Chat.svelte";
 import { CEREBRO_LUCIDE_ICON } from "@/constants";
 import { logger } from "@/logger";
 import type Cerebro from "@/main";
 import ModelManager from "@/modelManager";
-import { type ConversationStore, createConversationStore } from "@/stores/convoParams.svelte";
+import { createModelSettingsStore, type ModelSettingsStore } from "@/stores/convoParams.svelte";
 import { createMessageStore, type MessageStore } from "@/stores/messages.svelte";
 import type { ConversationParameters } from "@/types";
 import { createNewChatFile } from "@/utils/chatCreation";
@@ -14,13 +12,15 @@ import {
     parseConversationMarkdown,
     serializeMessagesToMarkdown,
 } from "@/utils/markdownParser";
+import { type IconName, ItemView, TFile, WorkspaceLeaf } from "obsidian";
+import { mount, unmount } from "svelte";
 
 export const CEREBRO_CHAT_VIEW = "cerebro-chat-view";
 
 export class ChatView extends ItemView {
     public component: ReturnType<typeof Chat> | undefined;
     private plugin: Cerebro;
-    private convoStore: ConversationStore;
+    private convoStore: ModelSettingsStore;
     private messageStore: MessageStore;
     private selectedText?: string;
     private file?: TFile;
@@ -31,7 +31,7 @@ export class ChatView extends ItemView {
         this.plugin = plugin;
         this.modelManager = ModelManager.getInstance();
 
-        this.convoStore = createConversationStore({
+        this.convoStore = createModelSettingsStore({
             title: "",
             model: this.plugin.settings.modelDefaults.model,
             system: this.plugin.settings.modelDefaults.system,

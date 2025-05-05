@@ -91,11 +91,31 @@ export class OverlayManager {
     }
 
     public createTooltipButton(range: SelectionRange): Tooltip | undefined {
-        const _createTooltipButton = (view: MarkdownView): TooltipView => {
+        const _createTooltipButton = (overlay: Overlay): TooltipView => {
             const div: HTMLDivElement = createEl("div");
             div.addClass("cerebro-overlay-tooltip");
 
-            const component = mount(InlineChatButton, { target: div });
+            // Get the selected text from the editor
+            const activeView = this.plugin.app.workspace.getActiveViewOfType(MarkdownView);
+            if (!activeView || !activeView.editor) {
+                return {
+                    dom: div,
+                    destroy: () => {},
+                };
+            }
+
+            // Get the selected text using the range
+            const selectedText = activeView.editor.getRange(
+                activeView.editor.offsetToPos(range.from),
+                activeView.editor.offsetToPos(range.to),
+            );
+
+            const component = mount(InlineChatButton, {
+                target: div,
+                props: {
+                    onclick: () => overlay.createNewChat(range, selectedText),
+                },
+            });
             return {
                 dom: div,
                 destroy: () => unmount(component),
@@ -109,11 +129,13 @@ export class OverlayManager {
             return;
         }
 
+        const overlay = this.getOverlayInView(activeView);
+
         return {
             pos: range.head,
             above: false,
             create: () => {
-                return _createTooltipButton(activeView);
+                return _createTooltipButton(overlay);
             },
         };
     }

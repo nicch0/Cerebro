@@ -56,7 +56,7 @@
     };
 </script>
 
-<div id="cerebro-chat-view" class="flex flex-col size-full overflow-hidden relative">
+<div id="cerebro-chat-view" class="fixed width-md height-lg">
     <div class="overflow-auto flex-1">
         <MessageDisplay {incomingMessage} {isStreaming} messages={messageStore.messages} />
     </div>
