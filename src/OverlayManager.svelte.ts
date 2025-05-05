@@ -1,13 +1,11 @@
-import type { MarkdownView } from "obsidian";
+import type { SelectionRange } from "@codemirror/state";
+import type { Tooltip, TooltipView } from "@codemirror/view";
+import { MarkdownView } from "obsidian";
+import { mount, unmount } from "svelte";
+import InlineChatButton from "./components/overlay/InlineChatButton.svelte";
 import type Cerebro from "./main";
 import { createFileOverlayStore, type FileOverlayStore } from "./stores/overlay.svelte";
 import Overlay from "./views/Overlay.svelte";
-
-// Type definition for selection range
-export interface SelectionRange {
-    from: number;
-    to: number;
-}
 
 export class OverlayManager {
     private plugin: Cerebro;
@@ -90,5 +88,33 @@ export class OverlayManager {
         const filePath = view.file.path;
         const fileData = this.fileOverlayStore.getOverlayData(filePath);
         return fileData.data.active;
+    }
+
+    public createTooltipButton(range: SelectionRange): Tooltip | undefined {
+        const _createTooltipButton = (view: MarkdownView): TooltipView => {
+            const div: HTMLDivElement = createEl("div");
+            div.addClass("cerebro-overlay-tooltip");
+
+            const component = mount(InlineChatButton, { target: div });
+            return {
+                dom: div,
+                destroy: () => unmount(component),
+            };
+        };
+        const activeView = this.plugin.app.workspace.getActiveViewOfType(MarkdownView);
+        if (!activeView) {
+            throw new Error("activeView not found");
+        }
+        if (!this.plugin.overlayManager.isOverlayActiveForView(activeView)) {
+            return;
+        }
+
+        return {
+            pos: range.head,
+            above: false,
+            create: () => {
+                return _createTooltipButton(activeView);
+            },
+        };
     }
 }
