@@ -13,8 +13,8 @@
                 inline: "flex-1 bg-background border-none shadow-none leading-6 resize-none outline-none hover:bg-transparent focus-visible:outline-none focus-visible:ring-0 placeholder:text-small placeholder:text-muted",
             },
             size: {
-                default: "h-20 w-full text-base",
-                inline: "h-20 w-full text-small",
+                default: "min-h-20 w-full text-base",
+                inline: "min-h-20 w-full text-small",
             },
         },
         defaultVariants: {
@@ -38,10 +38,6 @@
     } = $props();
 </script>
 
-<!-- class={cn(
-    "border-input placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[60px] w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-0 md:text-sm",
-    className,
-)} -->
 <textarea
     bind:this={ref}
     bind:value

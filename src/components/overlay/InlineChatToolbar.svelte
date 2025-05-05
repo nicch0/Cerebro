@@ -1,18 +1,16 @@
 <script lang="ts">
     import { Button } from "@/components/ui/button";
     import { Textarea } from "@/components/ui/textarea";
-    import { Paperclip, ArrowUp, Globe, Brain, ChevronDown, Mic } from "@lucide/svelte";
-    import type { Message, ModelConfig } from "@/types";
     import { Platform } from "obsidian";
     import ModelManager from "@/modelManager";
     import type { ModelSettingsStore } from "@/stores/convoParams.svelte";
+    import type { MessageStore } from "@/stores/messages.svelte";
 
     interface ToolbarProps {
         sendMessage: (message: { role: string; content: string }) => void;
         isStreaming: boolean;
-        messages: Message[];
+        messageStore: MessageStore;
         selectedText: string | undefined;
-        convoStore: ModelSettingsStore;
         variant?: string;
         size?: string;
     }
@@ -20,9 +18,8 @@
     let {
         sendMessage,
         isStreaming,
-        messages,
+        messageStore,
         selectedText,
-        convoStore,
         variant = "default",
         size = "default",
     }: ToolbarProps = $props();
@@ -32,31 +29,12 @@
     if (selectedText) {
         prompt = selectedText;
     }
-    let searchEnabled: boolean = $state(false);
-    let thinkEnabled: boolean = $state(false);
 
     const modelManager = ModelManager.getInstance();
 
-    // Using derived to get the current model from the store
-    const selectedModel = $derived(convoStore.params.model);
-    // const modelHasSearch = selectedModel?.capabilities?.search?.enabled;
-
     const toolbarPlaceholder = $derived(
-        messages.length === 0 ? "How can I help you today?" : "Type your message here...",
+        messageStore.length === 0 ? "How can I help you today?" : "Type your message here...",
     );
-
-    const changeSelectedModel = (model: ModelConfig) => {
-        // Call the store's update method
-        convoStore.updateModel(model);
-    };
-
-    const toggleSearch = () => {
-        searchEnabled = !searchEnabled;
-    };
-
-    const toggleThink = () => {
-        thinkEnabled = !thinkEnabled;
-    };
 
     const completeUserResponse = async () => {
         const message = {
@@ -76,13 +54,13 @@
                 completeUserResponse();
             }
         }
-        // TODO: Cycle between old messages on arrowUp/arrowDown
+        // TODO: Cycle between old messageStore on arrowUp/arrowDown
     }
 </script>
 
 <div
     id="cerebro-inline-toolbar"
-    class="p-3 bg-background border-solid rounded-lg border-border border drop-shadow-lg w-full overflow-visible flex-col flex gap-2 items-center"
+    class="p-3 bg-background border-solid rounded-lg border-border border drop-shadow-lg w-full overflow-visible flex-col flex-grow flex gap-2 items-center"
 >
     <Textarea
         {variant}

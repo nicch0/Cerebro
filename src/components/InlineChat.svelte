@@ -1,22 +1,21 @@
 <script lang="ts">
-    import Toolbar from "@/components/Toolbar.svelte";
     import MessageDisplay from "@/components/MessageDisplay.svelte";
     import { type MessageStore } from "@/stores/messages.svelte";
     import type { Message } from "@/types";
     import type { AI } from "@/ai";
     import type { CerebroSettings } from "@/settings";
     import type { ModelSettingsStore } from "@/stores/convoParams.svelte";
-    import InlineChatToolbar from "./InlineChatToolbar.svelte";
+    import InlineChatToolbar from "./overlay/InlineChatToolbar.svelte";
 
     interface ChatProps {
         ai: AI;
         settings: CerebroSettings;
-        convoStore: ModelSettingsStore;
+        modelSettings: ModelSettingsStore;
         messageStore: MessageStore;
         selectedText: string | undefined;
     }
 
-    let { ai, settings, convoStore, messageStore, selectedText }: ChatProps = $props();
+    let { ai, settings, modelSettings, messageStore, selectedText }: ChatProps = $props();
 
     let incomingMessage: Message = $state({
         role: "assistant",
@@ -40,7 +39,7 @@
         // Make call to LLM with streaming callback
         const fullResponse = await ai.chat(
             messageStore.messages,
-            convoStore.params,
+            modelSettings.params,
             settings,
             streamCallback,
         );
@@ -67,8 +66,7 @@
             size="inline"
             {sendMessage}
             {isStreaming}
-            {convoStore}
-            messages={messageStore.messages}
+            {messageStore}
             {selectedText}
         />
     </div>

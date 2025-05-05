@@ -83,7 +83,7 @@ export default class Overlay {
             throw new Error("[Cerebro] Cannot create chat: No inline chat container found");
         }
 
-        this.overlayData.addInlineConversation(editorRange);
+        this.overlayData.addInlineConversation(editorRange, selectedText);
 
         // // Get the actual DOM element for the line
         // // First get the CodeMirror editor DOM
@@ -160,14 +160,13 @@ export default class Overlay {
             props: {
                 ai: this.plugin.ai,
                 settings: this.plugin.settings,
-                convoStore: this.modelSettingsStore,
+                modelSettings: this.modelSettingsStore,
                 overlayData: this.overlayData,
-                selectedText: "",
             },
         });
 
         // TODO: REMOVE
-        this.overlayData.addInlineConversation({ from: 10, to: 200 });
+        this.overlayData.addInlineConversation({ from: 10, to: 200 }, "Hello");
     }
 
     private mountToggleButton(): void {
