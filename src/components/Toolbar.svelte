@@ -6,14 +6,14 @@
     import type { Message, ModelConfig } from "@/types";
     import { Platform } from "obsidian";
     import ModelManager from "@/modelManager";
-    import type { ConversationStore } from "@/stores/convoParams.svelte";
+    import type { ModelSettingsStore } from "@/stores/convoParams.svelte";
 
     interface ToolbarProps {
         sendMessage: (message: { role: string; content: string }) => void;
         isStreaming: boolean;
         messages: Message[];
         selectedText: string | undefined;
-        convoStore: ConversationStore;
+        convoStore: ModelSettingsStore;
     }
 
     let { sendMessage, isStreaming, messages, selectedText, convoStore }: ToolbarProps = $props();

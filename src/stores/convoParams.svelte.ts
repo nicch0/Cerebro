@@ -4,7 +4,7 @@ import type { ConversationParameters, ModelConfig } from "@/types";
  * Creates a conversation parameters store with reactive state
  * and methods for updating state with automatic persistence
  */
-export const createConversationStore = (initialParams: ConversationParameters) => {
+export const createModelSettingsStore = (initialParams: ConversationParameters) => {
     // Core reactive state using Svelte 5 runes
     const params = $state({ ...initialParams });
 
@@ -64,4 +64,4 @@ export const createConversationStore = (initialParams: ConversationParameters) =
 };
 
 // Export the type for use in components
-export type ConversationStore = ReturnType<typeof createConversationStore>;
+export type ModelSettingsStore = ReturnType<typeof createModelSettingsStore>;
