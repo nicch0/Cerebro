@@ -1,21 +1,22 @@
-import InlineChat from "@/components/InlineChat.svelte";
+import type { SelectionRange } from "@codemirror/state";
+import { type EditorRange, type MarkdownView } from "obsidian";
+import { mount, unmount } from "svelte";
+import InlineChatContainer from "@/components/InlineChatContainer.svelte";
 import OverlayToggleButton from "@/components/overlay/OverlayToggleButton.svelte";
-import { logger } from "@/logger";
 import type Cerebro from "@/main";
 import ModelManager from "@/modelManager";
 import { createModelSettingsStore, type ModelSettingsStore } from "@/stores/convoParams.svelte";
-import { createMessageStore } from "@/stores/messages.svelte";
 import type { OverlayDataStore } from "@/stores/overlay.svelte";
-import type { SelectionRange } from "@codemirror/state";
-import { Editor, type MarkdownView } from "obsidian";
-import { mount, unmount } from "svelte";
 
 export const CEREBRO_OVERLAY_VIEW = "cerebro-overlay-view";
 
 export default class Overlay {
     private plugin: Cerebro;
     public view: MarkdownView;
+
     private overlayToggleButton: ReturnType<typeof OverlayToggleButton> | undefined;
+    private inlineChatContainer: ReturnType<typeof InlineChatContainer> | undefined;
+
     private overlayData: OverlayDataStore;
     private modelManager: ModelManager;
     private modelSettingsStore: ModelSettingsStore;
@@ -39,26 +40,26 @@ export default class Overlay {
         this.setupEventListeners();
     }
 
-    private getCmLine(editor: Editor, range: SelectionRange) {
-        // Find the line element using the range
-        // Convert the from position to a line number
-        const fromLine = editor.offsetToPos(range.from).line;
+    // private getCmLine(editor: Editor, range: SelectionRange) {
+    //     // Find the line element using the range
+    //     // Convert the from position to a line number
+    //     const fromLine = editor.offsetToPos(range.from).line;
 
-        // Get the actual DOM element for the line
-        // First get the CodeMirror editor DOM
-        const cmEditor = this.view.containerEl.querySelector(".cm-editor");
-        if (!cmEditor) {
-            throw new Error("[Cerebro] Cannot create chat: No CodeMirror editor found");
-        }
+    //     // Get the actual DOM element for the line
+    //     // First get the CodeMirror editor DOM
+    //     const cmEditor = this.view.containerEl.querySelector(".cm-editor");
+    //     if (!cmEditor) {
+    //         throw new Error("[Cerebro] Cannot create chat: No CodeMirror editor found");
+    //     }
 
-        // Find the line element by its line number
-        const lineElements = cmEditor.querySelectorAll(".cm-line");
-        if (!lineElements || lineElements.length <= fromLine) {
-            throw new Error(`[Cerebro] Cannot create chat: Line ${fromLine} not found`);
-        }
+    //     // Find the line element by its line number
+    //     const lineElements = cmEditor.querySelectorAll(".cm-line");
+    //     if (!lineElements || lineElements.length <= fromLine) {
+    //         throw new Error(`[Cerebro] Cannot create chat: Line ${fromLine} not found`);
+    //     }
 
-        return lineElements[fromLine] as HTMLElement;
-    }
+    //     return lineElements[fromLine] as HTMLElement;
+    // }
 
     /**
      * Creates a new chat component anchored to a specific line in the editor
@@ -66,84 +67,110 @@ export default class Overlay {
      * @param selectedText The selected text that will be used as context for the chat
      */
     public createNewChat(range: SelectionRange, selectedText: string): void {
-        try {
-            // Get the editor view
-            const editor = this.view.editor;
+        // Get the editor view
+        const editor = this.view.editor;
 
-            // Find the line element using the range
-            // Convert the from position to a line number
-            const fromLine = editor.offsetToPos(range.from).line;
+        const editorRange: EditorRange = {
+            from: range.from,
+            to: range.to,
+        };
 
-            // Get the actual DOM element for the line
-            // First get the CodeMirror editor DOM
-            const cmEditor = this.view.containerEl.querySelector(".cm-sizer");
-            if (!cmEditor) {
-                throw new Error("[Cerebro] Cannot create chat: No CodeMirror editor found");
-            }
+        // Find the line element using the range
+        // Convert the from position to a line number
+        const fromLine = editor.offsetToPos(range.from).line;
 
-            // Find the line element by its line number
-            const lineElements = cmEditor.querySelectorAll(".cm-line");
-            if (!lineElements || lineElements.length <= fromLine) {
-                throw new Error(`[Cerebro] Cannot create chat: Line ${fromLine} not found`);
-            }
-
-            const cmLine = lineElements[fromLine] as HTMLElement;
-            const messageStore = createMessageStore();
-
-            const chat = mount(InlineChat, {
-                target: cmEditor,
-                props: {
-                    ai: this.plugin.ai,
-                    settings: this.plugin.settings,
-                    convoStore: this.modelSettingsStore,
-                    messageStore,
-                    selectedText,
-                },
-            });
-
-            // // Insert the container after the line element
-            // lineElement.insertAdjacentElement("afterend", chatContainer);
-
-            // // Create stores for the chat
-            // const messageStore = createMessageStore();
-
-            // // Add selected text as the first user message if available
-            // if (selectedText && selectedText.trim().length > 0) {
-            //     messageStore.addMessage("user", selectedText);
-            // }
-
-            // // Mount the Chat component
-            // mount(Chat, {
-            //     target: chatContainer,
-            //     props: {
-            //         ai: this.plugin.ai,
-            //         settings: this.plugin.settings,
-            //         convoStore: this.modelSettingsStore,
-            //         messageStore: messageStore,
-            //         selectedText: "", // Leave empty since we already added it to messages
-            //     },
-            // });
-
-            // // Store the thread in the overlay data store
-            // if (this.view.file) {
-            //     const filePath = this.view.file.path;
-            //     this.overlayData.addCommentThread(filePath, {
-            //         id: `comment-${Date.now()}`,
-            //         range: range,
-            //         position: fromLine,
-            //         messageStore: messageStore,
-            //     });
-            // }
-
-            logger.debug(`[Cerebro] Created new chat anchored to line ${fromLine}`);
-        } catch (error) {
-            logger.error(`[Cerebro] Failed to create chat: ${error}`);
+        if (!this.inlineChatContainer) {
+            throw new Error("[Cerebro] Cannot create chat: No inline chat container found");
         }
+
+        this.overlayData.addInlineConversation(editorRange);
+
+        // // Get the actual DOM element for the line
+        // // First get the CodeMirror editor DOM
+        // const cmEditor = this.view.containerEl.querySelector(".cm-sizer");
+        // if (!cmEditor) {
+        //     throw new Error("[Cerebro] Cannot create chat: No CodeMirror editor found");
+        // }
+
+        // // Find the line element by its line number
+        // const lineElements = cmEditor.querySelectorAll(".cm-line");
+        // if (!lineElements || lineElements.length <= fromLine) {
+        //     throw new Error(`[Cerebro] Cannot create chat: Line ${fromLine} not found`);
+        // }
+
+        // const cmLine = lineElements[fromLine] as HTMLElement;
+        // const messageStore = createMessageStore();
+
+        // const chat = mount(InlineChat, {
+        //     target: cmEditor,
+        //     props: {
+        //         ai: this.plugin.ai,
+        //         settings: this.plugin.settings,
+        //         convoStore: this.modelSettingsStore,
+        //         messageStore,
+        //         selectedText,
+        //     },
+        // });
+
+        // // Insert the container after the line element
+        // lineElement.insertAdjacentElement("afterend", chatContainer);
+
+        // // Create stores for the chat
+        // const messageStore = createMessageStore();
+
+        // // Add selected text as the first user message if available
+        // if (selectedText && selectedText.trim().length > 0) {
+        //     messageStore.addMessage("user", selectedText);
+        // }
+
+        // // Mount the Chat component
+        // mount(Chat, {
+        //     target: chatContainer,
+        //     props: {
+        //         ai: this.plugin.ai,
+        //         settings: this.plugin.settings,
+        //         convoStore: this.modelSettingsStore,
+        //         messageStore: messageStore,
+        //         selectedText: "", // Leave empty since we already added it to messages
+        //     },
+        // });
+
+        // // Store the thread in the overlay data store
+        // if (this.view.file) {
+        //     const filePath = this.view.file.path;
+        //     this.overlayData.addCommentThread(filePath, {
+        //         id: `comment-${Date.now()}`,
+        //         range: range,
+        //         position: fromLine,
+        //         messageStore: messageStore,
+        //     });
+        // }
     }
 
-    public mountComponents(): void {
-        // TODO: Support RHS
+    private mountInlineChatContainer(): void {
+        // Get the actual DOM element for the line
+        // First get the CodeMirror editor DOM
+        const container = this.view.containerEl.querySelector(".cm-scroller");
+        if (!container) {
+            throw new Error("[Cerebro] Cannot create chat: No CodeMirror editor found");
+        }
+        this.inlineChatContainer = mount(InlineChatContainer, {
+            target: container,
+            anchor: container?.firstChild?.after() || undefined,
+            props: {
+                ai: this.plugin.ai,
+                settings: this.plugin.settings,
+                convoStore: this.modelSettingsStore,
+                overlayData: this.overlayData,
+                selectedText: "",
+            },
+        });
 
+        // TODO: REMOVE
+        this.overlayData.addInlineConversation({ from: 10, to: 200 });
+    }
+
+    private mountToggleButton(): void {
         const viewActions: HTMLElement | null =
             this.view.containerEl.querySelector(".view-actions");
 
@@ -159,6 +186,12 @@ export default class Overlay {
         }
     }
 
+    public mountComponents(): void {
+        // TODO: Support RHS
+        this.mountToggleButton();
+        this.mountInlineChatContainer();
+    }
+
     public setupEventListeners(): void {}
 
     public getViewType(): string {
@@ -172,6 +205,9 @@ export default class Overlay {
     public destroy(): void {
         if (this.overlayToggleButton) {
             unmount(this.overlayToggleButton);
+        }
+        if (this.inlineChatContainer) {
+            unmount(this.inlineChatContainer);
         }
     }
 }

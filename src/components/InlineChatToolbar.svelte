@@ -1,12 +1,12 @@
 <script lang="ts">
     import { Button } from "@/components/ui/button";
     import { Textarea } from "@/components/ui/textarea";
-    import * as DropdownMenu from "@/components/ui/dropdown-menu";
     import { Paperclip, ArrowUp, Globe, Brain, ChevronDown, Mic } from "@lucide/svelte";
     import type { Message, ModelConfig } from "@/types";
     import { Platform } from "obsidian";
     import ModelManager from "@/modelManager";
     import type { ModelSettingsStore } from "@/stores/convoParams.svelte";
+
     interface ToolbarProps {
         sendMessage: (message: { role: string; content: string }) => void;
         isStreaming: boolean;
@@ -81,8 +81,8 @@
 </script>
 
 <div
-    id="cerebro-toolbar"
-    class="p-4 bg-background border-solid rounded-lg border-border border drop-shadow-lg w-full overflow-visible"
+    id="cerebro-inline-toolbar"
+    class="p-3 bg-background border-solid rounded-lg border-border border drop-shadow-lg w-full overflow-visible flex-col flex gap-2 items-center"
 >
     <Textarea
         {variant}
@@ -93,57 +93,20 @@
         autofocus
     />
 
-    <div class="flex justify-center items-center">
-        {#if variant === "default"}
-            <div class="flex flex-wrap justify-start items-center">
-                <DropdownMenu.Root>
-                    <DropdownMenu.Trigger>
-                        <span>{selectedModel.displayName}</span>
-                        <ChevronDown />
-                    </DropdownMenu.Trigger>
-                    <!-- TODO: Split model providers into groups -->
-                    <DropdownMenu.Content class="bg-dropdown">
-                        <DropdownMenu.Group>
-                            {#each modelManager.availableModels as model (model.key)}
-                                <DropdownMenu.Item
-                                    textValue={model.displayName}
-                                    onSelect={() => changeSelectedModel(model)}
-                                    >{model.displayName}</DropdownMenu.Item
-                                >
-                            {/each}
-                        </DropdownMenu.Group>
-                    </DropdownMenu.Content>
-                </DropdownMenu.Root>
-            </div>
-            <Button variant="ghost" size="icon" onclick={toggleSearch}>
-                <Globe class="size-4" />
-                <span class="sr-only">Search</span>
-            </Button>
-            <Button variant="ghost" size="icon" onclick={toggleThink}>
-                <Brain class="size-4" />
-                <span class="sr-only">Think</span>
-            </Button>
-        {/if}
-
-        <div class="ml-auto gap-1.5 flex flex-row">
-            <Button variant="ghost" size="icon">
-                <Paperclip class="size-4" />
-                <span class="sr-only">Attach file</span>
-            </Button>
-
-            <Button variant="ghost" size="icon">
-                <Mic class="size-4" />
-                <span class="sr-only">Use Microphone</span>
-            </Button>
-
-            <Button
-                variant="default"
-                size="icon"
-                onclick={completeUserResponse}
-                disabled={isStreaming || prompt.trim().length === 0}
-            >
-                <ArrowUp />
-            </Button>
-        </div>
+    <div class="ml-auto gap-1.5 flex flex-row justify-end">
+        <Button
+            variant="ghost"
+            size="default"
+            onclick={completeUserResponse}
+            disabled={isStreaming || prompt.trim().length === 0}>Cancel</Button
+        >
+        <Button
+            variant="default"
+            size="default"
+            onclick={completeUserResponse}
+            disabled={isStreaming || prompt.trim().length === 0}
+        >
+            Comment
+        </Button>
     </div>
 </div>

@@ -1,16 +1,27 @@
+import type { EditorRange } from "obsidian";
 import { SvelteMap } from "svelte/reactivity";
-import type { MessageStore } from "./messages.svelte";
+import { createMessageStore, type MessageStore } from "./messages.svelte";
 
 export type FilePath = string;
 
+export type InlineConversation = {
+    editorRange: EditorRange;
+    messageStore: MessageStore;
+};
 const createOverlayDataStore = () => {
-    const data = $state({ active: true, messageStores: [] });
+    const data = $state({
+        active: true,
+        conversations: [] as InlineConversation[],
+    });
     return {
         get data() {
             return data;
         },
-        addMessageStore: (messageStore: MessageStore): void => {
-            data.messageStores.push(messageStore);
+        addInlineConversation: (editorRange: EditorRange): void => {
+            data.conversations.push({
+                editorRange,
+                messageStore: createMessageStore(),
+            });
         },
         toggleActive: (): void => {
             data.active = !data.active;
