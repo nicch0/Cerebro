@@ -1,3 +1,4 @@
+import objectAssignDeep from "object-assign-deep";
 import { MarkdownView, Notice, Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import { AI } from "./ai";
 import { openChat } from "./chat";
@@ -111,7 +112,11 @@ export default class Cerebro extends Plugin {
 
     private async loadSettings(): Promise<void> {
         const modelManager = ModelManager.initialize();
-        this.settings = Object.assign({}, getDefaultSettings(modelManager), await this.loadData());
+        this.settings = objectAssignDeep(
+            {},
+            getDefaultSettings(modelManager),
+            await this.loadData(),
+        );
         logger.debug("[Cerebro] Loaded settings", this.settings);
     }
 

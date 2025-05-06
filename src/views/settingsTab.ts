@@ -148,8 +148,8 @@ export class SettingsTab extends PluginSettingTab {
 
         // Max tokens
         new Setting(containerEl)
-            .setName("Max Tokens")
-            .setDesc("The maximum number of tokens to generate in the response.")
+            .setName("Max tokens in main chat")
+            .setDesc("Max number of tokens to generate.")
             .addText((text) =>
                 text
                     .setValue(this.plugin.settings.modelDefaults.maxTokens.toString())
@@ -164,13 +164,42 @@ export class SettingsTab extends PluginSettingTab {
 
         // Default system prompt
         new Setting(containerEl)
-            .setName("System Prompt")
+            .setName("Main Chat: System Prompt")
             .setDesc("Default instructions given to the model for all new chats.")
             .addTextArea((textArea) =>
                 textArea
                     .setValue(this.plugin.settings.modelDefaults.system.join("\n") || "")
                     .onChange(async (value) => {
                         this.plugin.settings.modelDefaults.system = value.split("\n");
+                        await this.plugin.saveSettings();
+                    }),
+            );
+
+        // Max tokens
+        new Setting(containerEl)
+            .setName("Cerebro Overlay: Max tokens")
+            .setDesc("Max number of tokens to generate in the Cerebro Overlay (file chat)")
+            .addText((text) =>
+                text
+                    .setValue(this.plugin.settings.modelDefaults.overlayMaxTokens.toString())
+                    .onChange(async (value) => {
+                        const numValue = parseInt(value);
+                        if (!isNaN(numValue) && numValue > 0) {
+                            this.plugin.settings.modelDefaults.overlayMaxTokens = numValue;
+                            await this.plugin.saveSettings();
+                        }
+                    }),
+            );
+
+        // Default system prompt
+        new Setting(containerEl)
+            .setName("Cerebro Overlay: System Prompt")
+            .setDesc("Default instructions given to the model for all new chats.")
+            .addTextArea((textArea) =>
+                textArea
+                    .setValue(this.plugin.settings.modelDefaults.overlaySystem.join("\n") || "")
+                    .onChange(async (value) => {
+                        this.plugin.settings.modelDefaults.overlaySystem = value.split("\n");
                         await this.plugin.saveSettings();
                     }),
             );
