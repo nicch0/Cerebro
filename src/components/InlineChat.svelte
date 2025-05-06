@@ -70,7 +70,7 @@
                 {incomingMessage}
                 {isStreaming}
                 messages={messageStore.messages}
-                layout="ai"
+                layout="inline"
             />
         {/if}
     </div>
