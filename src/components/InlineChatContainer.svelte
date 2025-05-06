@@ -17,7 +17,7 @@
 
 <div
     id="cerebro-overlay-container"
-    class="px-4 hidden lg:flex flex-col items-stretch justify-center absolute right-0 top-0 xl:w-1/4 h-full pointer-events-auto"
+    class="px-4 hidden lg:block absolute right-0 top-0 xl:w-1/4 h-full pointer-events-auto"
 >
     {#each overlayData.data.conversations as conversation (conversation.id)}
         <InlineChat

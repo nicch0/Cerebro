@@ -36,11 +36,36 @@
         variant?: TextareaVariant;
         size?: TextareaSize;
     } = $props();
+
+    // Auto-resize the textarea based on content
+    function adjustHeight() {
+        if (ref) {
+            // Reset height to calculate scrollHeight properly
+            ref.style.height = "auto";
+            // Set the height to the scrollHeight to accommodate all content
+            ref.style.height = ref.scrollHeight + "px";
+        }
+    }
+
+    // Adjust height whenever value changes
+    $effect(() => {
+        if (value !== undefined) {
+            queueMicrotask(adjustHeight);
+        }
+    });
+
+    // Initialize height on mount
+    $effect.pre(() => {
+        if (ref) {
+            adjustHeight();
+        }
+    });
 </script>
 
 <textarea
     bind:this={ref}
     bind:value
     class={cn(textAreaVariants({ variant, size }), className)}
+    on:input={adjustHeight}
     {...restProps}
 ></textarea>
