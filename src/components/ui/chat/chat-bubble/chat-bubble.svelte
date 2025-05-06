@@ -4,15 +4,15 @@
     import { type VariantProps, tv } from "tailwind-variants";
 
     export const chatBubbleVariant = tv({
-        base: "flex gap-2 max-w-[60%] items-end relative group",
+        base: "flex max-w-[60%] items-end relative group",
         variants: {
             variant: {
                 received: "self-start",
                 sent: "self-end flex-row-reverse",
             },
             layout: {
-                default: "",
-                ai: "max-w-full w-full items-center",
+                default: "gap-2",
+                ai: "max-w-full w-full items-center gap-0",
             },
         },
         defaultVariants: {
