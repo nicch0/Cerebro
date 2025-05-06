@@ -9,13 +9,12 @@
         variants: {
             variant: {
                 // TODO: Add fallback values in case bg-primary-alt is not set
-                received: "bg-primary text-primary rounded-xl rounded-bl-none leading-normal",
-                sent: "bg-primary-alt text-primary rounded-xl rounded-tr-none leading-normal",
+                received: "bg-primary rounded-xl rounded-bl-none",
+                sent: "bg-primary-alt rounded-xl rounded-tr-none",
             },
             layout: {
-                default: "border-t w-full p-4",
-                // ai: "border-t w-full rounded-none bg-transparent p-2",
-                ai: "border-t w-full p-2",
+                default: "border-t w-full p-4 leading-normal text-primary",
+                inline: "border-t w-full p-0 leading-smaller text-smaller",
             },
         },
         defaultVariants: {

@@ -12,7 +12,7 @@
             },
             layout: {
                 default: "gap-2",
-                ai: "max-w-full w-full items-center gap-0",
+                inline: "max-w-full w-full items-center gap-0",
             },
         },
         defaultVariants: {

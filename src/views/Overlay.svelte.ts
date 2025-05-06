@@ -29,9 +29,9 @@ export default class Overlay {
         this.modelSettingsStore = createModelSettingsStore({
             title: "",
             model: this.plugin.settings.modelDefaults.model,
-            system: this.plugin.settings.modelDefaults.system,
+            system: this.plugin.settings.modelDefaults.overlaySystem,
             temperature: this.plugin.settings.modelDefaults.temperature,
-            maxTokens: this.plugin.settings.modelDefaults.maxTokens,
+            maxTokens: this.plugin.settings.modelDefaults.overlayMaxTokens,
         });
 
         this.mountComponents();

@@ -13,8 +13,8 @@
                 inline: "flex-1 bg-background border-none shadow-none leading-6 resize-none outline-none hover:bg-transparent focus-visible:outline-none focus-visible:ring-0 placeholder:text-small placeholder:text-muted",
             },
             size: {
-                default: "min-h-20 w-full text-base",
-                inline: "min-h-20 w-full text-small",
+                default: "min-h-32 w-full text-base",
+                inline: "min-h-32 w-full text-smaller leading-smaller",
             },
         },
         defaultVariants: {

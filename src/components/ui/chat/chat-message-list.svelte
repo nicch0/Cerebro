@@ -21,7 +21,7 @@
         class={["flex h-full w-full flex-col overflow-y-auto overflow-x-hidden p-4", className]}
         {...restProps}
     >
-        <div class="flex flex-col gap-6">
+        <div class="flex flex-col gap-4">
             {@render children?.()}
         </div>
     </div>
