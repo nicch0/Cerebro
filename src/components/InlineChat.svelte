@@ -25,6 +25,8 @@
     });
     let isStreaming = $state(false);
 
+    let hasMessages = $derived(messageStore.messages.length);
+
     const sendMessage = async ({ role, content }: { role: string; content: string }) => {
         // Update messages store with user message
         messageStore.addMessage(role, content);
@@ -56,13 +58,19 @@
         // Clear the incoming message after pushing to the messages store
         incomingMessage.content = "";
     };
+
+    const focusContainer = () => {
+        console.log("focusing");
+    }
 </script>
 
-<div id="cerebro-inline-chat" class="flex flex-col lg:max-h-lg border-4">
+<div id="cerebro-inline-chat" class="cursor-pointer flex flex-col lg:max-h-lg bg-primary-alt border-border rounded-lg border border-2 drop-shadow-none hover:drop-shadow-lg focus-within:drop-shadow-lg">
     <div class="overflow-auto">
-        <MessageDisplay {incomingMessage} {isStreaming} messages={messageStore.messages} />
+        {#if hasMessages}
+            <MessageDisplay {incomingMessage} {isStreaming} messages={messageStore.messages} layout="ai" />
+        {/if}
     </div>
-    <div class="sticky bottom-0 w-full">
+    <div class="w-full">
         <InlineChatToolbar
             variant="inline"
             size="inline"

@@ -1,12 +1,12 @@
-import type { SelectionRange } from "@codemirror/state";
-import { type EditorRange, type MarkdownView } from "obsidian";
-import { mount, unmount } from "svelte";
 import InlineChatContainer from "@/components/InlineChatContainer.svelte";
 import OverlayToggleButton from "@/components/overlay/OverlayToggleButton.svelte";
 import type Cerebro from "@/main";
 import ModelManager from "@/modelManager";
 import { createModelSettingsStore, type ModelSettingsStore } from "@/stores/convoParams.svelte";
 import type { OverlayDataStore } from "@/stores/overlay.svelte";
+import type { SelectionRange } from "@codemirror/state";
+import { type EditorRange, type MarkdownView } from "obsidian";
+import { mount, unmount } from "svelte";
 
 export const CEREBRO_OVERLAY_VIEW = "cerebro-overlay-view";
 
@@ -166,7 +166,10 @@ export default class Overlay {
         });
 
         // TODO: REMOVE
-        this.overlayData.addInlineConversation({ from: 10, to: 200 }, "Hello");
+        this.overlayData.addInlineConversation(
+            { from: 10, to: 200 },
+            "The scollbar colour utilities are inherited, so if you want to use the same colours on every custom scrollbar, you can define them at a high-level element (e.g. html) and then simply add scrollbar or scrollbar-thin to each scrollbar you'd like to apply custom styling to.",
+        );
     }
 
     private mountToggleButton(): void {

@@ -5,7 +5,7 @@
     import MessageLoading from "../message-loading.svelte";
 
     export const chatBubbleMessageVariants = tv({
-        base: "p-4 select-text",
+        base: "select-text",
         variants: {
             variant: {
                 // TODO: Add fallback values in case bg-primary-alt is not set
@@ -13,8 +13,9 @@
                 sent: "bg-primary-alt text-primary rounded-xl rounded-tr-none leading-normal",
             },
             layout: {
-                default: "border-t w-full",
-                ai: "border-t w-full rounded-none bg-transparent",
+                default: "border-t w-full p-4",
+                // ai: "border-t w-full rounded-none bg-transparent p-2",
+                ai: "border-t w-full p-2",
             },
         },
         defaultVariants: {
