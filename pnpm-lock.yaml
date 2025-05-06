@@ -37,6 +37,9 @@ importers:
             ai:
                 specifier: ^4.3.9
                 version: 4.3.9(react@19.0.0)(zod@3.24.2)
+            object-assign-deep:
+                specifier: ^0.4.0
+                version: 0.4.0
             obsidian:
                 specifier: ^1.8.7
                 version: 1.8.7(@codemirror/state@6.5.2)(@codemirror/view@6.36.5)
@@ -92,6 +95,9 @@ importers:
             "@types/node":
                 specifier: ^22.14.1
                 version: 22.14.1
+            "@types/object-assign-deep":
+                specifier: ^0.4.3
+                version: 0.4.3
             "@typescript-eslint/eslint-plugin":
                 specifier: ^8.31.0
                 version: 8.31.0(@typescript-eslint/parser@8.31.0(eslint@9.25.1(jiti@1.21.7))(typescript@5.8.3))(eslint@9.25.1(jiti@1.21.7))(typescript@5.8.3)
@@ -1667,6 +1673,12 @@ packages:
         resolution:
             {
                 integrity: sha512-u0HuPQwe/dHrItgHHpmw3N2fYCR6x4ivMNbPHRkBVP4CvN+kiRrKHWk3i8tXiO/joPwXLMYvF9TTF0eqgHIuOw==,
+            }
+
+    "@types/object-assign-deep@0.4.3":
+        resolution:
+            {
+                integrity: sha512-d9Gxaj5j1hzrxJ61EFEg13B4g4FgrT/DYtcDWFXPehR8DF2SUZbVMFtZIs8exkVRiqrqBpdTc/lUUZjncsPpMw==,
             }
 
     "@types/responselike@1.0.3":
@@ -4643,6 +4655,13 @@ packages:
                 integrity: sha512-/ieB+mDe4MrrKMT8z+mQL8klXydZWGR5Dowt4RAGKbJ3kIGEx3X4ljUo+6V73IXtUPWgfOlU5B9MlGxFO5T+cA==,
             }
 
+    object-assign-deep@0.4.0:
+        resolution:
+            {
+                integrity: sha512-54Uvn3s+4A/cMWx9tlRez1qtc7pN7pbQ+Yi7mjLjcBpWLlP+XbSHiHbQW6CElDiV4OvuzqnMrBdkgxI1mT8V/Q==,
+            }
+        engines: { node: ">=6" }
+
     object-assign@4.1.1:
         resolution:
             {
@@ -7493,6 +7512,8 @@ snapshots:
         dependencies:
             undici-types: 6.21.0
 
+    "@types/object-assign-deep@0.4.3": {}
+
     "@types/responselike@1.0.3":
         dependencies:
             "@types/node": 22.14.1
@@ -9586,6 +9607,8 @@ snapshots:
             path-key: 3.1.1
 
     nwsapi@2.2.20: {}
+
+    object-assign-deep@0.4.0: {}
 
     object-assign@4.1.1: {}
 

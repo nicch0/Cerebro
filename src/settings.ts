@@ -18,7 +18,9 @@ export interface CerebroSettings {
         model: ModelConfig;
         temperature: number;
         maxTokens: number;
+        overlayMaxTokens: number;
         system: string[];
+        overlaySystem: string[];
     };
 }
 
@@ -52,16 +54,9 @@ export const getDefaultSettings = (modelManager: ModelManager): CerebroSettings 
             model: modelManager.defaultModel,
             temperature: 0.7,
             maxTokens: 1024,
-            system: ["I am a helpful assistant."],
+            overlayMaxTokens: 256,
+            system: ["You are a helpful assistant."],
+            overlaySystem: ["You are a helpful assistant. You're also very concise."],
         },
     };
-};
-
-export const generateChatFrontmatter = (settings: CerebroSettings): string => {
-    const yamlLines = [];
-    yamlLines.push(`temperature: ${settings.modelDefaults.temperature}`);
-    yamlLines.push(`maxTokens: ${settings.modelDefaults.maxTokens}`);
-    yamlLines.push(`system: ${settings.modelDefaults.system}`);
-    yamlLines.push(`model: ${settings.modelDefaults.model.key}`);
-    return `---\n${yamlLines.join("\n")}\n---\n`;
 };

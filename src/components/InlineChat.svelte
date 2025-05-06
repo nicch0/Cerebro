@@ -58,13 +58,20 @@
         // Clear the incoming message after pushing to the messages store
         incomingMessage.content = "";
     };
-
 </script>
 
-<div id="cerebro-inline-chat" class="cursor-pointer bg-primary-alt border-border rounded-lg border border-2 drop-shadow-none hover:drop-shadow-lg focus-within:drop-shadow-lg">
+<div
+    id="cerebro-inline-chat"
+    class="cursor-pointer bg-primary-alt border-border rounded-lg border border-2 drop-shadow-none hover:drop-shadow-lg focus-within:drop-shadow-lg"
+>
     <div class="overflow-auto max-h-64">
         {#if hasMessages}
-            <MessageDisplay {incomingMessage} {isStreaming} messages={messageStore.messages} layout="ai" />
+            <MessageDisplay
+                {incomingMessage}
+                {isStreaming}
+                messages={messageStore.messages}
+                layout="ai"
+            />
         {/if}
     </div>
     <div class="w-full">

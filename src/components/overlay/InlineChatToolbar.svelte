@@ -34,7 +34,9 @@
     const modelManager = ModelManager.getInstance();
 
     const toolbarPlaceholder = $derived(
-        messageStore.messages.length === 0 ? "How can I help you today?" : "Type your message here...",
+        messageStore.messages.length === 0
+            ? "How can I help you today?"
+            : "Type your message here...",
     );
 
     const completeUserResponse = async () => {
@@ -61,9 +63,9 @@
     const clearConversation = () => {
         prompt = "";
         if (messageStore.messages.length === 0) {
-            removeConversation()
+            removeConversation();
         }
-    }
+    };
 </script>
 
 <div
@@ -79,16 +81,16 @@
         autofocus
     />
     {#if prompt}
-    <div class="ml-auto gap-1.5 flex flex-row justify-end">
-        <Button variant="ghost" size="default" onclick={clearConversation}>Cancel</Button>
-        <Button
-            variant="default"
-            size="default"
-            onclick={completeUserResponse}
-            disabled={isStreaming || prompt.trim().length === 0}
-        >
-            Comment
-        </Button>
-    </div>
+        <div class="ml-auto gap-1.5 flex flex-row justify-end">
+            <Button variant="ghost" size="default" onclick={clearConversation}>Cancel</Button>
+            <Button
+                variant="default"
+                size="default"
+                onclick={completeUserResponse}
+                disabled={isStreaming || prompt.trim().length === 0}
+            >
+                Comment
+            </Button>
+        </div>
     {/if}
 </div>
