@@ -34,7 +34,7 @@
     const modelManager = ModelManager.getInstance();
 
     const toolbarPlaceholder = $derived(
-        messageStore.length === 0 ? "How can I help you today?" : "Type your message here...",
+        messageStore.messages.length === 0 ? "How can I help you today?" : "Type your message here...",
     );
 
     const completeUserResponse = async () => {
@@ -57,11 +57,18 @@
         }
         // TODO: Cycle between old messageStore on arrowUp/arrowDown
     }
+
+    const clearConversation = () => {
+        prompt = "";
+        if (messageStore.messages.length === 0) {
+            removeConversation()
+        }
+    }
 </script>
 
 <div
     id="cerebro-inline-toolbar"
-    class="p-3 bg-background border-solid rounded-lg border-border border drop-shadow-sm w-full overflow-visible flex-col flex-grow flex gap-2 items-center"
+    class="p-3 bg-background border-solid rounded-lg border-border border drop-shadow-sm w-full overflow-visible"
 >
     <Textarea
         {variant}
@@ -71,9 +78,9 @@
         onkeydown={handleKeydown}
         autofocus
     />
-
+    {#if prompt}
     <div class="ml-auto gap-1.5 flex flex-row justify-end">
-        <Button variant="ghost" size="default" onclick={removeConversation}>Cancel</Button>
+        <Button variant="ghost" size="default" onclick={clearConversation}>Cancel</Button>
         <Button
             variant="default"
             size="default"
@@ -83,4 +90,5 @@
             Comment
         </Button>
     </div>
+    {/if}
 </div>
