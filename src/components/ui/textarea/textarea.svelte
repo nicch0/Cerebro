@@ -47,25 +47,26 @@
         }
     }
 
-    // Adjust height whenever value changes
-    $effect(() => {
-        if (value !== undefined) {
-            queueMicrotask(adjustHeight);
-        }
-    });
-
     // Initialize height on mount
     $effect.pre(() => {
         if (ref) {
             adjustHeight();
         }
     });
+
+    // Adjust height whenever value changes
+    $effect(() => {
+        if (value !== undefined) {
+            adjustHeight();
+        }
+    });
+
 </script>
 
 <textarea
     bind:this={ref}
     bind:value
     class={cn(textAreaVariants({ variant, size }), className)}
-    on:input={adjustHeight}
+    oninput={adjustHeight}
     {...restProps}
 ></textarea>
