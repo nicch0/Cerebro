@@ -11,11 +11,11 @@
         variants: {
             variant: {
                 default:
-                    "flex-1 bg-background border-none shadow-none leading-6 resize-none outline-none hover:bg-transparent focus-visible:outline-none focus-visible:ring-0 placeholder:text-small placeholder:text-muted",
-                inline: "flex-1 bg-background border-none shadow-none leading-6 resize-none outline-none hover:bg-transparent focus-visible:outline-none focus-visible:ring-0 placeholder:text-small placeholder:text-muted",
+                    "flex-1 bg-background border-none shadow-none resize-none outline-none hover:bg-transparent focus-visible:outline-none focus-visible:ring-0 placeholder:text-small placeholder:text-muted",
+                inline: "flex-1 bg-background border-none shadow-none resize-none outline-none hover:bg-transparent focus-visible:outline-none focus-visible:ring-0 placeholder:text-small placeholder:text-muted",
             },
             size: {
-                default: "min-h-32 w-full text-base",
+                default: "min-h-32 w-full text-base max-h-64",
                 inline: "min-h-12 w-full text-smaller leading-smaller",
             },
         },

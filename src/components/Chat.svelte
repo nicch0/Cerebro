@@ -57,10 +57,10 @@
 </script>
 
 <div id="cerebro-chat-view" class="flex flex-col size-full overflow-hidden relative">
-    <div class="overflow-auto flex-1">
+    <div class="overflow-auto flex-1 w-full max-w-3xl mx-auto">
         <MessageDisplay {incomingMessage} {isStreaming} messages={messageStore.messages} />
     </div>
-    <div class="sticky bottom-0 w-full">
+    <div class="sticky bottom-0 w-full max-w-3xl mx-auto">
         <Toolbar
             {sendMessage}
             {isStreaming}

@@ -93,37 +93,35 @@
         autofocus
     />
 
-    <div class="flex justify-center items-center">
-        {#if variant === "default"}
-            <div class="flex flex-wrap justify-start items-center">
-                <DropdownMenu.Root>
-                    <DropdownMenu.Trigger>
-                        <span>{selectedModel.displayName}</span>
-                        <ChevronDown />
-                    </DropdownMenu.Trigger>
-                    <!-- TODO: Split model providers into groups -->
-                    <DropdownMenu.Content class="bg-dropdown">
-                        <DropdownMenu.Group>
-                            {#each modelManager.availableModels as model (model.key)}
-                                <DropdownMenu.Item
-                                    textValue={model.displayName}
-                                    onSelect={() => changeSelectedModel(model)}
-                                    >{model.displayName}</DropdownMenu.Item
-                                >
-                            {/each}
-                        </DropdownMenu.Group>
-                    </DropdownMenu.Content>
-                </DropdownMenu.Root>
-            </div>
-            <Button variant="ghost" size="icon" onclick={toggleSearch}>
-                <Globe class="size-4" />
-                <span class="sr-only">Search</span>
-            </Button>
-            <Button variant="ghost" size="icon" onclick={toggleThink}>
-                <Brain class="size-4" />
-                <span class="sr-only">Think</span>
-            </Button>
-        {/if}
+    <div class="flex justify-center items-center flex-wrap">
+        <div class="flex flex-wrap justify-start items-center">
+            <DropdownMenu.Root>
+                <DropdownMenu.Trigger>
+                    <span>{selectedModel.displayName}</span>
+                    <ChevronDown />
+                </DropdownMenu.Trigger>
+                <!-- TODO: Split model providers into groups -->
+                <DropdownMenu.Content class="bg-dropdown">
+                    <DropdownMenu.Group>
+                        {#each modelManager.availableModels as model (model.key)}
+                            <DropdownMenu.Item
+                                textValue={model.displayName}
+                                onSelect={() => changeSelectedModel(model)}
+                                >{model.displayName}</DropdownMenu.Item
+                            >
+                        {/each}
+                    </DropdownMenu.Group>
+                </DropdownMenu.Content>
+            </DropdownMenu.Root>
+        </div>
+        <Button variant="ghost" size="icon" onclick={toggleSearch}>
+            <Globe class="size-4" />
+            <span class="sr-only">Search</span>
+        </Button>
+        <Button variant="ghost" size="icon" onclick={toggleThink}>
+            <Brain class="size-4" />
+            <span class="sr-only">Think</span>
+        </Button>
 
         <div class="ml-auto gap-1.5 flex flex-row">
             <Button variant="ghost" size="icon">
