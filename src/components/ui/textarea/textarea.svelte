@@ -3,6 +3,8 @@
     import type { HTMLTextareaAttributes } from "svelte/elements";
     import { cn } from "@/utils.js";
     import { type VariantProps, tv } from "tailwind-variants";
+    import type { Action } from "svelte/action";
+    import { autoFocus } from "@/utils/actions.svelte";
 
     export const textAreaVariants = tv({
         base: "",
@@ -14,7 +16,7 @@
             },
             size: {
                 default: "min-h-32 w-full text-base",
-                inline: "min-h-32 w-full text-smaller leading-smaller",
+                inline: "min-h-12 w-full text-smaller leading-smaller",
             },
         },
         defaultVariants: {
@@ -60,7 +62,6 @@
             adjustHeight();
         }
     });
-
 </script>
 
 <textarea
@@ -68,5 +69,6 @@
     bind:value
     class={cn(textAreaVariants({ variant, size }), className)}
     oninput={adjustHeight}
+    use:autoFocus
     {...restProps}
 ></textarea>

@@ -16,17 +16,17 @@
 </script>
 
 {#if overlayData.data.active}
-<div
-    id="cerebro-overlay-container"
-    class="px-4 hidden lg:block absolute right-0 top-0 xl:w-1/4 h-full pointer-events-auto"
->
-    {#each overlayData.data.conversations as conversation (conversation.id)}
-        <InlineChat
-            messageStore={conversation.messageStore}
-            removeConversation={() => overlayData.removeConversation(conversation.id)}
-            selectedText={conversation.selectedText}
-            {...rest}
-        />
-    {/each}
-</div>
+    <div
+        id="cerebro-overlay-container"
+        class="px-4 hidden lg:block absolute right-0 top-0 xl:w-1/4 h-full pointer-events-auto"
+    >
+        {#each overlayData.data.conversations as conversation (conversation.id)}
+            <InlineChat
+                messageStore={conversation.messageStore}
+                removeConversation={() => overlayData.removeConversation(conversation.id)}
+                selectedText={conversation.selectedText}
+                {...rest}
+            />
+        {/each}
+    </div>
 {/if}

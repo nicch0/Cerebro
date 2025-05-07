@@ -21,11 +21,12 @@ const createOverlayDataStore = () => {
             return data;
         },
         addInlineConversation: (editorRange: EditorRange, selectedText: string): void => {
+            const selectedTextWithPadding = selectedText + "\n\n";
             data.conversations.push({
                 id: currentId,
                 editorRange,
                 messageStore: createMessageStore(),
-                selectedText,
+                selectedText: selectedTextWithPadding,
             });
             currentId += 1;
         },

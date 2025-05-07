@@ -70,7 +70,7 @@
 
 <div
     id="cerebro-inline-toolbar"
-    class="p-3 bg-background border-solid rounded-lg border-border border drop-shadow-sm w-full overflow-visible"
+    class="p-2 bg-background border-solid rounded-lg border-border border drop-shadow-sm w-full overflow-visible"
 >
     <Textarea
         {variant}
