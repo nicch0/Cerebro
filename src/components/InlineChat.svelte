@@ -62,7 +62,7 @@
 
 <div
     id="cerebro-inline-chat"
-    class="cursor-pointer bg-primary-alt border-border rounded-lg border border-2 drop-shadow-none hover:drop-shadow-xl focus-within:drop-shadow-xl"
+    class="my-4 cursor-pointer bg-primary-alt border-border rounded-lg border border-1 drop-shadow-none hover:drop-shadow-xl focus-within:drop-shadow-xl"
 >
     <div class="overflow-auto max-h-64">
         {#if hasMessages}
