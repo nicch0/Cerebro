@@ -15,6 +15,7 @@
     let { overlayData, ...rest }: Props = $props();
 </script>
 
+{#if overlayData.data.active}
 <div
     id="cerebro-overlay-container"
     class="px-4 hidden lg:block absolute right-0 top-0 xl:w-1/4 h-full pointer-events-auto"
@@ -28,3 +29,4 @@
         />
     {/each}
 </div>
+{/if}
