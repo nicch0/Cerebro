@@ -28,6 +28,11 @@ export class OverlayManager {
         return view.leaf.id;
     }
 
+    public toggleOverlayActive(view: MarkdownView) {
+        const overlay = this.getOverlayInView(view);
+        overlay.toggleActive();
+    }
+
     /**
      * Gets or creates an overlay for a view,
      * associating it with the centralized store
