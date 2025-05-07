@@ -14,7 +14,7 @@
             },
             layout: {
                 default: "border-t w-full p-4 leading-normal text-primary text-text",
-                inline: "border-t w-full p-0 leading-smaller text-smaller",
+                inline: "border-t w-full px-2 leading-smaller text-smaller",
             },
         },
         defaultVariants: {
