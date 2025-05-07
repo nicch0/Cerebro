@@ -13,7 +13,7 @@
                 sent: "bg-primary-alt rounded-xl rounded-tr-none",
             },
             layout: {
-                default: "border-t w-full p-4 leading-normal text-primary",
+                default: "border-t w-full p-4 leading-normal text-primary text-text",
                 inline: "border-t w-full p-0 leading-smaller text-smaller",
             },
         },

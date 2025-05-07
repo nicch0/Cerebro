@@ -11,7 +11,8 @@
                 sent: "self-end flex-row-reverse",
             },
             layout: {
-                default: "gap-2",
+                // default: "gap-2",
+                default: "max-w-full w-full items-center gap-0",
                 inline: "max-w-full w-full items-center gap-0",
             },
         },
